@@ -1,0 +1,101 @@
+#!/bin/bash -eu
+
+LOGFILE=/tmp/archive-teslacam-clips.log
+
+function log () {
+  echo "$( date )" >> "$LOGFILE"
+  echo "$1" >> "$LOGFILE"
+}
+
+function mount_mountpoint () {
+  local mount_point="$1"
+  log "Mounting $mount_point..."
+
+  local mounted=true
+  mount "$mount_point" >> "$LOGFILE" 2>&1 || mounted=false
+  if [ "$mounted" = true ]
+  then
+    log "Mounted $mount_point."
+    true
+    return
+  else
+    log "Failed to mount $mount_point."
+    false
+    return
+  fi
+}
+
+function ensure_mountpoint_is_mounted () {
+  local mount_point="$1"
+  local mount_exists=true
+
+  findmnt --mountpoint "$mount_point" > /dev/null || mount_exists=false
+
+  if [ "$mount_exists" = true ]
+  then
+    log "$mount_point is already mounted."
+  else
+    mount_mountpoint "$mount_point"
+  fi
+}
+
+function move_clips_to_archive () {
+  log "Moving clips to archive..."
+  for file_name in /mnt/usb_share/TeslaCam/saved*; do
+    [ -e "$file_name" ] || continue
+    log "Moving $file_name ..."
+    mv -- "$file_name" /mnt/cam_archive >> "$LOGFILE" 2>&1
+    log "Moved $file_name."
+  done
+  log "Finished moving clips to archive."
+}
+
+function disconnect_usb_from_host () {
+  log "Disconnecting usb from host..."
+  modprobe -r g_mass_storage
+  log "Disconnected usb from host."
+}
+
+function mount_usb_drive_locally () {
+  log "Mounting usb locally..."
+  mount /mnt/usb_share
+  log "Mounted usb locally."
+}
+
+function ensure_cam_archive_is_mounted () {
+  log "Ensuring cam archive is mounted..."
+  ensure_mountpoint_is_mounted /mnt/cam_archive
+  log "Ensured cam archive is mounted."
+}
+
+function ensure_usb_share_is_mounted () {
+  log "Ensuring usb share is mounted..."
+  ensure_mountpoint_is_mounted /mnt/usb_share
+  log "Ensured usb share is mounted."
+}
+
+function unmount_usb_share () {
+  log "Unmounting usb share..."
+  umount /mnt/usb_share
+  log "Unmounted usb share."
+}
+
+function connect_usb_to_host() {
+  log "Connecting usb to host..."
+  modprobe g_mass_storage
+  log "Connected usb to host."
+}
+
+log "Starting..."
+
+ensure_cam_archive_is_mounted
+
+disconnect_usb_from_host
+
+ensure_usb_share_is_mounted
+
+move_clips_to_archive
+
+unmount_usb_share
+
+connect_usb_to_host
