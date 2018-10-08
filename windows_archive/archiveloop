@@ -1,0 +1,70 @@
+#!/bin/bash -eu
+
+# Change the value on the right side of the equal sign to the name of the server hosting the archive.
+ARCHIVE_HOST_NAME=archiveserver
+LOGFILE=/tmp/archiveloop.log
+
+function clear_log () {
+ rm "$LOGFILE" > /dev/null 2>&1 || echo ""
+}
+
+function log () {
+  echo "$( date )" >> "$LOGFILE"
+  echo "$1" >> "$LOGFILE"
+}
+
+function check_archive_reachability () {
+  local reachable=true
+  ping -q -w 1 -c 1 "$ARCHIVE_HOST_NAME" > /dev/null 2>&1 || reachable=false
+  if [ "$reachable" = false ]
+  then
+    false
+    return
+  fi
+  true
+}
+
+function wait_for_archive_to_be_reachable () {
+  log "Waiting for archive to be reachable..."
+  while [ true ]
+  do
+    if check_archive_reachability
+    then
+      log "Archive is reachable."
+      break
+    fi
+    sleep 1
+  done
+}
+
+function archive_clips () {
+  log "Archiving..."
+  /root/bin/archive-teslacam-clips
+  log "Finished archiving."
+}
+
+function wait_for_archive_to_be_unreachable () {
+  log "Waiting for archive to be unreachable..."
+  while [ true ]
+    do
+      if ! check_archive_reachability
+      then
+        log "Archive is unreachable."
+        break
+      fi
+      sleep 1
+  done
+}
+
+clear_log
+
+log "Starting..."
+
+while [ true ]
+do
+  wait_for_archive_to_be_reachable
+
+  archive_clips
+
+  wait_for_archive_to_be_unreachable
+done
