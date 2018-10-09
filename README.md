@@ -14,7 +14,9 @@ I've hosted the scripts here with his/her permission.
 * Raspberry Pi Zero W (low power, small, Wifi built in). 
   * [Amazon](https://www.amazon.com/Raspberry-Pi-Zero-Wireless-model/dp/B06XFZC3BX/ref=sr_1_10?s=electronics&ie=UTF8&qid=1539090493&sr=1-10&keywords=raspi+zero+w)
   * [Adafruit](https://www.adafruit.com/product/3400)
-  
+  * Optional, but recommended, a case. Don't want unprotected circuits hanging about! [Official Case at Amazon](https://www.amazon.com/gp/product/B06Y593MHV/ref=oh_aui_detailpage_o00_s01?ie=UTF8&psc=1)
+
+Optionally a 
  * USB A to USB Micro (for power and optionally connecting to Pi Zero over USB to configure)
    * [Adafruit](https://www.adafruit.com/product/898)
    * [Example from Amazon](https://www.amazon.com/gp/product/B013G4EAEI/ref=oh_aui_detailpage_o00_s01?ie=UTF8&psc=1)
