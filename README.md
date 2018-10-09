@@ -9,10 +9,9 @@ I've hosted the scripts here with his/her permission.
 
 ## Hardware Suggested in Thread
 
-* Raspberry Pi Zero W (low power, small, Wifi built in). 
-
 > Note only the Pi Zero W and recent Pi's support the USB protocol for connecting to them as network devices. Not needed for normal operation, but it's very helpful during the setup process. 
 
+* Raspberry Pi Zero W (low power, small, Wifi built in). 
   * [Amazon](https://www.amazon.com/Raspberry-Pi-Zero-Wireless-model/dp/B06XFZC3BX/ref=sr_1_10?s=electronics&ie=UTF8&qid=1539090493&sr=1-10&keywords=raspi+zero+w)
   * [Adafruit](https://www.adafruit.com/product/3400)
   
