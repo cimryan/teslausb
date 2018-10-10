@@ -38,6 +38,8 @@ Required:
 * A Micro SD card, at least 8 GB in size, and an adapter (if necessary) to connect the card to your computer.
 * A USB A/Micro B cable: [Adafruit](https://www.adafruit.com/product/898) or [Amazon](https://www.amazon.com/gp/product/B013G4EAEI/)
 
+  > Note: Of the many varieties of Raspberry Pi only the Raspberry Pi Zero and Raspberry Pi Zero W can be used as simulated USB drives. It may be possible to use a Pi Zero with a USB Wifi adapter to achieve the same result as the Pi Zero W, but this hasn't been confirmed.
+
 Recommended: These will allow you to set up the Raspberry Pi without following the steps for a "headless" setup, which are a little more complicated.
 * Mini HDMI to HDMI cable [Adafruit](https://www.adafruit.com/product/2775) or [Amazon](https://www.amazon.com/AmazonBasics-High-Speed-Mini-HDMI-HDMI-Cable/dp/B014I8UEGY)
 * A USB keyboard.
@@ -47,8 +49,6 @@ Optional:
 * USB A Add-on Board if you want to plug your Pi into your Tesla like a USB drive instead of using a cable. [Amazon](https://www.amazon.com/gp/product/B07BK2BR6C/)
 * A case. Don't want unprotected circuits hanging about! Official case at [Adafruit](https://www.adafruit.com/product/2885) or [Amazon](https://www.amazon.com/gp/product/B06Y593MHV). There are many others to choose from. Note that the official case won't work with the USB A Add on board.
 * USB Splitter if you don't want to lose a front USB port. [The Onvian Splitter](https://www.amazon.com/gp/product/B01KX4TKH6) has been reported working by multiple people on reddit. 
-
-> Note: Of the many varieties of Raspberry Pi only the Raspberry Pi Zero and Raspberry Pi Zero W can be used as simulated USB drives. It may be possible to use a Pi Zero with a USB Wifi adapter to achieve the same result as the Pi Zero W, but this hasn't been confirmed.
 
 ### Software
 Download [Raspbian Stretch Lite](https://www.raspberrypi.org/downloads/raspbian/)
@@ -77,7 +77,7 @@ There are four phases to setting up the Pi:
 [These instructions](https://www.raspberrypi.org/documentation/installation/installing-images/README.md) tell you how to get Raspbian onto your MicroSD card. Basically:
 1. Connect your SD card to your computer.
 2. Use Etcher to write the zip file you downloaded to the SD card. Etcher works well and is multi-platform.
-> Note: you don't need to uncompress the zip file you downloaded.
+   > Note: you don't need to uncompress the zip file you downloaded.
 3. Plug the micro sd card into the Pi.
 
 ### Get a shell on the Pi
