@@ -1,0 +1,91 @@
+#!/bin/bash -eu
+
+if [ "$(whoami)" != "root" ]
+then
+  echo "STOP: Run sudo -i."
+  exit 1
+fi
+
+function check_variable () {
+  local var_name="$1"
+  if [ -z "${!var_name+x}" ]
+  then
+    echo "STOP: Define the variable $var_name like this: export $var_name=value"
+    exit 1
+  fi
+}
+
+check_variable "archiveserver"
+check_variable "sharename"
+check_variable "shareuser"
+check_variable "sharepassword"
+
+serverunreachable=false
+ping -c 1 -w 1 "$archiveserver" 1>/dev/null 2>&1 || serverunreachable=true
+
+if [ "$serverunreachable" = true ]
+then
+  echo "STOP: The archive server $archiveserver is unreachable. Try specifying its IP address instead."
+  exit 1
+fi
+
+archiveserverip="$(getent hosts $archiveserver | cut -d' ' -f1)"
+
+size="$(($(df --output=avail / | tail -1) - 1000000))"
+if [ "$size" -lt 0 ]
+then
+  echo "STOP: The MicroSD card is too small."
+  exit 1
+fi
+
+cp /boot/cmdline.txt ~
+cat ~/cmdline.txt | sed 's/[[:space:]]\+modules-load=[^ [:space:]]\+//' | sed 's/rootwait/rootwait modules-load=dwc2/' > /boot/cmdline.txt
+rm ~/cmdline.txt
+
+fallocate -l "$size"K /piusb.bin
+mkdosfs /piusb.bin -F 32 -I
+mkdir /mnt/usb_share
+mkdir /mnt/cam_archive
+
+echo "" >> /etc/fstab
+echo "/piusb.bin /mnt/usb_share vfat noauto,users,umask=000 0 0" >> /etc/fstab
+echo "//$archiveserverip/$sharename /mnt/cam_archive cifs vers=3,credentials=/root/.teslaCamArchiveCredentials,iocharset=utf8,file_mode=0777,dir_mode=0777 0$
+
+echo "username=$shareuser" > /root/.teslaCamArchiveCredentials
+echo "password=$sharepassword" >> /root/.teslaCamArchiveCredentials
+
+mkdir /root/bin
+
+pushd /root/bin
+wget https://raw.githubusercontent.com/cimryan/teslausb/master/windows_archive/archive-teslacam-clips
+chmod +x archive-teslacam-clips
+wget https://raw.githubusercontent.com/cimryan/teslausb/master/windows_archive/archiveloop
+chmod +x archiveloop
+popd
+
+echo "#!/bin/bash -eu" > ~/rc.local
+tail -n +2 /etc/rc.local | sed '$d' >> ~/rc.local
+cat << 'EOF' >> ~/rc.local
+LOGFILE=/tmp/rc.local.log
+
+function log () {
+  echo "$( date )" >> "$LOGFILE"
+  echo "$1" >> "$LOGFILE"
+}
+
+log "Running fsck..."
+/sbin/fsck /mnt/usb_share -- -a >> "$LOGFILE" 2>&1 || echo ""
+log "Running modprobe..."
+/sbin/modprobe g_mass_storage >> "$LOGFILE" 2>&1
+log "Launching archival script..."
+/root/bin/archiveloop &
+log "All done"
+exit 0
+EOF
+
+cat ~/rc.local > /etc/rc.local
+rm ~/rc.local
+
+pushd /etc/modprobe.d
+wget https://raw.githubusercontent.com/cimryan/teslausb/master/g_mass_storage.conf
+popd
