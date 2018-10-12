@@ -43,7 +43,7 @@ cat ~/cmdline.txt | sed 's/[[:space:]]\+modules-load=[^ [:space:]]\+//' | sed 's
 rm ~/cmdline.txt
 
 fallocate -l "$size"K /piusb.bin
-mkdosfs /piusb.bin -F 32 -I
+mkdosfs /piusb.bin -F 32 -I -n TESLAUSB
 mkdir /mnt/usb_share
 mkdir /mnt/cam_archive
 
@@ -90,4 +90,4 @@ cp /etc/hosts ~
 sed s/raspberrypi/teslausb/g ~/hosts > /etc/hosts
 
 cp /etc/hostname ~
-sed s/raspberrypi/teslausb/g ~/hosts > /etc/hostname
+sed s/raspberrypi/teslausb/g ~/hostname > /etc/hostname
