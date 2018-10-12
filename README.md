@@ -62,7 +62,8 @@ Download and install:
 ### Hosting on Windows
 Set up a share on a Windows machine to host the archive. These instructions assume that you created a share named "SailfishCam" on the server "Nautilus". It is recommended that you create a new user. Grant the user you'll be using read/write access to the share. These instructions will assume that the user you've created is named "sailfish" and that the password for this user is "pa$$w0rd".
 
-Get the IP address of the archive machine. You'll need this later, so write it down, somewhere. You can do this by opening a command prompt on the archive machine and typing ipconfig. Get the IP address from the line labeled "IPv4 Address".
+Get the IP address of the archive machine. You'll need this later, so write it down, somewhere. You can do this by opening a command prompt on the archive machine and typing ipconfig. Get the IP address from the line labeled "IPv4 Address". These instructions will assume that the IP address of the archive server is 192.168.0.41.
+
 ### TODO Other hosting solutions
 
 ## Set up the Raspberry Pi
@@ -116,6 +117,15 @@ Now that you have a shell on the Pi you can turn the Pi into a smart USB drive.
     ifconfig wlan0
     ```
 1. Verify that there's an IP address on your subnet assigned. If you don't see the IP address wait for a couple of seconds and re-run the command.
+1. Try to ping your archive server from the Pi.
+    ```
+    ping nautilus
+    ```
+1. If the server can't be reached, ping it's IP address:
+    ```
+    ping 192.168.0.41
+    ```
+1. If you can't ping the archive server by IP address from the Pi you should go do whatever you need to on your network to fix that. If you can't reach the archive server by name from the Pi but you can by IP address then use its IP address, below, in place of its name.
 1. Run these commands, subsituting your values:
     ```
     export archiveserver=Nautilus
