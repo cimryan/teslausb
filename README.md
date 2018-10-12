@@ -105,8 +105,9 @@ Now that you have a shell on the Pi you can turn the Pi into a smart USB drive.
       psk="PASSWORD"
     }
     ```
-1. Press Control-O then Contr-X to save the file and exit nano.
-1. Configure the wifi to ensure that your Pi has access to your network. Note that this command differs from what's described in the video for how to set up the pi without a monitor using Windows.
+1. Press Control-O, Enter to save the file.
+1. Press Control-X to return to the command line.
+1. Configure the wifi to ensure that your Pi has access to your network.
     ```
     wpa_cli -i wlan0 reconfigure
     ```
@@ -114,7 +115,7 @@ Now that you have a shell on the Pi you can turn the Pi into a smart USB drive.
     ```
     ifconfig wlan0
     ```
-1. Verify that there's an IP address on your subnet assigned.
+1. Verify that there's an IP address on your subnet assigned. If you don't see the IP address wait for a couple of seconds and re-run the command.
 1. Run these commands, subsituting your values:
     ```
     export archiveserver=Nautilus
