@@ -2,19 +2,23 @@
 1. Download and install:
    * [Notepad++](https://notepad-plus-plus.org/) Alternatively, any other text editor which is capable of editing files with Unix-style line endings.
    * [Putty]( https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html) Note: You can paste into Putty by right-clicking. No matter where you right-click, the content will be inserted at the position of the cursor, as if you had typed it in.
-1. Watch [this video](https://www.youtube.com/watch?v=xj3MPmJhAPU) The instructions from the video are recreated below, with some changes.
-1. Open the config.txt file on the sd card with Notepad++
-1. Add this line to the end of the file
-    ``` 
-    dtoverlay=dwc2
+
+Optional: Watch [this video](https://www.youtube.com/watch?v=xj3MPmJhAPU) to get an idea of the process. The steps from the video are partially automated, below.
+1. Remove the MicroSD card from your computer and reinsert it. Do not at any point during the setup of the USB drive allow Windows to format any partition on any drive.
+1. Note that a new drive labeled "boot" has appeared on your computer. Note the drive letter of that drive.
+1. Right-click on your Start menu icon and select "Windows PowerShell (Admin)".
+1. Run the following command:
     ```
-1. Add a blank line to the end of the file.
-1. Open cmdline.txt with Notepad++
-1. Find the word "rootwait", add this text, separated by spaces, between rootwait and the word following it:
+    Set-ExecutionPolicy -Scope CurrentUser Unrestricted
     ```
-    modules-load=dwc2,g_ether
+1. Enter Y when prompted, and press Enter.
+1. Run the following commands:
     ```
-1. Create a file named ssh (with no extension) at the root
+    cd ~
+    wget https://raw.githubusercontent.com/cimryan/teslausb/master/windows_archive/setup-piForHeadlessConfig.ps1 -OutFile setup-piForHeadlessConfig.ps1
+    ./setup-piForHeadlessConfig.ps1 -Verbose
+    ```
+1. Enter the single letter of the "boot" drive and press Enter.
 1. Eject the sd card
 1. Move the sd card to the Pi.
 1. Connect a micro usb cable to the port labeled "USB" on the Raspberry Pi, and to the PC.
@@ -27,5 +31,8 @@
     ```
     pi@raspberrypi.local
     ```
-1. If you get an "unknown host" error message install Bonjour: https://support.apple.com/kb/DL999 and go back to step 17.
-1. Password is raspberry
+1. If you get an "unknown host" error message install Bonjour: https://support.apple.com/kb/DL999 and go back to step 15.
+1. You should be prompted for the password for the user "pi". Enter
+    ```
+    raspberry
+    ```
