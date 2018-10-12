@@ -121,7 +121,7 @@ Now that you have a shell on the Pi you can turn the Pi into a smart USB drive.
     ```
     ping nautilus
     ```
-1. If the server can't be reached, ping it's IP address:
+1. If the server can't be reached, ping its IP address:
     ```
     ping 192.168.0.41
     ```
