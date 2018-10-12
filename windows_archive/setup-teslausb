@@ -49,7 +49,7 @@ mkdir /mnt/cam_archive
 
 echo "" >> /etc/fstab
 echo "/piusb.bin /mnt/usb_share vfat noauto,users,umask=000 0 0" >> /etc/fstab
-echo "//$archiveserverip/$sharename /mnt/cam_archive cifs vers=3,credentials=/root/.teslaCamArchiveCredentials,iocharset=utf8,file_mode=0777,dir_mode=0777 0$
+echo "//$archiveserverip/$sharename /mnt/cam_archive cifs vers=3,credentials=/root/.teslaCamArchiveCredentials,iocharset=utf8,file_mode=0777,dir_mode=0777 0" >> /etc/fstab
 
 echo "username=$shareuser" > /root/.teslaCamArchiveCredentials
 echo "password=$sharepassword" >> /root/.teslaCamArchiveCredentials
