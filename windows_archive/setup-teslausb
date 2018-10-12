@@ -85,3 +85,9 @@ rm ~/rc.local
 pushd /etc/modprobe.d
 wget https://raw.githubusercontent.com/cimryan/teslausb/master/g_mass_storage.conf
 popd
+
+cp /etc/hosts ~
+sed s/raspberrypi/teslausb/g ~/hosts > /etc/hosts
+
+cp /etc/hostname ~
+sed s/raspberrypi/teslausb/g ~/hosts > /etc/hostname
