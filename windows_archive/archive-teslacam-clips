@@ -44,7 +44,7 @@ function move_clips_to_archive () {
   for file_name in /mnt/usb_share/TeslaCam/saved*; do
     [ -e "$file_name" ] || continue
     log "Moving $file_name ..."
-    mv -- "$file_name" /mnt/cam_archive >> "$LOGFILE" 2>&1
+    mv -- "$file_name" /mnt/cam_archive >> "$LOGFILE" 2>&1 || echo ""
     log "Moved $file_name."
   done
   log "Finished moving clips to archive."
@@ -54,6 +54,12 @@ function disconnect_usb_from_host () {
   log "Disconnecting usb from host..."
   modprobe -r g_mass_storage
   log "Disconnected usb from host."
+}
+
+function fix_errors_on_drive () {
+  log "Running fsck..."
+  /sbin/fsck /mnt/usb_share -- -a >> "$LOGFILE" 2>&1 || echo ""
+  log "Finished running fsck."
 }
 
 function mount_usb_drive_locally () {
@@ -80,17 +86,13 @@ function unmount_usb_share () {
   log "Unmounted usb share."
 }
 
-function connect_usb_to_host() {
-  log "Connecting usb to host..."
-  modprobe g_mass_storage
-  log "Connected usb to host."
-}
-
 log "Starting..."
 
 ensure_cam_archive_is_mounted
 
 disconnect_usb_from_host
+
+fix_errors_on_drive
 
 ensure_usb_share_is_mounted
 

@@ -73,10 +73,6 @@ function log () {
   echo "$1" >> "$LOGFILE"
 }
 
-log "Running fsck..."
-/sbin/fsck /mnt/usb_share -- -a >> "$LOGFILE" 2>&1 || echo ""
-log "Running modprobe..."
-/sbin/modprobe g_mass_storage >> "$LOGFILE" 2>&1
 log "Launching archival script..."
 /root/bin/archiveloop &
 log "All done"
