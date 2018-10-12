@@ -94,7 +94,7 @@ Now that you have a shell on the Pi you can turn the Pi into a smart USB drive.
 1. Enter the following command.
     ```
     sudo -i
-    sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
+    nano /etc/wpa_supplicant/wpa_supplicant.conf
     ```
 1. Add this block to the bottom of the file specifying the actual SSID of your network and your actual PSK, keeping the quotes around both values.
     ```
