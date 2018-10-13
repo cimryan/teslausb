@@ -65,6 +65,8 @@ log "Starting..."
 if archive_is_reachable
 then
   archive_clips
+
+  wait_for_archive_to_be_unreachable
 else
   connect_usb_to_host
 fi
