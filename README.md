@@ -119,7 +119,7 @@ Now that you have a shell on the Pi you can turn the Pi into a smart USB drive.
 1. Verify that there's an IP address on your subnet assigned. If you don't see the IP address wait for a couple of seconds and re-run the command.
 1. Try to ping your archive server from the Pi.
     ```
-    ping nautilus
+    ping -c 3 nautilus
     ```
 1. If the server can't be reached, ping its IP address:
     ```
