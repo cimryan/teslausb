@@ -7,6 +7,30 @@ function log () {
   echo "$1" >> "$LOGFILE"
 }
 
+function retry () {
+  local attempts=0
+  while [ true ]
+  do
+    if eval "$@"
+    then
+      true
+      return
+    fi
+    if [ "$attempts" -ge 10 ]
+    then
+      log "Attempts exhausted."
+      false
+      return
+    fi
+    log "Sleeping before retry..."
+    /bin/sleep 1
+    attempts=$((attempts + 1))
+    log "Retrying..."
+  done
+  false
+  return
+}
+
 function mount_mountpoint () {
   local mount_point="$1"
   log "Mounting $mount_point..."
@@ -37,6 +61,10 @@ function ensure_mountpoint_is_mounted () {
   else
     mount_mountpoint "$mount_point"
   fi
+}
+
+function ensure_mountpoint_is_mounted_with_retry () {
+  retry ensure_mountpoint_is_mounted "$1"
 }
 
 function move_clips_to_archive () {
@@ -70,13 +98,13 @@ function mount_usb_drive_locally () {
 
 function ensure_cam_archive_is_mounted () {
   log "Ensuring cam archive is mounted..."
-  ensure_mountpoint_is_mounted /mnt/cam_archive
+  ensure_mountpoint_is_mounted_with_retry /mnt/cam_archive
   log "Ensured cam archive is mounted."
 }
 
 function ensure_usb_share_is_mounted () {
   log "Ensuring usb share is mounted..."
-  ensure_mountpoint_is_mounted /mnt/usb_share
+  ensure_mountpoint_is_mounted_with_retry /mnt/usb_share
   log "Ensured usb share is mounted."
 }
 
