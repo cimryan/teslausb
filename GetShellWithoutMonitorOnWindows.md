@@ -1,9 +1,6 @@
 # Seting up the Pi without a monitor using Windows
-1. Download and install:
-   * [Notepad++](https://notepad-plus-plus.org/) Alternatively, any other text editor which is capable of editing files with Unix-style line endings.
-   * [Putty]( https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html) Note: You can paste into Putty by right-clicking. No matter where you right-click, the content will be inserted at the position of the cursor, as if you had typed it in.
-
-Optional: Watch [this video](https://www.youtube.com/watch?v=xj3MPmJhAPU) to get an idea of the process. The steps from the video are partially automated, below.
+1. Download and install: [Notepad++](https://notepad-plus-plus.org/) Alternatively, any other text editor which is capable of editing files with Unix-style line endings.
+1. Optional: Watch [this video](https://www.youtube.com/watch?v=xj3MPmJhAPU) to get an idea of the process. The steps from the video are partially automated, below.
 1. Remove the MicroSD card from your computer and reinsert it. Do not at any point during the setup of the USB drive allow Windows to format any partition on any drive.
 1. Note that a new drive labeled "boot" has appeared on your computer. Note the drive letter of that drive.
 1. Right-click on your Start menu icon and select "Windows PowerShell (Admin)".
