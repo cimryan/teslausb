@@ -71,13 +71,13 @@ echo "password=$sharepassword" >> /root/.teslaCamArchiveCredentials
 
 mkdir /root/bin
 
-wget https://raw.githubusercontent.com/cimryan/teslausb/u/cimryan/music/windows_archive/archiveloop
+wget https://raw.githubusercontent.com/cimryan/teslausb/master/windows_archive/archiveloop
 sed s/ARCHIVE_HOST_NAME=archiveserver/ARCHIVE_HOST_NAME=$archiveserver/ ~/archiveloop > /root/bin/archiveloop
 rm ~/archiveloop
 chmod +x /root/bin/archiveloop
 
 pushd /root/bin
-wget https://raw.githubusercontent.com/cimryan/teslausb/u/cimryan/music/windows_archive/archive-teslacam-clips
+wget https://raw.githubusercontent.com/cimryan/teslausb/master/windows_archive/archive-teslacam-clips
 chmod +x archive-teslacam-clips
 popd
 

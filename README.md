@@ -136,7 +136,7 @@ Now that you have a shell on the Pi you can turn the Pi into a smart USB drive.
     ```
 1. Run these commands:
     ```
-    wget https://raw.githubusercontent.com/cimryan/teslausb/u/cimryan/music/windows_archive/setup-teslausb
+    wget https://raw.githubusercontent.com/cimryan/teslausb/master/windows_archive/setup-teslausb
     chmod +x setup-teslausb
     ./setup-teslausb
     ```
