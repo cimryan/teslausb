@@ -7,12 +7,6 @@ Many people in that thread suggested that the scripts be hosted on Github but th
 
 The original post on Reddit assumed that the archive would be hosted on Windows and that the Pi would be set up using a Windows machine but this Git repo welcomes the contribution of instructions for other platforms.
 
-TODO/Asks
-
-* Script to make this easy to get going. Ideally supports multiple targets (see further TODO/Asks)
-* Copy to AWS S3 / Google Drive / Etc
-* Copy to SSH/SFTP
-
 ## Intro
 
 You can configure a Raspberry Pi Zero W so that your Tesla thinks it's a USB drive and will write dashcam footage to it. Since it's a computer, you can run scripts on the Pi to automatically copy the clips to an archive server when you get home. The Pi is going to continually:
