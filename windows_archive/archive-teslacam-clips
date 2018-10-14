@@ -124,4 +124,4 @@ move_clips_to_archive
 
 unmount_cam_drive
 
-connect_usb_to_host
+connect_usb_drives_to_host
