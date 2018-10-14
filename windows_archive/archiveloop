@@ -20,7 +20,7 @@ function archive_is_reachable () {
   true
 }
 
-function connect_usb_to_host() {
+function connect_usb_drives_to_host() {
   log "Connecting usb to host..."
   modprobe g_mass_storage
   log "Connected usb to host."
@@ -58,7 +58,7 @@ function wait_for_archive_to_be_unreachable () {
   done
 }
 
-export -f connect_usb_to_host
+export -f connect_usb_drives_to_host
 
 log "Starting..."
 
@@ -68,7 +68,7 @@ then
 
   wait_for_archive_to_be_unreachable
 else
-  connect_usb_to_host
+  connect_usb_drives_to_host
 fi
 
 while [ true ]

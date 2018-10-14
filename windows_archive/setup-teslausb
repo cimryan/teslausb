@@ -45,13 +45,13 @@ cat ~/cmdline.txt | sed 's/[[:space:]]\+modules-load=[^ [:space:]]\+//' | sed 's
 rm ~/cmdline.txt
 
 fallocate -l "$size"K /piusb.bin
-mkdosfs /piusb.bin -F 32 -I -n TESLAUSB
-mkdir /mnt/usb_share
-mkdir /mnt/cam_archive
+mkfs.vfat /piusb.bin -F 32 -n CAM
+mkdir /mnt/cam
+mkdir /mnt/archive
 
 echo "" >> /etc/fstab
-echo "/piusb.bin /mnt/usb_share vfat noauto,users,umask=000 0 0" >> /etc/fstab
-echo "//$archiveserverip/$sharename /mnt/cam_archive cifs vers=3,credentials=/root/.teslaCamArchiveCredentials,iocharset=utf8,file_mode=0777,dir_mode=0777 0" >> /etc/fstab
+echo "/piusb.bin /mnt/cam vfat noauto,users,umask=000,debug 0 0" >> /etc/fstab
+echo "//$archiveserverip/$sharename /mnt/archive cifs vers=3,credentials=/root/.teslaCamArchiveCredentials,iocharset=utf8,file_mode=0777,dir_mode=0777 0" >> /etc/fstab
 
 echo "username=$shareuser" > /root/.teslaCamArchiveCredentials
 echo "password=$sharepassword" >> /root/.teslaCamArchiveCredentials
