@@ -3,7 +3,7 @@
 ## Meta
 This repo contains steps and scripts originally from [this thread on Reddit]( https://www.reddit.com/r/teslamotors/comments/9m9gyk/build_a_smart_usb_drive_for_your_tesla_dash_cam/)
 
- Many people in that thread suggested that the scripts be hosted on Github but the author didn't seem interested in making that happen. I've hosted the scripts here with his/her permission.
+Many people in that thread suggested that the scripts be hosted on Github but the author didn't seem interested in making that happen. I've hosted the scripts here with his/her permission.
 
 The original post on Reddit assumed that the archive would be hosted on Windows and that the Pi would be set up using a Windows machine but this Git repo welcomes the contribution of instructions for other platforms.
 
@@ -21,7 +21,7 @@ You can configure a Raspberry Pi Zero W so that your Tesla thinks it's a USB dri
 1. Wait until it can't connect to the archive server
 1. GOTO 1.
 
-Disclaimer: It hasn't been confirmed that this solution will work with v9 of the Tesla software. It has been verified that when files are present in the TeslaCam directory they are archived to a server when the car gets back on the wireless network.
+The scripts in this repo will also allow you to use the Pi to store music that the Tesla can read through the USB interface.
 
 ## Prerequisites
 
@@ -147,6 +147,8 @@ Now that you have a shell on the Pi you can turn the Pi into a smart USB drive.
 ### Get the Pi set up for your Tesla.
 If you set up the Pi with a keyboard and a monitor disconnect it and connect it to a PC. If you're using a cable be sure to use the port labeled "usb" on the circuitboard. 
 1. Wait for the Pi to show up on the PC as a USB drive.
-1. Create a directory named TeslaCam at the root of the drive.
-1. Eject the drive.
-1. Plug the Drive into your Tesla.  
+1. Create a directory named TeslaCam at the root of the drive labeled CAM.
+1. Copy any music you'd like to the drive labeled MUSIC.
+1. Eject the drives.
+1. Unplug the Pi from the PC.
+1. Plug the Pi into your Tesla.
