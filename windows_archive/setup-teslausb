@@ -44,13 +44,13 @@ function add_drive () {
   local name="$1"
   local label="$2"
   local size="$3"
-  
+
   local filename="$4"
   fallocate -l "$size"K "$filename"
   mkfs.vfat "$filename" -F 32 -n "$label"
 
   local mountpoint=/mnt/"$name"
-  
+
   mkdir "$mountpoint"
   echo "$filename $mountpoint vfat noauto,users,umask=000 0 0" >> /etc/fstab
 }
@@ -106,7 +106,7 @@ add_drive "cam" "CAM" "$cam_disk_size" "$cam_disk_file_name"
 
 if [ "$campercent" -lt 100 ]
 then
-  musicpercent=$$(( 100 - $campercent ))
+  musicpercent="$(( 100 - $campercent ))"
   music_disk_size="$(( $available_space * $musicpercent / 100 ))"
   music_disk_file_name="/music_disk.bin"
   add_drive "music" "MUSIC" "$music_disk_size" "$music_disk_file_name"
