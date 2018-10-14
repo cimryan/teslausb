@@ -94,15 +94,15 @@ If you don't have a keyboard/HDMI setup to boot the Pi and edit/transfer files d
 
 ### Get the scripts onto the Pi
 Now that you have a shell on the Pi you can turn the Pi into a smart USB drive.
-1. Enter the following command.
+1. Enter the following commands:
     ```
     sudo -i
     nano /etc/wpa_supplicant/wpa_supplicant.conf
     ```
-1. Add this block to the bottom of the file specifying the actual SSID of your network and your actual PSK, keeping the quotes around both values.
+1. Add this block to the bottom of the file specifying the actual SSID of your network and your actual PSK, keeping the quotes around both values. Note that the SSID may be case-sensitive on your network.
     ```
     network={
-      ssid="NETWORK"
+      ssid="SSID"
       psk="PASSWORD"
     }
     ```
@@ -126,16 +126,17 @@ Now that you have a shell on the Pi you can turn the Pi into a smart USB drive.
     ping 192.168.0.41
     ```
 1. If you can't ping the archive server by IP address from the Pi you should go do whatever you need to on your network to fix that. If you can't reach the archive server by name from the Pi but you can by IP address then use its IP address, below, in place of its name.
-1. Run these commands, subsituting your values:
+1. Run these commands, subsituting your values. The last line is the percent of the drive you want to allocate for dashcam storage. The remaining percentage will be allocated for music.
     ```
     export archiveserver=Nautilus
     export sharename=SailfishCam
     export shareuser=sailfish
     export sharepassword=pa$$w0rd
+    export campercent=100
     ```
 1. Run these commands:
     ```
-    wget https://raw.githubusercontent.com/cimryan/teslausb/master/windows_archive/setup-teslausb
+    wget https://raw.githubusercontent.com/cimryan/teslausb/u/cimryan/music/windows_archive/setup-teslausb
     chmod +x setup-teslausb
     ./setup-teslausb
     ```

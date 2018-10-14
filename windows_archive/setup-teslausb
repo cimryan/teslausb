@@ -19,6 +19,7 @@ check_variable "archiveserver"
 check_variable "sharename"
 check_variable "shareuser"
 check_variable "sharepassword"
+check_variable "campercent"
 
 serverunreachable=false
 ping -c 1 -w 1 "$archiveserver" 1>/dev/null 2>&1 || serverunreachable=true
@@ -31,12 +32,28 @@ fi
 
 archiveserverip="$(getent hosts $archiveserver | cut -d' ' -f1)"
 
-size="$(($(df --output=avail / | tail -1) - 1000000))"
-if [ "$size" -lt 0 ]
+available_space="$(($(df --output=avail / | tail -1) - 1000000))"
+
+if [ "$available_space" -lt 0 ]
 then
   echo "STOP: The MicroSD card is too small."
   exit 1
 fi
+
+function add_drive () {
+  local name="$1"
+  local label="$2"
+  local size="$3"
+
+  local filename="$4"
+  fallocate -l "$size"K "$filename"
+  mkfs.vfat "$filename" -F 32 -n "$label"
+
+  local mountpoint=/mnt/"$name"
+
+  mkdir "$mountpoint"
+  echo "$filename $mountpoint vfat noauto,users,umask=000 0 0" >> /etc/fstab
+}
 
 pushd ~
 
@@ -44,13 +61,9 @@ cp /boot/cmdline.txt ~
 cat ~/cmdline.txt | sed 's/[[:space:]]\+modules-load=[^ [:space:]]\+//' | sed 's/rootwait/rootwait modules-load=dwc2/' > /boot/cmdline.txt
 rm ~/cmdline.txt
 
-fallocate -l "$size"K /piusb.bin
-mkfs.vfat /piusb.bin -F 32 -n CAM
-mkdir /mnt/cam
 mkdir /mnt/archive
 
 echo "" >> /etc/fstab
-echo "/piusb.bin /mnt/cam vfat noauto,users,umask=000,debug 0 0" >> /etc/fstab
 echo "//$archiveserverip/$sharename /mnt/archive cifs vers=3,credentials=/root/.teslaCamArchiveCredentials,iocharset=utf8,file_mode=0777,dir_mode=0777 0" >> /etc/fstab
 
 echo "username=$shareuser" > /root/.teslaCamArchiveCredentials
@@ -58,13 +71,13 @@ echo "password=$sharepassword" >> /root/.teslaCamArchiveCredentials
 
 mkdir /root/bin
 
-wget https://raw.githubusercontent.com/cimryan/teslausb/master/windows_archive/archiveloop
+wget https://raw.githubusercontent.com/cimryan/teslausb/u/cimryan/music/windows_archive/archiveloop
 sed s/ARCHIVE_HOST_NAME=archiveserver/ARCHIVE_HOST_NAME=$archiveserver/ ~/archiveloop > /root/bin/archiveloop
 rm ~/archiveloop
 chmod +x /root/bin/archiveloop
 
 pushd /root/bin
-wget https://raw.githubusercontent.com/cimryan/teslausb/master/windows_archive/archive-teslacam-clips
+wget https://raw.githubusercontent.com/cimryan/teslausb/u/cimryan/music/windows_archive/archive-teslacam-clips
 chmod +x archive-teslacam-clips
 popd
 
@@ -87,9 +100,20 @@ EOF
 cat ~/rc.local > /etc/rc.local
 rm ~/rc.local
 
-pushd /etc/modprobe.d
-wget https://raw.githubusercontent.com/cimryan/teslausb/master/g_mass_storage.conf
-popd
+cam_disk_size="$(( $available_space * $campercent / 100 ))"
+cam_disk_file_name="/cam_disk.bin"
+add_drive "cam" "CAM" "$cam_disk_size" "$cam_disk_file_name"
+
+if [ "$campercent" -lt 100 ]
+then
+  musicpercent="$(( 100 - $campercent ))"
+  music_disk_size="$(( $available_space * $musicpercent / 100 ))"
+  music_disk_file_name="/music_disk.bin"
+  add_drive "music" "MUSIC" "$music_disk_size" "$music_disk_file_name"
+  echo "options g_mass_storage file=$cam_disk_file_name,$music_disk_file_name removable=1,1 ro=0,0 stall=0 iSerialNumber=123456" > /etc/modprobe.d/g_mass_storage.conf
+else
+  echo "options g_mass_storage file=$cam_disk_file_name removable=1 ro=0 stall=0 iSerialNumber=123456" > /etc/modprobe.d/g_mass_storage.conf
+fi
 
 cp /etc/hosts ~
 sed s/raspberrypi/teslausb/g ~/hosts > /etc/hosts

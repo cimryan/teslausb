@@ -74,7 +74,7 @@ function move_clips_to_archive () {
   for file_name in "$CAM_MOUNT"/TeslaCam/saved*; do
     [ -e "$file_name" ] || continue
     log "Moving $file_name ..."
-    mv -- "$file_name" "$CAM_MOUNT" >> "$LOG_FILE" 2>&1 || echo ""
+    mv -- "$file_name" "$ARCHIVE_MOUNT" >> "$LOG_FILE" 2>&1 || echo ""
     log "Moved $file_name."
   done
   log "Finished moving clips to archive."
@@ -94,7 +94,7 @@ function fix_errors_on_cam_drive () {
 
 function ensure_archive_is_mounted () {
   log "Ensuring cam archive is mounted..."
-  ensure_mountpoint_is_mounted_with_retry "$CAM_MOUNT"
+  ensure_mountpoint_is_mounted_with_retry "$ARCHIVE_MOUNT"
   log "Ensured cam archive is mounted."
 }
 
@@ -124,4 +124,4 @@ move_clips_to_archive
 
 unmount_cam_drive
 
-connect_usb_to_host
+connect_usb_drives_to_host
