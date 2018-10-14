@@ -94,15 +94,15 @@ If you don't have a keyboard/HDMI setup to boot the Pi and edit/transfer files d
 
 ### Get the scripts onto the Pi
 Now that you have a shell on the Pi you can turn the Pi into a smart USB drive.
-1. Enter the following command.
+1. Enter the following commands:
     ```
     sudo -i
     nano /etc/wpa_supplicant/wpa_supplicant.conf
     ```
-1. Add this block to the bottom of the file specifying the actual SSID of your network and your actual PSK, keeping the quotes around both values.
+1. Add this block to the bottom of the file specifying the actual SSID of your network and your actual PSK, keeping the quotes around both values. Note that the SSID may be case-sensitive on your network.
     ```
     network={
-      ssid="NETWORK"
+      ssid="SSID"
       psk="PASSWORD"
     }
     ```
@@ -132,7 +132,7 @@ Now that you have a shell on the Pi you can turn the Pi into a smart USB drive.
     export sharename=SailfishCam
     export shareuser=sailfish
     export sharepassword=pa$$w0rd
-    epxort campercent=100
+    export campercent=100
     ```
 1. Run these commands:
     ```
