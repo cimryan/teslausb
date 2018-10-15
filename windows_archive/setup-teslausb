@@ -55,6 +55,7 @@ function fix_cmdline_txt_modules_load ()
 BACKINGFILES_MOUNTPOINT=/backingfiles
 
 function create_usb_drive_backing_files () {
+  mkdir "$BACKINGFILES_MOUNTPOINT"
   wget https://raw.githubusercontent.com/cimryan/teslausb/"$BRANCH"/windows_archive/create-backingfiles-partition.sh
   chmod +x ./create-backingfiles-partition.sh
   ./create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT"
@@ -95,7 +96,7 @@ function configure_archive_scripts () {
   echo "Configured the archive scripts."
 }
 
-function configure rc_local () {
+function configure_rc_local () {
   echo "Configuring /etc/rc.local to run the archive scripts at startup..."
   echo "#!/bin/bash -eu" > ~/rc.local
   tail -n +2 /etc/rc.local | sed '$d' >> ~/rc.local
@@ -156,6 +157,6 @@ configure_archive
 
 configure_archive_scripts
 
-configure rc_local
+configure_rc_local
 
 configure_hostname
