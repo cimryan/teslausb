@@ -33,7 +33,9 @@ function check_archive_server_reachable () {
 
 function check_available_space () {
   echo "Verifying that there is sufficient space available on the MicroSD card..."
-  local available_space="$1"
+  
+  local available_space="$( parted -m /dev/mmcblk0 u b print free | tail -1 | cut -d ":" -f 4 | sed 's/B//g' )"
+
   if [ "$available_space" -lt  4294967296 ]
   then
     echo "STOP: The MicroSD card is too small."
@@ -66,7 +68,7 @@ function create_usb_drive_backing_files () {
   
   wget https://raw.githubusercontent.com/cimryan/teslausb/"$BRANCH"/windows_archive/create-backingfiles.sh
   chmod +x ./create-backingfiles.sh
-  ./create-backingfiles.sh "$AVAILABLE_SPACE" "$campercent" "$BACKINGFILES_MOUNTPOINT" 
+  ./create-backingfiles.sh "$campercent" "$BACKINGFILES_MOUNTPOINT" 
 }
 
 function configure_archive () {
@@ -141,8 +143,7 @@ check_variable "campercent"
 
 check_archive_server_reachable
 
-AVAILABLE_SPACE="$( parted -m /dev/mmcblk0 u b print free | tail -1 | cut -d ":" -f 4 | sed 's/B//g' )"
-check_available_space "$AVAILABLE_SPACE"
+check_available_space
 
 
 pushd ~
