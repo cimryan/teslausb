@@ -126,10 +126,10 @@ function configure_hostname () {
   
   local new_host_name="teslausb"
   cp /etc/hosts ~
-  sed 's/raspberrypi/$new_host_name/g' ~/hosts > /etc/hosts
+  sed "s/raspberrypi/$new_host_name/g" ~/hosts > /etc/hosts
   
   cp /etc/hostname ~
-  sed 's/raspberrypi/$new_host_name/g' ~/hostname > /etc/hostname
+  sed "s/raspberrypi/$new_host_name/g" ~/hostname > /etc/hostname
   echo "Configured the hostname."
 }
 
