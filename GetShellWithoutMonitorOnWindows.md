@@ -14,7 +14,7 @@
 1. Run the following commands:
     ```
     cd ~
-    wget https://raw.githubusercontent.com/cimryan/teslausb/master/windows_archive/setup-piForHeadlessConfig.ps1 -OutFile setup-piForHeadlessConfig.ps1
+    wget https://raw.githubusercontent.com/cimryan/teslausb/u/cimryan/readonlyrootfs/windows_archive/setup-piForHeadlessConfig.ps1 -OutFile setup-piForHeadlessConfig.ps1
     ./setup-piForHeadlessConfig.ps1 -Verbose
     ```
 1. Enter the single letter of the "boot" drive and press Enter.
