@@ -8,7 +8,14 @@ LAST_ROOT_PARTITION_SECTOR=$(echo "$ROOT_PARTITION_LINE" | sed 's/s//g' | cut -d
 
 FIRST_BACKINGFILES_PARTITION_SECTOR=$(( $LAST_ROOT_PARTITION_SECTOR + 1 ))
 
+ORIGINAL_DISK_IDENTIFIER=$( fdisk -l /dev/mmcblk0 | grep -e "^Disk identifier" | sed "s/Disk identifier: 0x//" )
+
 parted -m /dev/mmcblk0 u s mkpart primary ext4 "$FIRST_BACKINGFILES_PARTITION_SECTOR" 100%
+
+NEW_DISK_IDENTIFIER=$( fdisk -l /dev/mmcblk0 | grep -e "^Disk identifier" | sed "s/Disk identifier: 0x//" )
+
+sed -i "s/${ORIGINAL_DISK_IDENTIFIER}/${NEW_DISK_IDENTIFIER}/g" /etc/fstab
+sed -i "s/${ORIGINAL_DISK_IDENTIFIER}/${NEW_DISK_IDENTIFIER}/" /boot/cmdline.txt
 
 mkfs.ext4 -F /dev/mmcblk0p3
 
