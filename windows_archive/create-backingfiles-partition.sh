@@ -10,6 +10,4 @@ FIRST_BACKINGFILES_PARTITION_SECTOR=$(( $LAST_ROOT_PARTITION_SECTOR + 1 ))
 
 parted -m /dev/mmcblk0 u s mkpart primary ext4 "$FIRST_BACKINGFILES_PARTITION_SECTOR" 100%
 
-mkfs.ext4 /dev/mmcblk0p3
-
 echo "/dev/mmcblk0p3 $BACKINGFILES_MOUNTPOINT ext4 auto,rw,noatime 0 2" >> /etc/fstab
