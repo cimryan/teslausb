@@ -32,7 +32,7 @@ then
   MUSIC_DISK_SIZE="$(df --output=avail --block-size=1K /backingfiles/ | tail -n 1)"
   MUSIC_DISK_FILE_NAME="$BACKINGFILES_MOUNTPOINT/music_disk.bin"
   add_drive "music" "MUSIC" "$MUSIC_DISK_SIZE" "$MUSIC_DISK_FILE_NAME"
-  echo "options g_mass_storage file=$CAM_DISK_FILE_NAME,$MUSIC_DISK_FILE_NAME removable=1,1 ro=0,0 stall=0 iSerialNumber=123456" > G_MASS_STORAGE_CONF_FILE_NAME
+  echo "options g_mass_storage file=$CAM_DISK_FILE_NAME,$MUSIC_DISK_FILE_NAME removable=1,1 ro=0,0 stall=0 iSerialNumber=123456" > "$G_MASS_STORAGE_CONF_FILE_NAME"
 else
-  echo "options g_mass_storage file=$CAM_DISK_FILE_NAME removable=1 ro=0 stall=0 iSerialNumber=123456" > G_MASS_STORAGE_CONF_FILE_NAME
+  echo "options g_mass_storage file=$CAM_DISK_FILE_NAME removable=1 ro=0 stall=0 iSerialNumber=123456" > "$G_MASS_STORAGE_CONF_FILE_NAME"
 fi
