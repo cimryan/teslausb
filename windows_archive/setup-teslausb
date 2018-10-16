@@ -25,7 +25,7 @@ check_variable "sharepassword"
 check_variable "campercent"
 
 function check_pushover_enabled () {
-  if [ -n "${pushover_enabled+x}" ]
+  if [ ! -z "${pushover_enabled+x}" ]
   then
     if [ ! -n "${pushover_user_key+x}" ] || [ ! -n "${pushover_app_key+x}"  ]
     then
