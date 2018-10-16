@@ -1,7 +1,8 @@
 #!/bin/bash -eu
 
 TESLAUSB_REPO=rtgoodwin
-TESLAUSB_BRANCH=master
+TESLAUSB_BRANCH=pushover
+user_enabled_pushover=false
 
 if [ "$(whoami)" != "root" ]
 then
@@ -39,12 +40,15 @@ function check_pushover_enabled () {
       echo "STOP: You're trying to setup Pushover, but didn't replace the default User and App key values."
       exit 1
     else
-      echo "export pushover_enabled=true" > /root/bin/.teslaCamPushoverCredentials
+      user_enabled_pushover=true
+      echo "export pushover_enabled=true" > /root/.teslaCamPushoverCredentials
       echo "export pushover_user_key=$pushover_user_key" >> /root/.teslaCamPushoverCredentials
       echo "export pushover_app_key=$pushover_app_key" >> /root/.teslaCamPushoverCredentials
     fi
   fi
 }
+
+check_pushover_enabled
 
 serverunreachable=false
 ping -c 1 -w 1 "$archiveserver" 1>/dev/null 2>&1 || serverunreachable=true
@@ -106,7 +110,13 @@ wget https://raw.githubusercontent.com/"$TESLAUSB_REPO"/teslausb/"$TESLAUSB_BRAN
 chmod +x archive-teslacam-clips
 popd
 
-check_pushover_enabled
+if [ ${user_enabled_pushover} = "true" ]
+then
+  pushd /root/bin
+  wget https://raw.githubusercontent.com/"$TESLAUSB_REPO"/teslausb/"$TESLAUSB_BRANCH"/windows_archive/send-pushover
+  chmod +x archive-teslacam-clips
+  popd
+fi
 
 echo "#!/bin/bash -eu" > ~/rc.local
 tail -n +2 /etc/rc.local | sed '$d' >> ~/rc.local
