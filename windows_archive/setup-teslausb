@@ -1,5 +1,8 @@
 #!/bin/bash -eu
 
+TESLAUSB_REPO=rtgoodwin
+TESLAUSB_BRANCH=master
+
 if [ "$(whoami)" != "root" ]
 then
   echo "STOP: Run sudo -i."
@@ -20,6 +23,32 @@ check_variable "sharename"
 check_variable "shareuser"
 check_variable "sharepassword"
 check_variable "campercent"
+
+function check_pushover_enabled () {
+  if [ -n "${pushover_enabled+x}" ]
+  then
+    if [[ -z "${pushover_user_key+x}" ]] || [[  -z "${pushover_app_key+x}"  ]]
+    then
+      echo "STOP: You're trying to setup Pushover but didn't provide your User and/or App key."
+      echo "Define the variables like this:"
+      echo "export pushover_user_key=your_user_key_here"
+      echo "export pushover_app_key=your_app_key_here"
+      exit 1
+    elif [[ "${pushover_user_key}" = "put_your_user_key_here" ]] || [[  "${pushover_app_key}" = "put_your_app_key_here" ]]
+    then
+      echo "STOP: You're trying to setup Pushover but didn't replace the default User and App key values."
+      exit 1
+    else
+      echo "export pushover_enabled=true" > /root/.teslaCamPushoverCredentials
+      echo "export pushover_user_key=$pushover_user_key" >> /root/.teslaCamPushoverCredentials
+      echo "export pushover_app_key=$pushover_app_key" >> /root/.teslaCamPushoverCredentials
+      pushd /root/bin
+      wget https://raw.githubusercontent.com/"$TESLAUSB_REPO"/teslausb/"$TESLAUSB_BRANCH"/windows_archive/send-pushover
+      chmod +x send-pushover
+      popd
+    fi
+  fi
+}
 
 serverunreachable=false
 ping -c 1 -w 1 "$archiveserver" 1>/dev/null 2>&1 || serverunreachable=true
@@ -71,15 +100,17 @@ echo "password=$sharepassword" >> /root/.teslaCamArchiveCredentials
 
 mkdir /root/bin
 
-wget https://raw.githubusercontent.com/cimryan/teslausb/master/windows_archive/archiveloop
+wget https://raw.githubusercontent.com/"$TESLAUSB_REPO"/teslausb/"$TESLAUSB_BRANCH"/windows_archive/archiveloop
 sed s/ARCHIVE_HOST_NAME=archiveserver/ARCHIVE_HOST_NAME=$archiveserver/ ~/archiveloop > /root/bin/archiveloop
 rm ~/archiveloop
 chmod +x /root/bin/archiveloop
 
 pushd /root/bin
-wget https://raw.githubusercontent.com/cimryan/teslausb/master/windows_archive/archive-teslacam-clips
+wget https://raw.githubusercontent.com/"$TESLAUSB_REPO"/teslausb/"$TESLAUSB_BRANCH"/windows_archive/archive-teslacam-clips
 chmod +x archive-teslacam-clips
 popd
+
+check_pushover_enabled
 
 echo "#!/bin/bash -eu" > ~/rc.local
 tail -n +2 /etc/rc.local | sed '$d' >> ~/rc.local

@@ -1,0 +1,9 @@
+#!/bin/bash -eu
+
+source /root/.teslaCamPushoverCredentials
+
+curl -F "token=$pushover_app_key" \
+-F "user=$pushover_user_key" \
+-F "title=Dashcam Copy Complete" \
+-F "message=$1 file(s) were copied." \
+https://api.pushover.net/1/messages

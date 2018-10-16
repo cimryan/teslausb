@@ -71,12 +71,18 @@ function ensure_mountpoint_is_mounted_with_retry () {
 
 function move_clips_to_archive () {
   log "Moving clips to archive..."
+  local move_count=0
   for file_name in "$CAM_MOUNT"/TeslaCam/saved*; do
     [ -e "$file_name" ] || continue
     log "Moving $file_name ..."
     mv -- "$file_name" "$ARCHIVE_MOUNT" >> "$LOG_FILE" 2>&1 || echo ""
     log "Moved $file_name."
+    move_count=$((move_count + 1))
+
   done
+  log "Moved $move_count file(s)."
+  log "Sending Pushover message"
+  /root/bin/send-pushover.sh $move_count
   log "Finished moving clips to archive."
 }
 
