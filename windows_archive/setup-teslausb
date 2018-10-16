@@ -177,3 +177,5 @@ configure_rc_local
 configure_hostname
 
 make_root_fs_readonly
+
+echo "All done."
