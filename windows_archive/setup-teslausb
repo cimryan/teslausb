@@ -45,6 +45,17 @@ function check_available_space () {
   echo "There is sufficient space available."
 }
 
+function get_ancillary_setup_scripts () {
+  pushd /tmp
+  wget https://raw.githubusercontent.com/cimryan/teslausb/"$BRANCH"/windows_archive/create-backingfiles-partition.sh
+  chmod +x ./create-backingfiles-partition.sh
+  wget https://raw.githubusercontent.com/cimryan/teslausb/"$BRANCH"/windows_archive/create-backingfiles.sh
+  chmod +x ./create-backingfiles.sh
+  wget https://raw.githubusercontent.com/cimryan/teslausb/"$BRANCH"/windows_archive/make-root-fs-readonly.sh
+  chmod +x ./make-root-fs-readonly.sh
+  popd
+}
+
 function fix_cmdline_txt_modules_load () 
 {
   echo "Fixing the modules-load parameter in /boot/cmdline.txt..."
@@ -58,17 +69,13 @@ BACKINGFILES_MOUNTPOINT=/backingfiles
 
 function create_usb_drive_backing_files () {
   mkdir "$BACKINGFILES_MOUNTPOINT"
-  wget https://raw.githubusercontent.com/cimryan/teslausb/"$BRANCH"/windows_archive/create-backingfiles-partition.sh
-  chmod +x ./create-backingfiles-partition.sh
-  ./create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT"
+  /tmp/create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT"
   
   echo "Mounting the partition for the backing files..."
   mount /backingfiles
   echo "Mounted the partition for the backing files."
   
-  wget https://raw.githubusercontent.com/cimryan/teslausb/"$BRANCH"/windows_archive/create-backingfiles.sh
-  chmod +x ./create-backingfiles.sh
-  ./create-backingfiles.sh "$campercent" "$BACKINGFILES_MOUNTPOINT" 
+  /tmp/create-backingfiles.sh "$campercent" "$BACKINGFILES_MOUNTPOINT" 
 }
 
 function configure_archive () {
@@ -85,11 +92,13 @@ function configure_archive () {
 function configure_archive_scripts () {
   echo "Configuring the archive scripts..."
   mkdir /root/bin
-  
+
+  pushd ~  
   wget https://raw.githubusercontent.com/cimryan/teslausb/"$BRANCH"/windows_archive/archiveloop
   sed s/ARCHIVE_HOST_NAME=archiveserver/ARCHIVE_HOST_NAME=$archiveserver/ ~/archiveloop > /root/bin/archiveloop
   rm ~/archiveloop
   chmod +x /root/bin/archiveloop
+  popd
   
   pushd /root/bin
   wget https://raw.githubusercontent.com/cimryan/teslausb/"$BRANCH"/windows_archive/archive-teslacam-clips
@@ -133,6 +142,10 @@ function configure_hostname () {
   echo "Configured the hostname."
 }
 
+function make_root_fs_readonly () {
+  /tmp/make-root-fs-readonly.sh
+}
+
 echo "Verifying environment variables..."
 
 check_variable "archiveserver"
@@ -145,8 +158,11 @@ check_archive_server_reachable
 
 check_available_space
 
+get_ancillary_setup_scripts
 
 pushd ~
+
+configure_archive_scripts
 
 fix_cmdline_txt_modules_load
 
@@ -156,8 +172,8 @@ create_usb_drive_backing_files
 
 configure_archive
 
-configure_archive_scripts
-
 configure_rc_local
 
 configure_hostname
+
+make_root_fs_readonly
