@@ -1,5 +1,10 @@
 #!/bin/bash -eu
 
+function log () {
+  echo "$( date )" >> "$LOG_FILE"
+  echo "$1" >> "$LOG_FILE"
+}
+
 source /root/.teslaCamPushoverCredentials
 
 curl -F "token=$pushover_app_key" \

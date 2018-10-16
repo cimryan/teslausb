@@ -81,8 +81,11 @@ function move_clips_to_archive () {
 
   done
   log "Moved $move_count file(s)."
-  log "Sending Pushover message"
-  /root/bin/send-pushover.sh $move_count
+  if [ -r "/root/.teslaCamPushoverCredentials" ]
+  then
+    log "Sending Pushover message for copied files."
+    /root/bin/send-pushover.sh $move_count
+  fi
   log "Finished moving clips to archive."
 }
 
