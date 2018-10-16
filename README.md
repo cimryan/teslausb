@@ -146,3 +146,17 @@ If you set up the Pi with a keyboard and a monitor disconnect it and connect it 
 1. Eject the drives.
 1. Unplug the Pi from the PC.
 1. Plug the Pi into your Tesla.
+
+## Making changes to the system after setup
+The setup process configures the Pi with read-only file systems for the operating system but with read-write access through the USB
+ interface. This means that you'll be able to record dashcam video and add and remove music files but you won't be able to make changes 
+ to files on / or on /boot. This is to protect against corruption of the operating system when the Tesla cuts power to the Pi.
+
+To make changes to the system partitions:
+```
+ssh pi@teslausb.
+sudo -i
+mount / -o remount,rw
+mount /boot -o remount,rw
+```
+Then make whatever changes you need to. The next time the system boots the partitions will once again be read-only.
