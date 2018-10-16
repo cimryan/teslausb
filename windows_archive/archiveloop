@@ -4,16 +4,12 @@
 ARCHIVE_HOST_NAME=archiveserver
 LOGFILE=/tmp/archiveloop.log
 
-function clear_log () {
- rm "$LOGFILE" > /dev/null 2>&1 || echo ""
-}
-
 function log () {
   echo "$( date )" >> "$LOGFILE"
   echo "$1" >> "$LOGFILE"
 }
 
-function check_archive_reachability () {
+function archive_is_reachable () {
   local reachable=true
   ping -q -w 1 -c 1 "$ARCHIVE_HOST_NAME" > /dev/null 2>&1 || reachable=false
   if [ "$reachable" = false ]
@@ -24,11 +20,17 @@ function check_archive_reachability () {
   true
 }
 
+function connect_usb_drives_to_host() {
+  log "Connecting usb to host..."
+  modprobe g_mass_storage
+  log "Connected usb to host."
+}
+
 function wait_for_archive_to_be_reachable () {
   log "Waiting for archive to be reachable..."
   while [ true ]
   do
-    if check_archive_reachability
+    if archive_is_reachable
     then
       log "Archive is reachable."
       break
@@ -47,7 +49,7 @@ function wait_for_archive_to_be_unreachable () {
   log "Waiting for archive to be unreachable..."
   while [ true ]
     do
-      if ! check_archive_reachability
+      if ! archive_is_reachable
       then
         log "Archive is unreachable."
         break
@@ -56,9 +58,18 @@ function wait_for_archive_to_be_unreachable () {
   done
 }
 
-clear_log
+export -f connect_usb_drives_to_host
 
 log "Starting..."
+
+if archive_is_reachable
+then
+  archive_clips
+
+  wait_for_archive_to_be_unreachable
+else
+  connect_usb_drives_to_host
+fi
 
 while [ true ]
 do

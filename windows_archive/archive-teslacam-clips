@@ -1,10 +1,36 @@
 #!/bin/bash -eu
 
-LOGFILE=/tmp/archive-teslacam-clips.log
+LOG_FILE=/tmp/archive-teslacam-clips.log
+CAM_MOUNT=/mnt/cam
+ARCHIVE_MOUNT=/mnt/archive
 
 function log () {
-  echo "$( date )" >> "$LOGFILE"
-  echo "$1" >> "$LOGFILE"
+  echo "$( date )" >> "$LOG_FILE"
+  echo "$1" >> "$LOG_FILE"
+}
+
+function retry () {
+  local attempts=0
+  while [ true ]
+  do
+    if eval "$@"
+    then
+      true
+      return
+    fi
+    if [ "$attempts" -ge 10 ]
+    then
+      log "Attempts exhausted."
+      false
+      return
+    fi
+    log "Sleeping before retry..."
+    /bin/sleep 1
+    attempts=$((attempts + 1))
+    log "Retrying..."
+  done
+  false
+  return
 }
 
 function mount_mountpoint () {
@@ -12,7 +38,7 @@ function mount_mountpoint () {
   log "Mounting $mount_point..."
 
   local mounted=true
-  mount "$mount_point" >> "$LOGFILE" 2>&1 || mounted=false
+  mount "$mount_point" >> "$LOG_FILE" 2>&1 || mounted=false
   if [ "$mounted" = true ]
   then
     log "Mounted $mount_point."
@@ -39,63 +65,63 @@ function ensure_mountpoint_is_mounted () {
   fi
 }
 
+function ensure_mountpoint_is_mounted_with_retry () {
+  retry ensure_mountpoint_is_mounted "$1"
+}
+
 function move_clips_to_archive () {
   log "Moving clips to archive..."
-  for file_name in /mnt/usb_share/TeslaCam/saved*; do
+  for file_name in "$CAM_MOUNT"/TeslaCam/saved*; do
     [ -e "$file_name" ] || continue
     log "Moving $file_name ..."
-    mv -- "$file_name" /mnt/cam_archive >> "$LOGFILE" 2>&1
+    mv -- "$file_name" "$ARCHIVE_MOUNT" >> "$LOG_FILE" 2>&1 || echo ""
     log "Moved $file_name."
   done
   log "Finished moving clips to archive."
 }
 
-function disconnect_usb_from_host () {
+function disconnect_usb_drives_from_host () {
   log "Disconnecting usb from host..."
   modprobe -r g_mass_storage
   log "Disconnected usb from host."
 }
 
-function mount_usb_drive_locally () {
-  log "Mounting usb locally..."
-  mount /mnt/usb_share
-  log "Mounted usb locally."
+function fix_errors_on_cam_drive () {
+  log "Running fsck..."
+  /sbin/fsck "$CAM_MOUNT" -- -a >> "$LOG_FILE" 2>&1 || echo ""
+  log "Finished running fsck."
 }
 
-function ensure_cam_archive_is_mounted () {
+function ensure_archive_is_mounted () {
   log "Ensuring cam archive is mounted..."
-  ensure_mountpoint_is_mounted /mnt/cam_archive
+  ensure_mountpoint_is_mounted_with_retry "$ARCHIVE_MOUNT"
   log "Ensured cam archive is mounted."
 }
 
-function ensure_usb_share_is_mounted () {
-  log "Ensuring usb share is mounted..."
-  ensure_mountpoint_is_mounted /mnt/usb_share
-  log "Ensured usb share is mounted."
+function ensure_cam_drive_is_mounted () {
+  log "Ensuring cam drive is mounted..."
+  ensure_mountpoint_is_mounted_with_retry "$CAM_MOUNT"
+  log "Ensured cam drive is mounted."
 }
 
-function unmount_usb_share () {
-  log "Unmounting usb share..."
-  umount /mnt/usb_share
-  log "Unmounted usb share."
-}
-
-function connect_usb_to_host() {
-  log "Connecting usb to host..."
-  modprobe g_mass_storage
-  log "Connected usb to host."
+function unmount_cam_drive () {
+  log "Unmounting cam drive..."
+  umount "$CAM_MOUNT"
+  log "Unmounted cam drive."
 }
 
 log "Starting..."
 
-ensure_cam_archive_is_mounted
+ensure_archive_is_mounted
 
-disconnect_usb_from_host
+disconnect_usb_drives_from_host
 
-ensure_usb_share_is_mounted
+fix_errors_on_cam_drive
+
+ensure_cam_drive_is_mounted
 
 move_clips_to_archive
 
-unmount_usb_share
+unmount_cam_drive
 
-connect_usb_to_host
+connect_usb_drives_to_host
