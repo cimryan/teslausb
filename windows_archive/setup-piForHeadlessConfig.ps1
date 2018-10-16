@@ -23,7 +23,7 @@ Write-Verbose "Updating $configPath ..."
 
 Write-Verbose "Updating $cmdlinePath ..."
 $cmdlinetxtContent = gc -Raw $cmdlinePath
-$cmdlinetxtContent.Replace("rootwait", "rootwait modules-load=dwc2,g_ether") | Out-File -FilePath $cmdlinePath -Encoding utf8
+$cmdlinetxtContent.Replace("rootwait", "rootwait modules-load=dwc2,g_ether").Replace(" init=/usr/lib/raspi-config/init_resize.sh", "") | Out-File -FilePath $cmdlinePath -Encoding utf8
 
 Write-Verbose "Enabling SSH ..."
 [System.IO.File]::CreateText($sshPath).Dispose()
