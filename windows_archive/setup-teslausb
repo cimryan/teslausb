@@ -1,6 +1,6 @@
 #!/bin/bash -eu
 
-BRANCH=u/cimryan/readonlyrootfs
+BRANCH=master
 
 if ! [ $(id -u) = 0 ]
 then
