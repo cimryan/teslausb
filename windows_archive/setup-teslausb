@@ -1,6 +1,9 @@
 #!/bin/bash -eu
 
+REPO=cimryan
 BRANCH=master
+user_enabled_pushover=false
+
 
 if ! [ $(id -u) = 0 ]
 then
@@ -17,23 +20,48 @@ function check_variable () {
   fi
 }
 
+function check_pushover_enabled () {
+  if [ ! -z "${pushover_enabled+x}" ]
+  then
+    if [ ! -n "${pushover_user_key+x}" ] || [ ! -n "${pushover_app_key+x}"  ]
+    then
+      echo "STOP: You're trying to setup Pushover but didn't provide your User and/or App key."
+      echo "Define the variables like this:"
+      echo "export pushover_user_key=put_your_userkey_here"
+      echo "export pushover_app_key=put_your_appkey_here"
+      exit 1
+    elif [ "${pushover_user_key}" = "put_your_userkey_here" ] || [  "${pushover_app_key}" = "put_your_appkey_here" ]
+    then
+      echo "STOP: You're trying to setup Pushover, but didn't replace the default User and App key values."
+      exit 1
+    else
+      user_enabled_pushover=true
+      echo "export pushover_enabled=true" > /root/.teslaCamPushoverCredentials
+      echo "export pushover_user_key=$pushover_user_key" >> /root/.teslaCamPushoverCredentials
+      echo "export pushover_app_key=$pushover_app_key" >> /root/.teslaCamPushoverCredentials
+    fi
+  fi
+}
+
+check_pushover_enabled
+
 function check_archive_server_reachable () {
   echo "Verifying that the archive server $archiveserver is reachable..."
   local serverunreachable=false
   ping -c 1 -w 1 "$archiveserver" 1>/dev/null 2>&1 || serverunreachable=true
-  
+
   if [ "$serverunreachable" = true ]
   then
     echo "STOP: The archive server $archiveserver is unreachable. Try specifying its IP address instead."
     exit 1
   fi
-  
+
   echo "The archive server is reachable."
 }
 
 function check_available_space () {
   echo "Verifying that there is sufficient space available on the MicroSD card..."
-  
+
   local available_space="$( parted -m /dev/mmcblk0 u b print free | tail -1 | cut -d ":" -f 4 | sed 's/B//g' )"
 
   if [ "$available_space" -lt  4294967296 ]
@@ -41,22 +69,22 @@ function check_available_space () {
     echo "STOP: The MicroSD card is too small."
     exit 1
   fi
-  
+
   echo "There is sufficient space available."
 }
 
 function get_ancillary_setup_scripts () {
   pushd /tmp
-  wget https://raw.githubusercontent.com/cimryan/teslausb/"$BRANCH"/windows_archive/create-backingfiles-partition.sh
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/create-backingfiles-partition.sh
   chmod +x ./create-backingfiles-partition.sh
-  wget https://raw.githubusercontent.com/cimryan/teslausb/"$BRANCH"/windows_archive/create-backingfiles.sh
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/create-backingfiles.sh
   chmod +x ./create-backingfiles.sh
-  wget https://raw.githubusercontent.com/cimryan/teslausb/"$BRANCH"/windows_archive/make-root-fs-readonly.sh
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/make-root-fs-readonly.sh
   chmod +x ./make-root-fs-readonly.sh
   popd
 }
 
-function fix_cmdline_txt_modules_load () 
+function fix_cmdline_txt_modules_load ()
 {
   echo "Fixing the modules-load parameter in /boot/cmdline.txt..."
   cp /boot/cmdline.txt ~
@@ -70,12 +98,12 @@ BACKINGFILES_MOUNTPOINT=/backingfiles
 function create_usb_drive_backing_files () {
   mkdir "$BACKINGFILES_MOUNTPOINT"
   /tmp/create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT"
-  
+
   echo "Mounting the partition for the backing files..."
   mount /backingfiles
   echo "Mounted the partition for the backing files."
-  
-  /tmp/create-backingfiles.sh "$campercent" "$BACKINGFILES_MOUNTPOINT" 
+
+  /tmp/create-backingfiles.sh "$campercent" "$BACKINGFILES_MOUNTPOINT"
 }
 
 function configure_archive () {
@@ -83,7 +111,7 @@ function configure_archive () {
   mkdir /mnt/archive
   local archive_server_ip_address="$(getent hosts $archiveserver | cut -d' ' -f1)"
   echo "//$archive_server_ip_address/$sharename /mnt/archive cifs vers=3,credentials=/root/.teslaCamArchiveCredentials,iocharset=utf8,file_mode=0777,dir_mode=0777 0" >> /etc/fstab
-  
+
   echo "username=$shareuser" > /root/.teslaCamArchiveCredentials
   echo "password=$sharepassword" >> /root/.teslaCamArchiveCredentials
   echo "Configured the archive."
@@ -93,18 +121,28 @@ function configure_archive_scripts () {
   echo "Configuring the archive scripts..."
   mkdir /root/bin
 
-  pushd ~  
-  wget https://raw.githubusercontent.com/cimryan/teslausb/"$BRANCH"/windows_archive/archiveloop
+  pushd ~
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archiveloop
   sed s/ARCHIVE_HOST_NAME=archiveserver/ARCHIVE_HOST_NAME=$archiveserver/ ~/archiveloop > /root/bin/archiveloop
   rm ~/archiveloop
   chmod +x /root/bin/archiveloop
   popd
-  
+
   pushd /root/bin
-  wget https://raw.githubusercontent.com/cimryan/teslausb/"$BRANCH"/windows_archive/archive-teslacam-clips
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archive-teslacam-clips
   chmod +x archive-teslacam-clips
   popd
   echo "Configured the archive scripts."
+}
+
+function configure_pushover_scripts() {
+if [ ${user_enabled_pushover} = "true" ]
+then
+  pushd /root/bin
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/send-pushover
+  chmod +x send-pushover
+  popd
+fi
 }
 
 function configure_rc_local () {
@@ -132,11 +170,11 @@ EOF
 
 function configure_hostname () {
   echo "Configuring the hostname..."
-  
+
   local new_host_name="teslausb"
   cp /etc/hosts ~
   sed "s/raspberrypi/$new_host_name/g" ~/hosts > /etc/hosts
-  
+
   cp /etc/hostname ~
   sed "s/raspberrypi/$new_host_name/g" ~/hostname > /etc/hostname
   echo "Configured the hostname."
@@ -154,6 +192,8 @@ check_variable "shareuser"
 check_variable "sharepassword"
 check_variable "campercent"
 
+check_pushover_enabled
+
 check_archive_server_reachable
 
 check_available_space
@@ -163,6 +203,8 @@ get_ancillary_setup_scripts
 pushd ~
 
 configure_archive_scripts
+
+configure_pushover_scripts
 
 fix_cmdline_txt_modules_load
 
