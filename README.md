@@ -75,7 +75,9 @@ There are four phases to setting up the Pi:
    > Note: you don't need to uncompress the zip file you downloaded.
 
 ### Get a shell on the Pi
-If you have a monitor with an hdmi input, a mini hdmi to hdmi cable, a usb keyboard and a micro usb power cable you can hook up the devices to the Pi and configure it directly. Before you start those steps, ensure that the MicroSD card is in your computer and edit the cmdline.txt file to delete the parameter " init=/usr/lib/raspi-config/init_resize.sh".
+> Regardless of which way you use to access the Pi (Keyboard+HDMI or USB networking), **before you boot the Pi for for the first time with the MicroSD inserted**, edit the /boot/cmdline.txt file on the MicroSD to delete the parameter "init=/usr/lib/raspi-config/init_resize.sh". 
+
+If you have a monitor with an hdmi input, a mini hdmi to hdmi cable, a usb keyboard and a micro usb power cable you can hook up the devices to the Pi and configure it directly. 
 1. Insert the MicroSD card into the Pi.
 1. Connect the keyboard, and monitor to the Pi.
 1. Connect the power supply to the Pi using the port labeld "PWR" on the circuitboard.
@@ -85,6 +87,7 @@ If you have a monitor with an hdmi input, a mini hdmi to hdmi cable, a usb keybo
 If you don't have a keyboard/HDMI setup to boot the Pi and edit/transfer files directly, you'll probably want to connect to the Pi over USB. 
 * If you're using Windows, follow [these instructions](GetShellWithoutMonitorOnWindows.md), then skip down to the section titled "Get the scripts onto the Pi".
 * If you're using Linux or a Mac, follow [these instructions](GetShellWitoutMonitorOnLinux.md), then proceed to the next section.
+
 
 ### Get the scripts onto the Pi
 Now that you have a shell on the Pi you can turn the Pi into a smart USB drive.
