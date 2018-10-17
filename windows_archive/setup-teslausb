@@ -1,10 +1,11 @@
 #!/bin/bash -eu
 
-TESLAUSB_REPO=cimryan
-TESLAUSB_BRANCH=master
+REPO=cimryan
+BRANCH=master
 user_enabled_pushover=false
 
-if [ "$(whoami)" != "root" ]
+
+if ! [ $(id -u) = 0 ]
 then
   echo "STOP: Run sudo -i."
   exit 1
@@ -18,12 +19,6 @@ function check_variable () {
     exit 1
   fi
 }
-
-check_variable "archiveserver"
-check_variable "sharename"
-check_variable "shareuser"
-check_variable "sharepassword"
-check_variable "campercent"
 
 function check_pushover_enabled () {
   if [ ! -z "${pushover_enabled+x}" ]
@@ -50,66 +45,97 @@ function check_pushover_enabled () {
 
 check_pushover_enabled
 
-serverunreachable=false
-ping -c 1 -w 1 "$archiveserver" 1>/dev/null 2>&1 || serverunreachable=true
+function check_archive_server_reachable () {
+  echo "Verifying that the archive server $archiveserver is reachable..."
+  local serverunreachable=false
+  ping -c 1 -w 1 "$archiveserver" 1>/dev/null 2>&1 || serverunreachable=true
 
-if [ "$serverunreachable" = true ]
-then
-  echo "STOP: The archive server $archiveserver is unreachable. Try specifying its IP address instead."
-  exit 1
-fi
+  if [ "$serverunreachable" = true ]
+  then
+    echo "STOP: The archive server $archiveserver is unreachable. Try specifying its IP address instead."
+    exit 1
+  fi
 
-archiveserverip="$(getent hosts $archiveserver | cut -d' ' -f1)"
-
-available_space="$(($(df --output=avail / | tail -1) - 1000000))"
-
-if [ "$available_space" -lt 0 ]
-then
-  echo "STOP: The MicroSD card is too small."
-  exit 1
-fi
-
-function add_drive () {
-  local name="$1"
-  local label="$2"
-  local size="$3"
-
-  local filename="$4"
-  fallocate -l "$size"K "$filename"
-  mkfs.vfat "$filename" -F 32 -n "$label"
-
-  local mountpoint=/mnt/"$name"
-
-  mkdir "$mountpoint"
-  echo "$filename $mountpoint vfat noauto,users,umask=000 0 0" >> /etc/fstab
+  echo "The archive server is reachable."
 }
 
-pushd ~
+function check_available_space () {
+  echo "Verifying that there is sufficient space available on the MicroSD card..."
 
-cp /boot/cmdline.txt ~
-cat ~/cmdline.txt | sed 's/[[:space:]]\+modules-load=[^ [:space:]]\+//' | sed 's/rootwait/rootwait modules-load=dwc2/' > /boot/cmdline.txt
-rm ~/cmdline.txt
+  local available_space="$( parted -m /dev/mmcblk0 u b print free | tail -1 | cut -d ":" -f 4 | sed 's/B//g' )"
 
-mkdir /mnt/archive
+  if [ "$available_space" -lt  4294967296 ]
+  then
+    echo "STOP: The MicroSD card is too small."
+    exit 1
+  fi
 
-echo "" >> /etc/fstab
-echo "//$archiveserverip/$sharename /mnt/archive cifs vers=3,credentials=/root/.teslaCamArchiveCredentials,iocharset=utf8,file_mode=0777,dir_mode=0777 0" >> /etc/fstab
+  echo "There is sufficient space available."
+}
 
-echo "username=$shareuser" > /root/.teslaCamArchiveCredentials
-echo "password=$sharepassword" >> /root/.teslaCamArchiveCredentials
+function get_ancillary_setup_scripts () {
+  pushd /tmp
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/create-backingfiles-partition.sh
+  chmod +x ./create-backingfiles-partition.sh
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/create-backingfiles.sh
+  chmod +x ./create-backingfiles.sh
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/make-root-fs-readonly.sh
+  chmod +x ./make-root-fs-readonly.sh
+  popd
+}
 
-mkdir /root/bin
+function fix_cmdline_txt_modules_load ()
+{
+  echo "Fixing the modules-load parameter in /boot/cmdline.txt..."
+  cp /boot/cmdline.txt ~
+  cat ~/cmdline.txt | sed 's/[[:space:]]\+modules-load=[^ [:space:]]\+//' | sed 's/rootwait/rootwait modules-load=dwc2/' > /boot/cmdline.txt
+  rm ~/cmdline.txt
+  echo "Fixed cmdline.txt."
+}
 
-wget https://raw.githubusercontent.com/"$TESLAUSB_REPO"/teslausb/"$TESLAUSB_BRANCH"/windows_archive/archiveloop
-sed s/ARCHIVE_HOST_NAME=archiveserver/ARCHIVE_HOST_NAME=$archiveserver/ ~/archiveloop > /root/bin/archiveloop
-rm ~/archiveloop
-chmod +x /root/bin/archiveloop
+BACKINGFILES_MOUNTPOINT=/backingfiles
 
-pushd /root/bin
-wget https://raw.githubusercontent.com/"$TESLAUSB_REPO"/teslausb/"$TESLAUSB_BRANCH"/windows_archive/archive-teslacam-clips
-chmod +x archive-teslacam-clips
-popd
+function create_usb_drive_backing_files () {
+  mkdir "$BACKINGFILES_MOUNTPOINT"
+  /tmp/create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT"
 
+  echo "Mounting the partition for the backing files..."
+  mount /backingfiles
+  echo "Mounted the partition for the backing files."
+
+  /tmp/create-backingfiles.sh "$campercent" "$BACKINGFILES_MOUNTPOINT"
+}
+
+function configure_archive () {
+  echo "Configuring the archive..."
+  mkdir /mnt/archive
+  local archive_server_ip_address="$(getent hosts $archiveserver | cut -d' ' -f1)"
+  echo "//$archive_server_ip_address/$sharename /mnt/archive cifs vers=3,credentials=/root/.teslaCamArchiveCredentials,iocharset=utf8,file_mode=0777,dir_mode=0777 0" >> /etc/fstab
+
+  echo "username=$shareuser" > /root/.teslaCamArchiveCredentials
+  echo "password=$sharepassword" >> /root/.teslaCamArchiveCredentials
+  echo "Configured the archive."
+}
+
+function configure_archive_scripts () {
+  echo "Configuring the archive scripts..."
+  mkdir /root/bin
+
+  pushd ~
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archiveloop
+  sed s/ARCHIVE_HOST_NAME=archiveserver/ARCHIVE_HOST_NAME=$archiveserver/ ~/archiveloop > /root/bin/archiveloop
+  rm ~/archiveloop
+  chmod +x /root/bin/archiveloop
+  popd
+
+  pushd /root/bin
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archive-teslacam-clips
+  chmod +x archive-teslacam-clips
+  popd
+  echo "Configured the archive scripts."
+}
+
+function configure_pushover_scripts() {
 if [ ${user_enabled_pushover} = "true" ]
 then
   pushd /root/bin
@@ -117,9 +143,12 @@ then
   chmod +x archive-teslacam-clips
   popd
 fi
+}
 
-echo "#!/bin/bash -eu" > ~/rc.local
-tail -n +2 /etc/rc.local | sed '$d' >> ~/rc.local
+function configure_rc_local () {
+  echo "Configuring /etc/rc.local to run the archive scripts at startup..."
+  echo "#!/bin/bash -eu" > ~/rc.local
+  tail -n +2 /etc/rc.local | sed '$d' >> ~/rc.local
 cat << 'EOF' >> ~/rc.local
 LOGFILE=/tmp/rc.local.log
 
@@ -134,26 +163,61 @@ log "All done"
 exit 0
 EOF
 
-cat ~/rc.local > /etc/rc.local
-rm ~/rc.local
+  cat ~/rc.local > /etc/rc.local
+  rm ~/rc.local
+  echo "Configured rc.local."
+}
 
-cam_disk_size="$(( $available_space * $campercent / 100 ))"
-cam_disk_file_name="/cam_disk.bin"
-add_drive "cam" "CAM" "$cam_disk_size" "$cam_disk_file_name"
+function configure_hostname () {
+  echo "Configuring the hostname..."
 
-if [ "$campercent" -lt 100 ]
-then
-  musicpercent="$(( 100 - $campercent ))"
-  music_disk_size="$(( $available_space * $musicpercent / 100 ))"
-  music_disk_file_name="/music_disk.bin"
-  add_drive "music" "MUSIC" "$music_disk_size" "$music_disk_file_name"
-  echo "options g_mass_storage file=$cam_disk_file_name,$music_disk_file_name removable=1,1 ro=0,0 stall=0 iSerialNumber=123456" > /etc/modprobe.d/g_mass_storage.conf
-else
-  echo "options g_mass_storage file=$cam_disk_file_name removable=1 ro=0 stall=0 iSerialNumber=123456" > /etc/modprobe.d/g_mass_storage.conf
-fi
+  local new_host_name="teslausb"
+  cp /etc/hosts ~
+  sed "s/raspberrypi/$new_host_name/g" ~/hosts > /etc/hosts
 
-cp /etc/hosts ~
-sed s/raspberrypi/teslausb/g ~/hosts > /etc/hosts
+  cp /etc/hostname ~
+  sed "s/raspberrypi/$new_host_name/g" ~/hostname > /etc/hostname
+  echo "Configured the hostname."
+}
 
-cp /etc/hostname ~
-sed s/raspberrypi/teslausb/g ~/hostname > /etc/hostname
+function make_root_fs_readonly () {
+  /tmp/make-root-fs-readonly.sh
+}
+
+echo "Verifying environment variables..."
+
+check_variable "archiveserver"
+check_variable "sharename"
+check_variable "shareuser"
+check_variable "sharepassword"
+check_variable "campercent"
+
+check_pushover_enabled
+
+check_archive_server_reachable
+
+check_available_space
+
+get_ancillary_setup_scripts
+
+pushd ~
+
+configure_archive_scripts
+
+configure_pushover_scripts
+
+fix_cmdline_txt_modules_load
+
+echo "" >> /etc/fstab
+
+create_usb_drive_backing_files
+
+configure_archive
+
+configure_rc_local
+
+configure_hostname
+
+make_root_fs_readonly
+
+echo "All done."
