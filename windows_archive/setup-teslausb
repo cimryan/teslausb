@@ -139,7 +139,7 @@ function configure_pushover_scripts() {
 if [ ${user_enabled_pushover} = "true" ]
 then
   pushd /root/bin
-  wget https://raw.githubusercontent.com/"$TESLAUSB_REPO"/teslausb/"$TESLAUSB_BRANCH"/windows_archive/send-pushover
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/send-pushover
   chmod +x archive-teslacam-clips
   popd
 fi
