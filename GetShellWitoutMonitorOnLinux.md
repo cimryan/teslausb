@@ -6,3 +6,5 @@ Here are a few ways to accomplish this
 * [Script to setup the Pi for connecting over USB](https://github.com/BigNate1234/rpi-USBSSH)
    * (I.e. First write the OS image to the SD card, then this script will make the changes to the card so you can boot it and access it over the USB cable. 
    * **Assumes the SD card for the Pi is mounted at /Volumes/boot , and that you can use `sh`/`bash`**. This _should_ be the default for a Mac; if using something else, modify the script accordingly.  
+
+Be sure to delete the "init=/usr/lib/raspi-config/init_resize.sh" parameter from cmdline.txt to prevent the os partition from being expanded to fill the drive.

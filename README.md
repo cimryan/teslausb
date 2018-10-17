@@ -75,7 +75,7 @@ There are four phases to setting up the Pi:
    > Note: you don't need to uncompress the zip file you downloaded.
 
 ### Get a shell on the Pi
-If you have a monitor with an hdmi input, a mini hdmi to hdmi cable, a usb keyboard and a micro usb power cable you can hook up the devices to the Pi and configure it directly.
+If you have a monitor with an hdmi input, a mini hdmi to hdmi cable, a usb keyboard and a micro usb power cable you can hook up the devices to the Pi and configure it directly. Before you start those steps, ensure that the MicroSD card is in your computer and edit the cmdline.txt file to delete the parameter " init=/usr/lib/raspi-config/init_resize.sh".
 1. Insert the MicroSD card into the Pi.
 1. Connect the keyboard, and monitor to the Pi.
 1. Connect the power supply to the Pi using the port labeld "PWR" on the circuitboard.

@@ -29,6 +29,7 @@
     ```
     ssh pi@raspberrypi.local
     ```
+    > Note: If you receive an error indicating that the host id has changed and you can't work around it you'll need to delete the ~\\.ssh\known_hosts file. You're especially likely to encounter this error if you're following these instructions for a second time.
 1. If you get an "unknown host" error message install Bonjour: https://support.apple.com/kb/DL999 and go back to step 15.
 1. You should be prompted for the password for the user "pi". Enter
     ```
