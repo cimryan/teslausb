@@ -77,7 +77,7 @@ There are four phases to setting up the Pi:
 ### Get a shell on the Pi
 > Regardless of which way you use to access the Pi (Keyboard+HDMI or USB networking), **before you boot the Pi for for the first time with the MicroSD inserted**, verify that the /boot/cmdline.txt file on the MicroSD does not contain the parameter "init=/usr/lib/raspi-config/init_resize.sh". Delete it if present.
 
-##### Use a monitor/keyboard/mouse 
+#### Use a monitor/keyboard/mouse 
 If you have a monitor with an HDMI input, a Mini HDMI to HDMI cable, a usb keyboard and a micro usb power cable you can hook up the devices to the Pi and configure it directly. 
 1. Insert the MicroSD card into the Pi.
 1. Connect the keyboard, and monitor to the Pi.
@@ -85,13 +85,13 @@ If you have a monitor with an HDMI input, a Mini HDMI to HDMI cable, a usb keybo
 1. When you're prompted for the password for the user "pi" use "raspberry" without the quotes.
 1. Now skip to section below titled "Get the scripts onto the Pi".
 
-##### Windows (Setup USB Networking)
+#### Windows (Setup USB Networking)
 
 If you don't have a keyboard/HDMI setup to boot the Pi and edit/transfer files directly, you'll probably want to connect to the Pi over Wifi or USB networking. 
-* Follow [these instructions](GetShellWithoutMonitorOnWindows.md), then skip down to the section titled "Get the scripts onto the Pi". 
+* Follow [these instructions](GetShellWithoutMonitorOnWindows.md), then skip down to the section titled **Set up Set up Wifi on the Pi (manually)y**. 
 
-##### macOS or Linux (Setup Wifi or USB Networking)
-* Follow [these instructions](GetShellWitoutMonitorOnLinux.md), then proceed to the next section.
+#### macOS or Linux (Setup Wifi or USB Networking)
+* Follow [these instructions](GetShellWitoutMonitorOnLinux.md), then proceed to the section **Set up the USB Storage Functionality**.
 
 
 ### Set up Wifi on the Pi (manually)
