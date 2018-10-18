@@ -1,4 +1,4 @@
-# Seting up the Pi without a monitor using a Mac or Linux
+# Setting up the Pi without a monitor using a Mac or Linux
 
 You can setup the Pi to connect to your Wifi network, and also provide the option to connect over USB networking (Rasberry Pi Zero W or other recent Pi's).
 
@@ -8,7 +8,7 @@ Basically what you're doing is using the Pi's capability to emulate a network co
 
 ## Use the update script to setup Wifi and USB networking 
 
-A [script](https://raw.githubusercontent.com/cimryan/teslausb/master/mac_linux_archive/update-rpi-mac-linux.sh) is provided to automatically update your SD card so the first time you boot it on your Pi, USB networking and Wifi will automatically be configure. 
+A [script](https://raw.githubusercontent.com/cimryan/teslausb/master/mac_linux_archive/update-rpi-mac-linux.sh) is provided to automatically update your SD card so the first time you boot it on your Pi, USB networking and Wifi will automatically be configured. 
 
 If you prefer not to run the script, it's also a useful reference for the steps you'll need to take. 
 
