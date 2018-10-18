@@ -133,7 +133,14 @@ function configure_archive_scripts () {
   chmod +x archive-teslacam-clips
   popd
   echo "Configured the archive scripts."
+
+  pushd /root
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/remountfs_rw
+  chmod +x remountfs_rw
+  popd
+  echo "Downloaded script to remount filesystems read/write if needed (/root/remountfs_rw)."
 }
+
 
 function configure_pushover_scripts() {
 if [ ${user_enabled_pushover} = "true" ]
