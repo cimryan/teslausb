@@ -54,7 +54,7 @@ Download and install:
  
 ## Create your archive
 ### Hosting on Windows
-Set up a share on a Windows machine to host the archive. These instructions assume that you created a share named "SailfishCam" on the server "Nautilus". It is recommended that you create a new user. Grant the user you'll be using read/write access to the share. These instructions will assume that the user you've created is named "sailfish" and that the password for this user is "pa$$w0rd".
+Set up a share on a Windows (or macOS using Sharing, or Linux using Samba) machine to host the archive. These instructions assume that you created a share named "SailfishCam" on the server "Nautilus". It is recommended that you create a new user. Grant the user you'll be using read/write access to the share. These instructions will assume that the user you've created is named "sailfish" and that the password for this user is "pa$$w0rd".
 
 Get the IP address of the archive machine. You'll need this later, so write it down, somewhere. You can do this by opening a command prompt on the archive machine and typing ipconfig. Get the IP address from the line labeled "IPv4 Address". These instructions will assume that the IP address of the archive server is 192.168.0.41.
 
@@ -75,22 +75,31 @@ There are four phases to setting up the Pi:
    > Note: you don't need to uncompress the zip file you downloaded.
 
 ### Get a shell on the Pi
-> Regardless of which way you use to access the Pi (Keyboard+HDMI or USB networking), **before you boot the Pi for for the first time with the MicroSD inserted**, edit the /boot/cmdline.txt file on the MicroSD to delete the parameter "init=/usr/lib/raspi-config/init_resize.sh". 
+> Regardless of which way you use to access the Pi (Keyboard+HDMI or USB networking), **before you boot the Pi for for the first time with the MicroSD inserted**, verify that the /boot/cmdline.txt file on the MicroSD does not contain the parameter "init=/usr/lib/raspi-config/init_resize.sh". Delete it if present.
 
-If you have a monitor with an hdmi input, a mini hdmi to hdmi cable, a usb keyboard and a micro usb power cable you can hook up the devices to the Pi and configure it directly. 
+##### Use a monitor/keyboard/mouse 
+If you have a monitor with an HDMI input, a Mini HDMI to HDMI cable, a usb keyboard and a micro usb power cable you can hook up the devices to the Pi and configure it directly. 
 1. Insert the MicroSD card into the Pi.
 1. Connect the keyboard, and monitor to the Pi.
 1. Connect the power supply to the Pi using the port labeld "PWR" on the circuitboard.
 1. When you're prompted for the password for the user "pi" use "raspberry" without the quotes.
 1. Now skip to section below titled "Get the scripts onto the Pi".
 
-If you don't have a keyboard/HDMI setup to boot the Pi and edit/transfer files directly, you'll probably want to connect to the Pi over USB. 
-* If you're using Windows, follow [these instructions](GetShellWithoutMonitorOnWindows.md), then skip down to the section titled "Get the scripts onto the Pi".
-* If you're using Linux or a Mac, follow [these instructions](GetShellWitoutMonitorOnLinux.md), then proceed to the next section.
+##### Windows (Setup USB Networking)
+
+If you don't have a keyboard/HDMI setup to boot the Pi and edit/transfer files directly, you'll probably want to connect to the Pi over Wifi or USB networking. 
+* Follow [these instructions](GetShellWithoutMonitorOnWindows.md), then skip down to the section titled "Get the scripts onto the Pi". 
+
+##### macOS or Linux (Setup Wifi or USB Networking)
+* Follow [these instructions](GetShellWitoutMonitorOnLinux.md), then proceed to the next section.
 
 
-### Get the scripts onto the Pi
-Now that you have a shell on the Pi you can turn the Pi into a smart USB drive.
+### Set up Wifi on the Pi (manually)
+
+If you don't yet have Wifi running from the previous section, use these instructions to get it set up. Otherwise, skip to **Set up the USB Storage Functionality**.
+
+Now that you have an `ssh` shell on the Pi over USB networking, you can set up Wifi and continue with setup. 
+
 1. Enter the following commands:
     ```
     sudo -i
@@ -114,7 +123,13 @@ Now that you have a shell on the Pi you can turn the Pi into a smart USB drive.
     ifconfig wlan0
     ```
 1. Verify that there's an IP address on your subnet assigned. If you don't see the IP address wait for a couple of seconds and re-run the command.
-1. Try to ping your archive server from the Pi.
+
+### Set up the USB Storage Functionality
+
+Now that you have Wifi up and running, it's time to set up the USB Storage and scripts that will manage the dashcam and (optionally) music storage. 
+
+1. SSH to the Pi and run `sudo -i`
+1. Try to ping your archive server from the Pi. In this example the server is named `nautilus`.
     ```
     ping -c 3 nautilus
     ```
@@ -122,7 +137,7 @@ Now that you have a shell on the Pi you can turn the Pi into a smart USB drive.
     ```
     ping 192.168.0.41
     ```
-1. If you can't ping the archive server by IP address from the Pi you should go do whatever you need to on your network to fix that. If you can't reach the archive server by name from the Pi but you can by IP address then use its IP address, below, in place of its name.
+1. If you can't ping the archive server by IP address from the Pi, you should go do whatever you need to on your network to fix that. If you can't reach the archive server by name, from the Pi but you can by IP address, then use its IP address, below, in place of its name.
 1. Run these commands, subsituting your values. The last line is the percent of the drive you want to allocate for dashcam storage. The remaining percentage will be allocated for music.
     ```
     export archiveserver=Nautilus
