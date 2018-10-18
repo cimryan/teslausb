@@ -1,7 +1,7 @@
-# teslausb
+# teslaUSB
 
 ## Meta
-This repo contains steps and scripts originally from [this thread on Reddit]( https://www.reddit.com/r/teslamotors/comments/9m9gyk/build_a_smart_usb_drive_for_your_tesla_dash_cam/)
+This repo contains steps and scripts originally from [this thread on Reddit]( https://www.reddit.com/r/teslamotors/comments/9m9gyk/build_a_smart_USB_drive_for_your_tesla_dash_cam/)
 
 Many people in that thread suggested that the scripts be hosted on Github but the author didn't seem interested in making that happen. I've hosted the scripts here with his/her permission.
 
@@ -78,7 +78,7 @@ There are four phases to setting up the Pi:
 > Regardless of which way you use to access the Pi (Keyboard+HDMI or USB networking), **before you boot the Pi for for the first time with the MicroSD inserted**, verify that the /boot/cmdline.txt file on the MicroSD does not contain the parameter "init=/usr/lib/raspi-config/init_resize.sh". Delete that entire string if present.
 
 #### Use a monitor/keyboard/mouse 
-If you have a monitor with an HDMI input, a Mini HDMI to HDMI cable, a usb keyboard and a micro usb power cable you can hook up the devices to the Pi and configure it directly. 
+If you have a monitor with an HDMI input, a Mini HDMI to HDMI cable, a USB keyboard and a Micro USB power cable you can hook up the devices to the Pi and configure it directly. 
 1. Insert the MicroSD card into the Pi.
 1. Connect the keyboard, and monitor to the Pi.
 1. Connect the power supply to the Pi using the port labeld "PWR" on the circuitboard.
@@ -160,19 +160,19 @@ Now that you have Wifi up and running, it's time to set up the USB Storage and s
     ```
 1. Run these commands:
     ```
-    wget https://raw.githubusercontent.com/cimryan/teslausb/master/windows_archive/setup-teslausb
-    chmod +x setup-teslausb
-    ./setup-teslausb
+    wget https://raw.githubusercontent.com/cimryan/teslaUSB/master/windows_archive/setup-teslaUSB
+    chmod +x setup-teslaUSB
+    ./setup-teslaUSB
     ```
 1. Run this command:
     ```
     reboot
     ```
 
-After reboot, the Pi hostname will become `teslausb`, so future `ssh` sessions will be `ssh pi@teslausb.local`. 
+After reboot, the Pi hostname will become `teslaUSB`, so future `ssh` sessions will be `ssh pi@teslaUSB.local`. 
 
 ### Get the Pi set up for your Tesla.
-If you set up the Pi with a keyboard and a monitor disconnect it and connect it to a PC. If you're using a cable be sure to use the port labeled "usb" on the circuitboard. 
+If you set up the Pi with a keyboard and a monitor disconnect it and connect it to a PC. If you're using a cable be sure to use the port labeled "USB" on the circuitboard. 
 1. Wait for the Pi to show up on the PC as a USB drive.
 1. Create a directory named TeslaCam at the root of the drive labeled CAM.
 1. Copy any music you'd like to the drive labeled MUSIC.
@@ -187,7 +187,7 @@ The setup process configures the Pi with read-only file systems for the operatin
 
 To make changes to the system partitions:
 ```
-ssh pi@teslausb.
+ssh pi@teslaUSB.
 sudo -i
 mount / -o remount,rw
 mount /boot -o remount,rw
