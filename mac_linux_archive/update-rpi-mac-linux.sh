@@ -15,7 +15,7 @@
 #|| | Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #|| #
 
-# Script repurposed fromhttps://github.com/BigNate1234/rpi-USBSSH
+# Script repurposed from https://github.com/BigNate1234/rpi-USBSSH
 #
 # This script will modify the cmdline.txt file on a freshly flashed Raspbian Stretch/Lite
 # It readies it for SSH, USB OTG, USB networking, and Wifi
@@ -79,17 +79,22 @@ fi
 # Sets up wifi credentials so wifi will be 
 # auto configured on first boot
 
+if [ -r "wpa_supplicant.conf" ]
+then
+  rm wpa_supplicant.conf
+fi
 
 cat << EOF >> wpa_supplicant.conf
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
 
 network={
-  ssid=$SSID
-  psk=$WIFIPASS
+  ssid="$SSID"
+  psk="$WIFIPASS"
   key_mgmt=WPA-PSK
 }
 EOF
+
 
 cd
 echo ""

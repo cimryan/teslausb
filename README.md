@@ -91,7 +91,7 @@ If you don't have a keyboard/HDMI setup to boot the Pi and edit/transfer files d
 * Follow [these instructions](GetShellWithoutMonitorOnWindows.md), then skip down to the section titled **Set up Set up Wifi on the Pi (manually)y**. 
 
 #### macOS or Linux (Setup Wifi or USB Networking)
-* Follow [these instructions](GetShellWitoutMonitorOnLinux.md), then proceed to the section **Set up the USB Storage Functionality**.
+* Follow [these instructions](GetShellWithoutMonitorOnLinux.md), then proceed to the section **Set up the USB Storage Functionality**.
 
 
 ### Set up Wifi on the Pi (manually)
@@ -168,6 +168,9 @@ Now that you have Wifi up and running, it's time to set up the USB Storage and s
     ```
     reboot
     ```
+
+After reboot, the Pi hostname will become `teslausb`, so future `ssh` sessions will be `ssh pi@teslausb.local`. 
+
 ### Get the Pi set up for your Tesla.
 If you set up the Pi with a keyboard and a monitor disconnect it and connect it to a PC. If you're using a cable be sure to use the port labeled "usb" on the circuitboard. 
 1. Wait for the Pi to show up on the PC as a USB drive.
@@ -189,4 +192,6 @@ sudo -i
 mount / -o remount,rw
 mount /boot -o remount,rw
 ```
+A script has been provided as `/root/remountfs_rw` to run the mount commands for you more easily. 
+
 Then make whatever changes you need to. The next time the system boots the partitions will once again be read-only.
