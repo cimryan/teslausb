@@ -52,14 +52,14 @@ if [ ! -f ssh ]; then
 fi
 
 # Append the dwc2 module if not set (USB OTG)
-
+echo "Verifying dwc2 module is set in config.txt."
 dt=$(cat config.txt | grep "dtoverlay=dwc2")
 if [ "$dt" != "dtoverlay=dwc2" ]; then
   echo "dtoverlay=dwc2" >> config.txt
 fi
 
 # Append the g_ether module if not set (USB networking)
-
+echo "Verifying the g_ether module (USB networking) is set in cmdline.txt."
 mod=$(cat cmdline.txt | grep -o "modules-load=dwc2,g_ether")
 if [ "$mod" != "modules-load=dwc2,g_ether" ]; then
   sed -i '' '$ s/$/ modules-load=dwc2,g_ether/' cmdline.txt
@@ -71,6 +71,7 @@ fi
 # Raspbian image will automatically expand the filesystem to include the 
 # entire SD card. 
 
+echo "Removing the command to auto-expand the root filesystem."
 mod=$(cat cmdline.txt | grep -o "init=/usr/lib/raspi-config/init_resize.sh")
 if [ "$mod" = "init=/usr/lib/raspi-config/init_resize.sh" ]; then
   sed -i'.bak' -e 's/ init=\/usr\/lib\/raspi-config\/init_resize.sh//g' cmdline.txt
@@ -79,6 +80,7 @@ fi
 # Sets up wifi credentials so wifi will be 
 # auto configured on first boot
 
+echo "Adding Wifi setup file (wpa_supplicant.conf)."
 if [ -r "wpa_supplicant.conf" ]
 then
   rm wpa_supplicant.conf
@@ -95,8 +97,6 @@ network={
 }
 EOF
 
-
-cd
 echo ""
 echo '-- Files updated and ready for Wifi and SSH over USB --'
 echo ""
