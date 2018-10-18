@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo "Remounting / as read/write"
+mount / -o remount,rw
+echo "Remounting /boot as read/write"
+mount /boot -o remount,rw
+echo "Done. Make any changes needed, and reboot the Pi when ready."
+echo "Filesystems / and /boot will be mounted as read only after reboot."
+
