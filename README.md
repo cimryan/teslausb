@@ -75,7 +75,7 @@ There are four phases to setting up the Pi:
    > Note: you don't need to uncompress the zip file you downloaded.
 
 ### Get a shell on the Pi
-> Regardless of which way you use to access the Pi (Keyboard+HDMI or USB networking), **before you boot the Pi for for the first time with the MicroSD inserted**, verify that the /boot/cmdline.txt file on the MicroSD does not contain the parameter "init=/usr/lib/raspi-config/init_resize.sh". Delete it if present.
+> Regardless of which way you use to access the Pi (Keyboard+HDMI or USB networking), **before you boot the Pi for for the first time with the MicroSD inserted**, verify that the /boot/cmdline.txt file on the MicroSD does not contain the parameter "init=/usr/lib/raspi-config/init_resize.sh". Delete that entire string if present.
 
 #### Use a monitor/keyboard/mouse 
 If you have a monitor with an HDMI input, a Mini HDMI to HDMI cable, a usb keyboard and a micro usb power cable you can hook up the devices to the Pi and configure it directly. 
