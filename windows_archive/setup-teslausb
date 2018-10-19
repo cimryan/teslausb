@@ -56,6 +56,38 @@ function check_archive_server_reachable () {
   echo "The archive server is reachable."
 }
 
+function write_archive_credentials_to () {
+  local file_path="$1"
+  
+  echo "username=$shareuser" > "$file_path"
+  echo "password=$sharepassword" >> "$file_path"
+
+}
+
+function check_archive_mountable () {
+  local archive_server_ip_address="$1"
+  
+  local test_mount_location="/tmp/archivetestmount"
+  
+  if [ ! -e "$test_mount_location" ]
+  then
+    mkdir "$test_mount_location"
+  fi
+  
+  local tmp_credentials_file_path="/tmp/teslaCamArchiveCredentials"
+  
+  write_archive_credentials_to "$tmp_credentials_file_path"
+  
+  local mount_failed=false
+  mount -t cifs "//$archive_server_ip_address/$sharename" "$test_mount_location" -o "vers=${cifs_version},credentials=${tmp_credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777" || mount_failed=true
+
+  if [ "$mount_failed" = true ]
+  then
+    echo "STOP: The archive couldn't be mounted with CIFS version ${cifs_version}. Try specifying a lower number for the CIFS version like this: export cifs_version=2"
+	exit 1
+  fi
+}
+
 function check_available_space () {
   echo "Verifying that there is sufficient space available on the MicroSD card..."
 
@@ -69,6 +101,7 @@ function check_available_space () {
 
   echo "There is sufficient space available."
 }
+
 
 function get_ancillary_setup_scripts () {
   pushd /tmp
@@ -104,13 +137,23 @@ function create_usb_drive_backing_files () {
 }
 
 function configure_archive () {
-  echo "Configuring the archive..."
-  mkdir /mnt/archive
-  local archive_server_ip_address="$(ping -c 1 -w 1 $archiveserver 2>/dev/null | head -n 1 | grep -o -e "(\([[:digit:]]\{1,3\}\.\)\{3\}[[:digit:]]\{1,3\})" | tr -d '()')"
-  echo "//$archive_server_ip_address/$sharename /mnt/archive cifs vers=3,credentials=/root/.teslaCamArchiveCredentials,iocharset=utf8,file_mode=0777,dir_mode=0777 0" >> /etc/fstab
+  local archive_server_ip_address="$1"
 
-  echo "username=$shareuser" > /root/.teslaCamArchiveCredentials
-  echo "password=$sharepassword" >> /root/.teslaCamArchiveCredentials
+  echo "Configuring the archive..."
+  
+  local archive_path="/mnt/archive"
+  
+  if [ ! -e "$archive_path" ]
+  then
+    mkdir "$archive_path"  
+  fi
+  
+  local credentials_file_path="/root/.teslaCamArchiveCredentials"
+
+  write_archive_credentials_to "$credentials_file_path"
+
+  echo "//$archive_server_ip_address/$sharename $archive_path cifs vers=${cifs_version},credentials=${credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777 0" >> /etc/fstab
+  
   echo "Configured the archive."
 }
 
@@ -190,6 +233,11 @@ function make_root_fs_readonly () {
 
 echo "Verifying environment variables..."
 
+if [ ! -n "${cifs_version+x}" ]
+then
+  cifs_version=3
+fi
+
 check_variable "archiveserver"
 check_variable "sharename"
 check_variable "shareuser"
@@ -199,6 +247,10 @@ check_variable "campercent"
 check_pushover_enabled
 
 check_archive_server_reachable
+
+ARCHIVE_SERVER_IP_ADDRESS="$(ping -c 1 -w 1 $archiveserver 2>/dev/null | head -n 1 | grep -o -e "(\([[:digit:]]\{1,3\}\.\)\{3\}[[:digit:]]\{1,3\})" | tr -d '()')"
+
+check_archive_mountable "$ARCHIVE_SERVER_IP_ADDRESS"
 
 check_available_space
 
@@ -216,7 +268,7 @@ echo "" >> /etc/fstab
 
 create_usb_drive_backing_files
 
-configure_archive
+configure_archive "$ARCHIVE_SERVER_IP_ADDRESS"
 
 configure_rc_local
 
