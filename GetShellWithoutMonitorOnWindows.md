@@ -18,6 +18,8 @@
     ./setup-piForHeadlessConfig.ps1 -Verbose
     ```
 1. Enter the single letter of the "boot" drive and press Enter.
+1. Enter the SSID of your WiFi network and press Enter.
+1. Enter the Pre-Shared Key of your WiFi network and press Enter.
 1. Eject the sd card.
 1. Move the sd card to the Pi.
 1. Connect a micro usb cable to the port labeled "USB" on the Raspberry Pi, and to the PC.
