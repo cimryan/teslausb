@@ -2,7 +2,13 @@
 Param
 (
     [Parameter(Mandatory=$True,Position=1)]
-    [string]$driveLetter
+    [string]$driveLetter,
+	
+    [Parameter(Mandatory=$True,Position=2)]
+    [string]$wifiSSID,
+
+    [Parameter(Mandatory=$True,Position=3)]
+    [string]$wifiPSK
 )
 
 $drivePath="${driveLetter}:"
@@ -27,5 +33,25 @@ $cmdlinetxtContent.Replace("rootwait", "rootwait modules-load=dwc2,g_ether").Rep
 
 Write-Verbose "Enabling SSH ..."
 [System.IO.File]::CreateText($sshPath).Dispose()
+
+# Sets up wifi credentials so wifi will be 
+# auto configured on first boot
+
+$wpaSupplicantConfPath="$drivePath\wpa_supplicant.conf"
+
+Write-Verbose "(Re)creating WiFi configuration file $wpaSupplicantConfPath."
+if ([System.IO.File]::Exists("$wpaSupplicantConfPath")) {
+  del "$wpaSupplicantConfPath"
+}
+
+"ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev`
+update_config=1`
+`
+network={`
+  ssid=`"$wifiSSID`"`
+  psk=`"$wifiPSK`"`
+  key_mgmt=WPA-PSK`
+}`
+" | Out-File -FilePath "$wpaSupplicantConfPath" -Encoding utf8
 
 Write-Verbose "All done."
