@@ -8,7 +8,7 @@ Basically what you're doing is using the Pi's capability to emulate a network co
 
 ## Use the update script to setup Wifi and USB networking 
 
-A [script](https://raw.githubusercontent.com/cimryan/teslausb/master/mac_linux_archive/update-rpi-mac-linux.sh) is provided to automatically update your SD card so the first time you boot it on your Pi, USB networking and Wifi will automatically be configured. 
+A [script](https://raw.githubusercontent.com/cimryan/teslausb/master/mac_linux_archive/setup-piForHeadlessConfig.sh is provided to automatically update your SD card so the first time you boot it on your Pi, USB networking and Wifi will automatically be configured. 
 
 If you prefer not to run the script, it's also a useful reference for the steps you'll need to take. 
 
@@ -19,7 +19,7 @@ If you prefer not to run the script, it's also a useful reference for the steps 
 1. Change to the directory where the SD card's `boot` folder (containing `cmdline.txt`) is located. On a Mac, this will be `/Volumes/boot`. On Linux the location may vary. 
 1. Run the following commands:
     ```
-    wget https://raw.githubusercontent.com/cimryan/teslausb/master/mac_linux_archive/update-rpi-mac-linux.sh
+    wget https://raw.githubusercontent.com/cimryan/teslausb/master/mac_linux_archive/setup-piForHeadlessConfig.sh
     chmod +x update-rpi-mac-linux.sh
     ```
 1. Set your SSID (Wifi network name) and WIFIPASS environment variables. The script will insert them into the `wpa_supplicant.conf` when creating it:
