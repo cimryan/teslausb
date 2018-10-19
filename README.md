@@ -1,7 +1,7 @@
-# teslaUSB
+# teslausb
 
 ## Meta
-This repo contains steps and scripts originally from [this thread on Reddit]( https://www.reddit.com/r/teslamotors/comments/9m9gyk/build_a_smart_USB_drive_for_your_tesla_dash_cam/)
+This repo contains steps and scripts originally from [this thread on Reddit]( https://www.reddit.com/r/teslamotors/comments/9m9gyk/build_a_smart_usb_drive_for_your_tesla_dash_cam/)
 
 Many people in that thread suggested that the scripts be hosted on Github but the author didn't seem interested in making that happen. I've hosted the scripts here with his/her permission.
 
@@ -160,16 +160,16 @@ Now that you have Wifi up and running, it's time to set up the USB Storage and s
     ```
 1. Run these commands:
     ```
-    wget https://raw.githubusercontent.com/cimryan/teslaUSB/master/windows_archive/setup-teslaUSB
-    chmod +x setup-teslaUSB
-    ./setup-teslaUSB
+    wget https://raw.githubusercontent.com/cimryan/teslausb/master/windows_archive/setup-teslausb
+    chmod +x setup-teslausb
+    ./setup-teslausb
     ```
 1. Run this command:
     ```
     reboot
     ```
 
-After reboot, the Pi hostname will become `teslaUSB`, so future `ssh` sessions will be `ssh pi@teslaUSB.local`. 
+After reboot, the Pi hostname will become `teslausb`, so future `ssh` sessions will be `ssh pi@teslausb.local`. 
 
 ### Get the Pi set up for your Tesla.
 If you set up the Pi with a keyboard and a monitor disconnect it and connect it to a PC. If you're using a cable be sure to use the port labeled "USB" on the circuitboard. 
@@ -187,7 +187,7 @@ The setup process configures the Pi with read-only file systems for the operatin
 
 To make changes to the system partitions:
 ```
-ssh pi@teslaUSB.
+ssh pi@teslausb.
 sudo -i
 mount / -o remount,rw
 mount /boot -o remount,rw
