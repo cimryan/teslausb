@@ -17,6 +17,8 @@ You can configure a Raspberry Pi Zero W so that your Tesla thinks it's a USB dri
 
 The scripts in this repo will also allow you to use the Pi to store music that the Tesla can read through the USB interface.
 
+Archiving the clips can take from seconds to hours depending on how many clips you've saved and how strong the WiFi signal is in your Tesla. If you find that the clips aren't getting completely transferred before the car powers down after you park or before you leave you can use the Tesla app to turn on the Climate control. This will send power to the Raspberry Pi, allowing it to complete the archival operation.
+
 ## Prerequisites
 
 ### Assumptions
@@ -95,18 +97,7 @@ Now that you have Wifi up and running, it's time to set up the USB storage and s
     export sharepassword=pa$$w0rd
     export campercent=100
     ```
-1. OPTIONAL: You can choose to integrate with [Pushover](https://pushover.net) to get a push notification to your phone when the copy process is done. Depending on your wireless network speed/connection, copying files may take some time, so a push notification can help confirm that the process finished. If no files were copied (i.e. all manually saved dashcam files were already copied, no notification will be sent.). The Pushover service is free for up to 7,500 messages per month, but the [iOS](https://pushover.net/clients/ios)/[Android](https://pushover.net/clients/android) apps do have a one time cost, after a free trial period. *This also assumes your Pi is connected to a network with internet access.*
-
-    * Create a free account at Pushover.net, and install and log into the mobile Pushover app. 
-    * On the Pushover dashboard on the web, copy your **User key**. 
-    * [Create a new Application](https://pushover.net/apps/build) at Pushover.net. The description and icon don't matter, choose what you prefer. 
-    * Copy the **Application Key** for the application you just created. The User key + Application Key are basically a username/password combination to needed to send the push. 
-    * Run these commands, substituting your user key and app key in the appropriate places. No `"` are needed. 
-    ```
-    export pushover_enabled=true
-    export pushover_user_key=put_your_userkey_here
-    export pushover_app_key=put_your_appkey_here
-    ```
+1. If you'd like to receive a text message when your Pi finishes archiving clips follow these [Instructions](ConfigureNotificationsForArchive.md).
 1. Run these commands:
     ```
     wget https://raw.githubusercontent.com/cimryan/teslausb/master/windows_archive/setup-teslausb
