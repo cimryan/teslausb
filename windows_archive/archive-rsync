@@ -1,5 +1,7 @@
 #!/bin/bash -eu
 
+LOG_FILE=/tmp/archive-rsync.log
+
 function log () {
   echo "$( date )" >> "$LOG_FILE"
   echo "$1" >> "$LOG_FILE"
@@ -7,7 +9,7 @@ function log () {
 
 source /root/.teslaCamRsyncConfig
 
-nfiles=$(rsync -auh --stats /mnt/cam/TeslaCam/saved* $user@$server:$path | awk '/files transferred/{print $NF}')
+nfiles=$(rsync -auvh --stats --log-file=/tmp/archive-rsync-cmd.log /mnt/cam/TeslaCam/saved* $user@$server:$path | awk '/files transferred/{print $NF}')
 
 if [ $nfiles > 0 ]
 then

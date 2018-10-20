@@ -112,8 +112,8 @@ function configure_archive () {
   then
     echo "Configuring for Rsync..."
     echo "user=$RSYNC_USER" > /root/.teslaCamRsyncConfig
-    echo "server=$RSYNC_SERVER" > /root/.teslaCamRsyncConfig
-    echo "path=$RSYNC_PATH" > /root/.teslaCamRsyncConfig
+    echo "server=$RSYNC_SERVER" >> /root/.teslaCamRsyncConfig
+    echo "path=$RSYNC_PATH" >> /root/.teslaCamRsyncConfig
   else
     echo "Configuring for a shared drive..."
     mkdir /mnt/archive
