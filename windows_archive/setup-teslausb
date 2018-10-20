@@ -212,7 +212,7 @@ if [ $RSYNC_ENABLE = true ]
 then
     check_variable "RSYNC_USER"
     check_variable "RSYNC_SERVER"
-    archiveserver = $RSYNC_SERVER
+    export archiveserver=$RSYNC_SERVER
     check_variable "RSYNC_PATH"
 else # Else for now, TODO allow both for more redundancy?
     check_variable "sharename"

@@ -96,7 +96,7 @@ function move_clips_to_archive () {
         /root/bin/send-pushover $move_count
     fi
   fi
-  
+
   log "Finished moving clips to archive."
 }
 
@@ -132,7 +132,10 @@ function unmount_cam_drive () {
 
 log "Starting..."
 
-ensure_archive_is_mounted
+if [ ! -r "/root/.teslaCamRsyncConfig" ]
+then
+    ensure_archive_is_mounted
+fi
 
 disconnect_usb_drives_from_host
 
