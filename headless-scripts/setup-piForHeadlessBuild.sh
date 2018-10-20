@@ -128,7 +128,7 @@ CONFIG_TXT_PATH="$BOOT_DIR/config.txt"
 
 if ! grep -q "dtoverlay=dwc2" $CONFIG_TXT_PATH
 then
-   echo "Updating $CONFIG_TXT_PATH ..."
+   good_message "Updating $CONFIG_TXT_PATH ..."
    echo "" >> "$CONFIG_TXT_PATH"
    echo "dtoverlay=dwc2" >> "$CONFIG_TXT_PATH"
 else
@@ -149,7 +149,7 @@ then
   touch "$BOOT_DIR/ssh"
 fi
 
-# Sets up wifi credentials so wifi will be 
+# Sets up wifi credentials so wifi will be
 # auto configured on first boot
 
 WPA_SUPPLICANT_CONF_PATH="$BOOT_DIR/wpa_supplicant.conf"
@@ -174,7 +174,6 @@ EOF
 echo ""
 good_message '-- Files updated and ready for headless setup --'
 echo ''
-good_message '-- You can now insert your SD card into the Pi for headless setup'
-echo ''
+echo 'You can now insert your SD card into the Pi for headless setup. Plug in power to the Pi and it will boot and run.'
 echo "When done (this may take a vew minutes), the Pi should be available over SSH as pi@teslausb.local"
 echo ""

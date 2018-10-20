@@ -1,9 +1,9 @@
 #!/bin/bash -eu
 
-REPO=rtgoodwin
-BRANCH="headless-patch"
+REPO=cimryan
+BRANCH=master
 user_enabled_pushover=false
-LOGFIlE=/boot/teslausb-headless-setup.log
+LOGFILE=/boot/teslausb-headless-setup.log
 setup_complete=false
 
 # if ! [ $(id -u) = 0 ]
@@ -13,19 +13,28 @@ setup_complete=false
 # fi
 
 function setup_log () {
-  echo "$( date )" >> "$LOGFILE"
-  echo "$1" >> "$LOGFILE"
+  echo "$( date ) : $1" >> "$LOGFILE"
 }
 
-if [ ! -e /boot/TESLAUSB_SETUP_FINISHED ]
+if [ ! -e /boot/TESLAUSB_SETUP_FINISHED ] 
 then
   setup_log "Setting up teslausb functionality"
-  touch /boot/TESLA_USB_SETUP_STARTED
+  touch /boot/TESLAUSB_SETUP_STARTED
 fi
 
 function mark_setup_failed () {
+  setup_log "ERROR: Setup Failed."
+  touch /boot/TESLAUSB_SETUP_FAILED
+}
 
-
+function mark_setup_success () {
+  if [ -e /boot/TESLAUSB_SETUP_FAILED ]
+  then
+     rm /boot/TESLAUSB_SETUP_FAILED
+     rm /boot/TESLAUSB_SETUP_STARTED
+  fi
+  touch /boot/TESLAUSB_SETUP_FINISHED
+  setup_log "Setup completed. Remounting file systems read only (may cause a reboot)."
 }
 
 function check_variable () {
@@ -38,8 +47,29 @@ function check_variable () {
   fi
 }
 
-
-
+function check_pushover_enabled () {
+  if [ ! -z "${pushover_enabled+x}" ]
+  then
+    if [ ! -n "${pushover_user_key+x}" ] || [ ! -n "${pushover_app_key+x}"  ]
+    then
+      setup_log "ERROR: "
+      echo "STOP: You're trying to setup Pushover but didn't provide your User and/or App key."
+      echo "Define the variables like this:"
+      echo "export pushover_user_key=put_your_userkey_here"
+      echo "export pushover_app_key=put_your_appkey_here"
+      exit 1
+    elif [ "${pushover_user_key}" = "put_your_userkey_here" ] || [  "${pushover_app_key}" = "put_your_appkey_here" ]
+    then
+      echo "STOP: You're trying to setup Pushover, but didn't replace the default User and App key values."
+      exit 1
+    else
+      user_enabled_pushover=true
+      echo "export pushover_enabled=true" > /root/.teslaCamPushoverCredentials
+      echo "export pushover_user_key=$pushover_user_key" >> /root/.teslaCamPushoverCredentials
+      echo "export pushover_app_key=$pushover_app_key" >> /root/.teslaCamPushoverCredentials
+    fi
+  fi
+}
 
 function check_archive_server_reachable () {
   echo "Verifying that the archive server $archiveserver is reachable..."
@@ -187,6 +217,14 @@ function make_root_fs_readonly () {
   /tmp/make-root-fs-readonly.sh
 }
 
+if [ ! -e /boot/teslausb_setup_variables.conf ]
+then
+  setup_log "ERROR: teslausb_setup_variables.conf file not found. Can't continue setup."
+  exit 1
+fi
+
+source /boot/teslausb_setup_variables.conf
+
 echo "Verifying environment variables..."
 
 check_variable "archiveserver"
@@ -220,6 +258,8 @@ configure_archive
 configure_rc_local
 
 configure_hostname
+
+mark_setup_success
 
 make_root_fs_readonly
 
