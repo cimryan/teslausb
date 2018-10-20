@@ -82,19 +82,10 @@ function move_clips_to_archive () {
   done
   log "Moved $move_count file(s)."
 
-  if [ $move_count > 0]
+  if [ -r "/root/.teslaCamPushoverCredentials" ] && [ $move_count > 0]
   then
-    if [ -r "/root/.teslaCamRsyncConfig" ]
-    then
-        log "Archiving through rsync..."
-        /root/bin/archive-rsync
-    fi
-
-    if [ -r "/root/.teslaCamPushoverCredentials" ]
-    then
-        log "Sending Pushover message for copied files."
-        /root/bin/send-pushover $move_count
-    fi
+    log "Sending Pushover message for copied files."
+    /root/bin/send-pushover $move_count
   fi
 
   log "Finished moving clips to archive."
@@ -143,7 +134,13 @@ fix_errors_on_cam_drive
 
 ensure_cam_drive_is_mounted
 
-move_clips_to_archive
+if [ -r "/root/.teslaCamRsyncConfig" ]
+then
+    log "Archiving through rsync..."
+    /root/bin/archive-rsync
+else
+    move_clips_to_archive
+fi
 
 unmount_cam_drive
 

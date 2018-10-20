@@ -7,6 +7,16 @@ function log () {
 
 source /root/.teslaCamRsyncConfig
 
-rsync -au /mnt/archive $user@$server:$path
+nfiles=$(rsync -auh --stats /mnt/cam/TeslaCam/saved* $user@$server:$path | awk '/files transferred/{print $NF}')
 
-log "Successfully synced files through rsync!"
+if [ $nfiles > 0 ]
+then
+    if [ -r "/root/.teslaCamPushoverCredentials" ] && [ $nfiles > 0]
+    then
+        log "Sending Pushover message for copied files."
+        /root/bin/send-pushover $nfiles
+    fi
+    log "Successfully synced files through rsync!"
+else
+    log "No files to archive through rsync!"
+fi
