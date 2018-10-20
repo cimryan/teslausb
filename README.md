@@ -55,7 +55,10 @@ Set up a share on a Windows (or macOS using Sharing, or Linux using Samba) machi
 
 Get the IP address of the archive machine. You'll need this later, so write it down, somewhere. You can do this by opening a command prompt on the archive machine and typing ipconfig. Get the IP address from the line labeled "IPv4 Address". These instructions will assume that the IP address of the archive server is 192.168.0.41.
 
-### TODO Other hosting solutions
+### Hosting via SFTP/rsync
+Since sftp/rsync is accessing a computer through SSH, the only requirement for hosting an SFTP/rsync server is to have a box running Linux. An example can be another Raspberry Pi connected to your local network with a USB storage drive plugged in. The official Raspberry Pi site has a good example on [how to mount an external drive](https://www.raspberrypi.org/documentation/configuration/external-storage.md). You will need the username and host/IP of the storage server, as well as the path for the files to go in, and the storage server will need to allow SSH.
+
+### ***TODO: Other hosting solutions***
 
 ## Set up the Raspberry Pi
 There are four phases to setting up the Pi:
@@ -89,13 +92,18 @@ Now that you have Wifi up and running, it's time to set up the USB storage and s
     ping 192.168.0.41
     ```
 1. If you can't ping the archive server by IP address from the Pi, you should go do whatever you need to on your network to fix that. If you can't reach the archive server by name, from the Pi but you can by IP address, then use its IP address, below, in place of its name.
-1. Run these commands, subsituting your values. The last line is the percent of the drive you want to allocate for dashcam storage. The remaining percentage will be allocated for music.
+1. Determine how much, as a percentage of the drive you want to allocate to recording dashcam footage by using:
+    ```
+    export campercent=<number>
+    ```
+    For example, using `export campercent=100` would allocate 100% of the space to recording footage from your car. `export campercent=50` would be only allocate half of the space for dashcam footage, and allow the other half to be used by music.
+1. If you are trying to archive on an SFTP/rsync server, then follow these [instructions](SetupRSync.md), and skip the next step.
+1. Run these commands, subsituting your values for your shared drive:
     ```
     export archiveserver=Nautilus
     export sharename=SailfishCam
     export shareuser=sailfish
     export sharepassword=pa$$w0rd
-    export campercent=100
     ```
 1. If you'd like to receive a text message when your Pi finishes archiving clips follow these [Instructions](ConfigureNotificationsForArchive.md).
 1. Run these commands:

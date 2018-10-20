@@ -1,0 +1,12 @@
+#!/bin/bash -eu
+
+function log () {
+  echo "$( date )" >> "$LOG_FILE"
+  echo "$1" >> "$LOG_FILE"
+}
+
+source /root/.teslaCamRsyncConfig
+
+rsync -au /mnt/archive $user@$server:$path
+
+log "Successfully synced files through rsync!"
