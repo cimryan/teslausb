@@ -1,11 +1,10 @@
 #!/bin/bash -eu
 
-REPO=cimryan
-BRANCH=master
+REPO=rtgoodwin
+BRANCH="headless-patch"
 user_enabled_pushover=false
 LOGFILE=/boot/teslausb-headless-setup.log
 setup_complete=false
-stage_in_progress=false
 
 # if ! [ $(id -u) = 0 ]
 # then
