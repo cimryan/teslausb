@@ -134,7 +134,7 @@ function download_scripts () {
   else
     pushd "${BOOT_DIR}/teslausb_script_scripts"
     
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/headless-patch/setup-teslausb-headless -O setup-teslausb-headless
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/headless-scripts/setup-teslausb-headless -O setup-teslausb-headless
     verify_setup_file_exists "setup-teslausb-headless" "${BOOT_DIR}/teslausb_script_scripts"
     chmod +x setup-teslausb-headless
     good_message "Downloaded main setup script."
