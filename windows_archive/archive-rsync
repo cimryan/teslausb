@@ -1,0 +1,24 @@
+#!/bin/bash -eu
+
+LOG_FILE=/tmp/archive-rsync.log
+
+function log () {
+  echo "$( date )" >> "$LOG_FILE"
+  echo "$1" >> "$LOG_FILE"
+}
+
+source /root/.teslaCamRsyncConfig
+
+nfiles=$(rsync -auvh --stats --log-file=/tmp/archive-rsync-cmd.log /mnt/cam/TeslaCam/saved* $user@$server:$path | awk '/files transferred/{print $NF}')
+
+if [ $nfiles > 0 ]
+then
+    if [ -r "/root/.teslaCamPushoverCredentials" ] && [ $nfiles > 0]
+    then
+        log "Sending Pushover message for copied files."
+        /root/bin/send-pushover $nfiles
+    fi
+    log "Successfully synced files through rsync!"
+else
+    log "No files to archive through rsync!"
+fi

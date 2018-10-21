@@ -81,11 +81,13 @@ function move_clips_to_archive () {
 
   done
   log "Moved $move_count file(s)."
-  if [ -r "/root/.teslaCamPushoverCredentials" ] && [ $move_count > 0 ]
+
+  if [ -r "/root/.teslaCamPushoverCredentials" ] && [ $move_count > 0]
   then
     log "Sending Pushover message for copied files."
     /root/bin/send-pushover $move_count
   fi
+
   log "Finished moving clips to archive."
 }
 
@@ -121,7 +123,10 @@ function unmount_cam_drive () {
 
 log "Starting..."
 
-ensure_archive_is_mounted
+if [ ! -r "/root/.teslaCamRsyncConfig" ]
+then
+    ensure_archive_is_mounted
+fi
 
 disconnect_usb_drives_from_host
 
@@ -129,7 +134,13 @@ fix_errors_on_cam_drive
 
 ensure_cam_drive_is_mounted
 
-move_clips_to_archive
+if [ -r "/root/.teslaCamRsyncConfig" ]
+then
+    log "Archiving through rsync..."
+    /root/bin/archive-rsync
+else
+    move_clips_to_archive
+fi
 
 unmount_cam_drive
 
