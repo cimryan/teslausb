@@ -31,10 +31,10 @@ function mark_setup_success () {
   if [ -e /boot/TESLAUSB_SETUP_FAILED ]
   then
      rm /boot/TESLAUSB_SETUP_FAILED
-     rm /boot/TESLAUSB_SETUP_STARTED
   fi
+  rm /boot/TESLAUSB_SETUP_STARTED
   touch /boot/TESLAUSB_SETUP_FINISHED
-  setup_log "Setup completed. Remounting file systems read only (may cause a reboot)."
+  setup_log "Main setup completed. Remounting file systems read only."
 }
 
 function check_variable () {
@@ -263,4 +263,7 @@ mark_setup_success
 
 make_root_fs_readonly
 
-echo "All done."
+setup_log "Filesystems made read-only. Rebooting."
+
+reboot
+
