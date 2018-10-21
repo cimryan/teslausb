@@ -1,11 +1,11 @@
 #!/bin/bash -eu
 
-LOG_FILE=/tmp/archive-teslacam-clips.log
+LOG_FILE=/tmp/archiveloop.log
 CAM_MOUNT=/mnt/cam
 ARCHIVE_MOUNT=/mnt/archive
 
 function log () {
-  echo "$( date ) : $1" >> "$LOGFILE"
+  echo "$( date ) : $1" >> "$LOG_FILE"
 }
 
 function retry () {
@@ -70,7 +70,7 @@ function ensure_mountpoint_is_mounted_with_retry () {
 
 function move_clips_to_archive () {
   log "Moving clips to archive..."
-  local move_count=0
+  move_count=0
   for file_name in "$CAM_MOUNT"/TeslaCam/saved*; do
     [ -e "$file_name" ] || continue
     log "Moving $file_name ..."
@@ -80,7 +80,7 @@ function move_clips_to_archive () {
 
   done
   log "Moved $move_count file(s)."
-  if [ -r "/root/.teslaCamPushoverCredentials" ] && [ $move_count > 0 ]
+  if [ -e "/root/.teslaCamPushoverCredentials" ] && [ ${move_count} -gt 0 ]
   then
     log "Sending Pushover message for copied files."
     /root/bin/send-pushover $move_count

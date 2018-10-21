@@ -2,10 +2,10 @@
 
 # Change the value on the right side of the equal sign to the name of the server hosting the archive.
 ARCHIVE_HOST_NAME=archiveserver
-LOGFILE=/tmp/archiveloop.log
+LOG_FILE=/tmp/archiveloop.log
 
 function log () {
-  echo "$( date ) : $1" >> "$LOGFILE"
+  echo "$( date ) : $1" >> "$LOG_FILE"
 }
 
 function archive_is_reachable () {
