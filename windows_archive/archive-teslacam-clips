@@ -5,7 +5,7 @@ CAM_MOUNT=/mnt/cam
 ARCHIVE_MOUNT=/mnt/archive
 
 function log () {
-  echo "$( date ) : $1" >> "$LOG_FILE"
+  echo "$( date ) : $1" >> "$LOGFILE"
 }
 
 function retry () {

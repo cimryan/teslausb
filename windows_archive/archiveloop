@@ -5,7 +5,7 @@ ARCHIVE_HOST_NAME=archiveserver
 LOGFILE=/tmp/archiveloop.log
 
 function log () {
-  echo "$( date ) : $1" >> "$LOG_FILE"
+  echo "$( date ) : $1" >> "$LOGFILE"
 }
 
 function archive_is_reachable () {

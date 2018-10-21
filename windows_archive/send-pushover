@@ -3,7 +3,7 @@
 LOGFILE=/tmp/archiveloop.log
 
 function log () {
-  echo "$( date ) : $1" >> "$LOG_FILE"
+  echo "$( date ) : $1" >> "$LOGFILE"
 }
 
 source /root/.teslaCamPushoverCredentials
