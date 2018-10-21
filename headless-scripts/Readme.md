@@ -2,14 +2,22 @@
 
 # This is a WORK IN PROGRESS, NOT CURRENTLY WORKING. 
 
-For now the image creation work is at [rtgoodwin's fork of pi-gen](https://github.com/rtgoodwin/pi-gen) in (whatever current branch I'm working at the time).
+For now the image creation work is at:
+* Modified pi-gen [rtgoodwin's fork of pi-gen](https://github.com/rtgoodwin/pi-gen) in (whatever current branch I'm working at the time). 
+* `headless-patch` branch of [https://github.com/rtgoodwin/teslausb](https://github.com/rtgoodwin/teslausb)
+
+## Notes 
+
 * Assumes your Pi comes up on Wifi, with internet access. (But so does most of this guide.) USB networking still enabled for troubleshooting.
-* At this point, I'm designing it to pull the setup scripts dynamically, since development is still ongoing. If/when we reach a good frozen state, we can generate an image that is ready to run. I think it'll also be pretty tricky to do some of the remounting and creating the backing files etc. on the image creation side. Open to suggestions/contributions there though!
+* I moved all script downloads and variable creation to the initial setup. At this point, I'm designing it to pull the setup scripts dynamically, since development is still ongoing. If/when we reach a good frozen state, we can generate an image that is ready to run. I think it'll also be pretty tricky to do some of the remounting and creating the backing files etc. on the image creation side. Open to suggestions/contributions there though!
+* The archive server might not be reachable during the first boot during setup, ex. if building the card somewhere away from the archive server location. So I no longer fail on it not being reachable. 
 
+## Building the Pi
 
+WORK IN PROGRESS BUT MOSTLY RIGHT
 
-1. Flash the image
-1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment varibles normally needed for setup (including archive, wifi, and push notifications if desired.)
+1. Flash the image from: XXXXXXXX
+1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment varibles normally needed for setup (including archive, Wifi, and push notifications (if desired).) See the main README for these instructions for now. 
 1. Run the `setup-piForHeadlessBuild.sh` (note: **not** `setup-piForHeadlessSetup.sh`):
 `curl https://raw.githubusercontent.com/rtgoodwin/teslausb/headless-patch/headless-scripts/setup-piForHeadlessBuild.sh -o setup-piForHeadlessBuild.sh`
 `chmod +x setup-piForHeadlessBuild.sh`
