@@ -2,15 +2,10 @@
 
 # This is a WORK IN PROGRESS, SHOULD BE WORKING. 
 
-For now the image creation work is at:
-* Modified pi-gen [rtgoodwin's fork of pi-gen](https://github.com/rtgoodwin/pi-gen) in (whatever current branch I'm working at the time). 
-* `headless-patch` branch of [https://github.com/rtgoodwin/teslausb](https://github.com/rtgoodwin/teslausb)
 
 ## Notes 
 
-* Assumes your Pi comes up on Wifi, with internet access. (But so does most of this guide.) USB networking still enabled for troubleshooting.
-* I moved all script downloads and variable creation to the initial setup. At this point, I'm designing it to pull the setup scripts dynamically, since development is still ongoing. If/when we reach a good frozen state, we can generate an image that is ready to run. I think it'll also be pretty tricky to do some of the remounting and creating the backing files etc. on the image creation side. Open to suggestions/contributions there though!
-  * At the very least we could bake in stable first stage headlessBuild scripts for Mac/Linux/Windows.
+* Assumes your Pi has access to Wifi, with internet access (during setup). (But all setup methods do currently.) USB networking still enabled for troubleshooting.
 
 
 ## Building the Pi
@@ -39,8 +34,11 @@ At this point the next boot should start the Dashcam/music drives like normal. I
 
 > NOTE: Don't delete the `TESLAUSB_SETUP_FINISHED` file. This is how the system knows setup is complete. 
 
+### Image builder source and patches
 
-
+For now the image creation work is at:
+* Modified pi-gen [rtgoodwin's fork of pi-gen](https://github.com/rtgoodwin/pi-gen) in (whatever current branch I'm working at the time). 
+* `headless-patch` branch of [https://github.com/rtgoodwin/teslausb](https://github.com/rtgoodwin/teslausb)
 
 
 ### Image creation TODOs
@@ -50,6 +48,7 @@ At this point the next boot should start the Dashcam/music drives like normal. I
 1. Cache the remount packages? Might mess with first boot like `rsyslog`
 1. Any other steps to move into the base image?
 1. Aspirational TODO: Remove more packages and set services to stopped to make the boot process faster? 
+1. NOTE: I moved all script downloads and variable creation to the initial setup. At this point, I'm designing it to pull the setup scripts dynamically, since development is still ongoing. If/when we reach a good frozen state, we can generate an image that is ready to run. I think it'll also be pretty tricky to do some of the remounting and creating the backing files etc. on the image creation side. Open to suggestions/contributions there though! At the very least we could bake in stable first stage headlessBuild scripts for Mac/Linux/Windows.
 
 
 #### Modifications to pi-gen builder from master
