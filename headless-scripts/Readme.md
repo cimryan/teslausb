@@ -1,4 +1,4 @@
-# Flashable image to get started more quick
+# Flashable image to get started more quickly
 
 # This is a WORK IN PROGRESS, SHOULD BE WORKING. 
 
@@ -8,12 +8,20 @@
 * Assumes your Pi has access to Wifi, with internet access (during setup). (But all setup methods do currently.) USB networking still enabled for troubleshooting.
 
 
-## Building the Pi
+## Configure the SD card before first boot of the Pi
 
-WORK IN PROGRESS BUT MOSTLY RIGHT. And still shorter than the full process! 
 
-1. Flash the image from [here](https://www.dropbox.com/s/zfzjbmx4744q810/image_2018-10-21-teslausb_headless-lite.zip?dl=0)
-1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment varibles normally needed for setup (including archive, Wifi, and push notifications (if desired).) See the main README for all the variables.
+1. Flash the image from [here](https://www.dropbox.com/s/zfzjbmx4744q810/image_2018-10-21-teslausb_headless-lite.zip?dl=0) using Etcher or similar. 
+1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment varibles normally needed for setup (including archive, Wifi, and push notifications (if desired).) See the main README for all the variables. I.e. file should contain at a minimum (replace with your own values):
+    ```
+    export archiveserver=Nautilus
+    export sharename=SailfishCam
+    export shareuser=sailfish
+    export sharepassword=pa$$w0rd
+    export campercent=100
+    export SSID=your_ssid
+    export WIFIPASS=your_wifi_password
+    ```
 1. Run the `setup-piForHeadlessBuild.sh` (note: **not** `setup-piForHeadlessSetup.sh`):
 `curl https://raw.githubusercontent.com/rtgoodwin/teslausb/headless-patch/headless-scripts/setup-piForHeadlessBuild.sh -o setup-piForHeadlessBuild.sh`
 `chmod +x setup-piForHeadlessBuild.sh`
@@ -38,7 +46,7 @@ At this point the next boot should start the Dashcam/music drives like normal. I
 
 For now the image creation work is at:
 * Modified pi-gen [rtgoodwin's fork of pi-gen](https://github.com/rtgoodwin/pi-gen) in (whatever current branch I'm working at the time). 
-* `headless-patch` branch of [https://github.com/rtgoodwin/teslausb](https://github.com/rtgoodwin/teslausb)
+* `headless-patch` branch of rtgoodwin fork [https://github.com/rtgoodwin/teslausb/tree/headless-patch/headless-scripts](https://github.com/rtgoodwin/teslausb/tree/headless-patch/headless-scripts)
 
 
 ### Image creation TODOs
