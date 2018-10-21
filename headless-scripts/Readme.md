@@ -23,9 +23,13 @@
     export WIFIPASS=your_wifi_password
     ```
 1. Run the `setup-piForHeadlessBuild.sh` (note: **not** `setup-piForHeadlessSetup.sh`):
-`curl https://raw.githubusercontent.com/rtgoodwin/teslausb/headless-patch/headless-scripts/setup-piForHeadlessBuild.sh -o setup-piForHeadlessBuild.sh`
-`chmod +x setup-piForHeadlessBuild.sh`
-`./setup-piForHeadlessBuild.sh .`
+```
+curl https://raw.githubusercontent.com/rtgoodwin/teslausb/headless-patch/headless-scripts/setup-piForHeadlessBuild.sh -o setup-piForHeadlessBuild.sh
+
+chmod +x setup-piForHeadlessBuild.sh
+
+./setup-piForHeadlessBuild.sh <location_of_boot_directory>
+```
 1. If all goes well, put card into Pi and boot. 
 1. Wait for the the Pi to come up as a CAM USB drive, if you have it plugged into your computer. If not, give it a few minutes until the LED starts pulsing steadily which means the archive loop is running and you're good to go. 
 
