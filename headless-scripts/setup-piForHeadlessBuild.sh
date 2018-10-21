@@ -61,12 +61,13 @@ function verify_file_exists () {
 
 function verify_setup_file_exists () {
   local file_name="$1"
-  local expected_path="$2"
 
-  if [ ! -e "$expected_path/$file_name" ]
+  if [ -e "$file_name" ]
     then
-      stop_message "STOP: Didn't find setup script $file_name at $expected_path. Try running the setup script again."
-      exit 1
+      good_message "Downloaded $file_name."
+    else
+    stop_message "STOP: Didn't find downloaded script $file_name. Try running the setup script again."
+    exit 1
   fi
 }
 
@@ -132,51 +133,49 @@ function download_scripts () {
   then
     mkdir "${BOOT_DIR}/teslausb_setup_scripts"
     # stop_message "ERROR: Failed to make teslausb_setup_scripts and download setup scripts. Ensure you have internet access and run this script again."
-  else
-    pushd "${BOOT_DIR}/teslausb_setup_scripts"
-    
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/headless-scripts/setup-teslausb-headless -O setup-teslausb-headless
+  fi
+    cd "${BOOT_DIR}/teslausb_setup_scripts"
+    curl -s -o setup-teslausb-headless https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/headless-scripts/setup-teslausb-headless
     verify_setup_file_exists "setup-teslausb-headless" "${BOOT_DIR}/teslausb_setup_scripts"
     chmod +x setup-teslausb-headless
     good_message "Downloaded main setup script."
     
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archiveloop -O archiveloop
+    curl -s -o archiveloop https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archiveloop 
     # sed s/ARCHIVE_HOST_NAME=archiveserver/ARCHIVE_HOST_NAME=$archiveserver/ ~/archiveloop > /root/bin/archiveloop
     sed -i'.bak' -e "s/ARCHIVE_HOST_NAME=archiveserver/ARCHIVE_HOST_NAME=$archiveserver/" archiveloop
     verify_setup_file_exists "archiveloop" "${BOOT_DIR}/teslausb_setup_scripts"
     chmod +x archiveloop
 
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archive-teslacam-clips -O archive-teslacam-clips
+    curl -s -o archive-teslacam-clips  https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archive-teslacam-clips 
     verify_setup_file_exists "archive-teslacam-clips" "${BOOT_DIR}/teslausb_setup_scripts"
     chmod +x archive-teslacam-clips
     good_message "Configured the archive scripts."
 
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/remountfs_rw -O remountfs_rw
+    curl -s -o remountfs_rw https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/remountfs_rw
     verify_setup_file_exists "remountfs_rw" "${BOOT_DIR}/teslausb_setup_scripts"
     chmod +x remountfs_rw
     good_message "Downloaded script to remount filesystems read/write if needed (/root/bin/remountfs_rw)."
 
     if [ ${user_enabled_pushover} = "true" ]
     then
-      wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/send-pushover
+      curl -s -o send-pushover https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/send-pushover
       verify_setup_file_exists "remountfs_rw" "${BOOT_DIR}/teslausb_setup_scripts"
       chmod +x send-pushover
       good_message "Downloaded Pushover notification script."
     fi
 
     good_message "Downloading ancillary setup scripts."
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/create-backingfiles-partition.sh -O create-backingfiles-partition.sh
+    curl -s -o create-backingfiles-partition.sh https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/create-backingfiles-partition.sh
     verify_setup_file_exists "create-backingfiles-partition.sh" "${BOOT_DIR}/teslausb_setup_scripts"
     chmod +x create-backingfiles-partition.sh
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/create-backingfiles.sh -O create-backingfiles.sh
+    curl -s -o create-backingfiles.sh https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/create-backingfiles.sh
     verify_setup_file_exists "create-backingfiles.sh" "${BOOT_DIR}/teslausb_setup_scripts"
     chmod +x create-backingfiles.sh
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/make-root-fs-readonly.sh -O make-root-fs-readonly.sh
+    curl -s -o make-root-fs-readonly.sh https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/make-root-fs-readonly.sh
     verify_setup_file_exists "make-root-fs-readonly.sh" "${BOOT_DIR}/teslausb_setup_scripts"
     chmod +x make-root-fs-readonly.sh
-    popd
+    cd -
     good_message "All scripts downloaded and configured."
-  fi
 
 }
 

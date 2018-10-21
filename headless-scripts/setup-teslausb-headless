@@ -43,7 +43,7 @@ function check_variable () {
   then
     echo "STOP: Define the variable $var_name like this: export $var_name=value"
     setup_log "SETUP FAILED: Define the variable $var_name as export $var_name=value in /boot/teslausb_setup_variables.conf"
-    /tmp/stage_flash 10 &>/dev/null
+    /etc/stage_flash 10 
     exit 1
   fi
 }
@@ -80,7 +80,7 @@ function check_available_space () {
   if [ "$available_space" -lt  4294967296 ]
   then
     setup_log "ERROR: The MicroSD card is too small. Stopping setup."
-    /tmp/stage_flash 10 &>/dev/null
+    /etc/stage_flash 10 
     exit 1
   fi
 
@@ -212,19 +212,20 @@ sleep 5
 
 # SETUP STAGE 1 - Check variables file
 
-/tmp/stage_flash 1 &>/dev/null
+/etc/stage_flash 1 
+
 setup_log "SETUP STAGE 1: Check variables file."
 if [ ! -e /boot/teslausb_setup_variables.conf ]
 then
   setup_log "ERROR: teslausb_setup_variables.conf file not found. Can't continue setup."
-  /tmp/stage_flash 10 &>/dev/null
+  /etc/stage_flash 10 
   exit 1
 fi
 
 source /boot/teslausb_setup_variables.conf
 
 # SETUP STAGE 2 - Validate variables. This should never fail but just in case.
-/tmp/stage_flash 2 &>/dev/null
+/etc/stage_flash 2 
 
 setup_log "SETUP STAGE 2: Verifying environment variables..."
 
@@ -241,7 +242,7 @@ check_archive_server_reachable
 # SETUP STAGE 3 
 
 setup_log "SETUP STAGE 3: Check available space."
-/tmp/stage_flash 3 &>/dev/null
+/etc/stage_flash 3 
 check_available_space
 
 # get_ancillary_setup_scripts
@@ -258,7 +259,7 @@ echo "" >> /etc/fstab
 
 # SETUP STAGE 4 
 setup_log "SETUP STAGE 4: Create backing files and final config changes."
-/tmp/stage_flash 4 &>/dev/null
+/etc/stage_flash 4 
 
 create_usb_drive_backing_files
 
@@ -271,9 +272,9 @@ configure_hostname
 # SETUP STAGE 5 and reboot
 # If you see 5 flashes we are probably good!
 
-/tmp/stage_flash 5 &>/dev/null
+/etc/stage_flash 5 
 mark_setup_success
-
+echo 1 | sudo tee /sys/class/leds/led0/brightness
 make_root_fs_readonly
 
 setup_log "Filesystems made read-only. Rebooting."

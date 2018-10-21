@@ -50,5 +50,6 @@ Built image on a Raspi running Stretch, for maximum Pi-ception.
 ### Image creation TODOs
 1. TODO: Patch the hostname to teslausb
 1. TODO: I still see some errors during pi-gen about locale, may need to be fixed? stage0/01-locale/debconf en_US.UTF-8
+1. TODO: Cache the remount packages? Might mess with first boot like `rsyslog`
 1. Aspirational TODO: Remove more packages etc to make the boot process faster? OR start from `stage1` if we don't need all of `stage2`
 
