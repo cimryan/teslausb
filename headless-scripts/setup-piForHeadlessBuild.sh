@@ -128,9 +128,9 @@ function verify_pushover_variables () {
 
 function download_scripts () {
   
-  if [ ! -d "${BOOT_DIR}/teslausb_script_scripts" ]
+  if [ ! -d "${BOOT_DIR}/teslausb_setup_scripts" ]
   then
-    mkdir "${BOOT_DIR}/teslausb_script_scripts"
+    mkdir "${BOOT_DIR}/teslausb_setup_scripts"
     # stop_message "ERROR: Failed to make teslausb_setup_scripts and download setup scripts. Ensure you have internet access and run this script again."
   else
     pushd "${BOOT_DIR}/teslausb_script_scripts"
