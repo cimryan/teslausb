@@ -10,12 +10,16 @@ For now the image creation work is at [rtgoodwin's fork of pi-gen](https://githu
 
 1. Flash the image
 1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment varibles normally needed for setup (including archive, wifi, and push notifications if desired.)
-1. Run the `setup-piForHeadlessBuild.sh` (note: **not** `setup-piForHeadlessSetup.sh`)
+1. Run the `setup-piForHeadlessBuild.sh` (note: **not** `setup-piForHeadlessSetup.sh`):
+`curl https://raw.githubusercontent.com/rtgoodwin/teslausb/headless-patch/headless-scripts/setup-piForHeadlessBuild.sh -o setup-piForHeadlessBuild.sh`
+`chmod +x setup-piForHeadlessBuild.sh`
+`./setup-piForHeadlessBuild.sh .`
 1. If all goes well, put card into Pi and boot. 
 
 * A `/boot/teslausb-headless-setup.log` file will be created and stages logged. This takes the place of the "STOP" commands 
 * Marker files will be created in `boot` like `TESLA_USB_SETUP_STARTED` and `TESLA_USB_SETUP_FINISHED` to track progress. May use a progress system so the script can pick back up if needed. (This is probably useful for the general/old way of setup too.)
-
+* The Pi LED will flash patterns as it gets to each stage (labeled in the setup-teslausb-headless script). 
+  * 10 flashes means setup failed!
 
 
 #### Modifications to pi-gen builder from master
@@ -31,6 +35,7 @@ Built image on a Raspi running Stretch, for maximum Pi-ception.
 1. Add a file called `series` in the patches directory with the name of each `.diff` file in the order you want them applied.
 1. Add a `files` folder in stage6 with modified `rc.local`. The modified `rc.local` will handle pulling down the `setup-teslausb-headless` file the first time. (Still working on build logic here.) Files are moved into final locations in a `00-run.sh` script and the `install` command. See the script for details. 
 1. (Yes at this point you could suggest that just putting the end state files in place instead of patching would be good, but why not be idiomatic? :)  )
+1. Add a script to flash LEDs
 1. Run `sudo ./build.sh` from the `pi-gen` directory.
 1. If you get a failure, it's almost certainly after stage2, so you can add SKIP files in stage2-stage5 present) and rerun `sudo CLEAN=1 ./build.sh`
 

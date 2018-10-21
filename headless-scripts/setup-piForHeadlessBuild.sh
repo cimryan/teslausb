@@ -21,6 +21,9 @@ BOOT_DIR="$1"
 RED='\033[0;31m' # Red for warning
 NC='\033[0m' # No Color
 GREEN='\033[0;32m'
+scripts_downloaded=false
+REPO=rtgoodwin
+BRANCH=headless-patch
 
 function stop_message () {
   echo -e "${RED}${1} ${NC}"
@@ -52,6 +55,17 @@ function verify_file_exists () {
   if [ ! -e "$expected_path/$file_name" ]
     then
       stop_message "STOP: Didn't find $file_name at $expected_path."
+      exit 1
+  fi
+}
+
+function verify_setup_file_exists () {
+  local file_name="$1"
+  local expected_path="$2"
+
+  if [ ! -e "$expected_path/$file_name" ]
+    then
+      stop_message "STOP: Didn't find setup script $file_name at $expected_path. Try running the setup script again."
       exit 1
   fi
 }
@@ -112,6 +126,58 @@ function verify_pushover_variables () {
   fi
 }
 
+function download_scripts () {
+  mkdir "${BOOT_DIR}/teslausb_script_scripts"
+  if [ ! -d "${BOOT_DIR}/teslausb_script_scripts" ]
+  then
+     stop_message "ERROR: Failed to make teslausb_setup_scripts and download setup scripts. Ensure you have internet access and run this script again."
+  else
+    pushd "${BOOT_DIR}/teslausb_script_scripts"
+    
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/headless-patch/setup-teslausb-headless -O setup-teslausb-headless
+    verify_setup_file_exists "setup-teslausb-headless" "${BOOT_DIR}/teslausb_script_scripts"
+    chmod +x setup-teslausb-headless
+    good_message "Downloaded main setup script."
+    
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archiveloop -O archiveloop
+    # sed s/ARCHIVE_HOST_NAME=archiveserver/ARCHIVE_HOST_NAME=$archiveserver/ ~/archiveloop > /root/bin/archiveloop
+    sed -i'.bak' -e "s/ARCHIVE_HOST_NAME=archiveserver/ARCHIVE_HOST_NAME=$archiveserver/" archiveloop
+    verify_setup_file_exists "archiveloop" "${BOOT_DIR}/teslausb_script_scripts"
+    chmod +x archiveloop
+
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archive-teslacam-clips -O archive-teslacam-clips
+    verify_setup_file_exists "archive-teslacam-clips" "${BOOT_DIR}/teslausb_script_scripts"
+    chmod +x archive-teslacam-clips
+    good_message "Configured the archive scripts."
+
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/remountfs_rw -O remountfs_rw
+    verify_setup_file_exists "remountfs_rw" "${BOOT_DIR}/teslausb_script_scripts"
+    chmod +x remountfs_rw
+    good_message "Downloaded script to remount filesystems read/write if needed (/root/bin/remountfs_rw)."
+
+    if [ ${user_enabled_pushover} = "true" ]
+    then
+      wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/send-pushover
+      verify_setup_file_exists "remountfs_rw" "${BOOT_DIR}/teslausb_script_scripts"
+      chmod +x send-pushover
+      good_message "Downloaded Pushover notification script."
+    fi
+
+    good_message "Downloading ancillary setup scripts."
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/create-backingfiles-partition.sh -O create-backingfiles-partition.sh
+    verify_setup_file_exists "create-backingfiles-partition.sh" "${BOOT_DIR}/teslausb_script_scripts"
+    chmod +x create-backingfiles-partition.sh
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/create-backingfiles.sh -O create-backingfiles.sh
+    verify_setup_file_exists "create-backingfiles.sh" "${BOOT_DIR}/teslausb_script_scripts"
+    chmod +x create-backingfiles.sh
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/make-root-fs-readonly.sh -O make-root-fs-readonly.sh
+    verify_setup_file_exists "make-root-fs-readonly.sh" "${BOOT_DIR}/teslausb_script_scripts"
+    chmod +x make-root-fs-readonly.sh
+    popd
+    good_message "All scripts downloaded and configured."
+  fi
+
+}
 
 verify_file_exists "cmdline.txt" "$BOOT_DIR"
 verify_file_exists "config.txt" "$BOOT_DIR"
@@ -171,9 +237,16 @@ network={
 }
 EOF
 
+good_message "Downloading setup scripts. They will be downloaded to ${BOOT_DIR}/teslausb_setup_scripts,"
+good_message "and moved to /root/teslausb_script_scripts during first boot and install."
+
+download_scripts
+
 echo ""
 good_message '-- Files updated and ready for headless setup --'
 echo ''
 echo 'You can now insert your SD card into the Pi for headless setup. Plug in power to the Pi and it will boot and run.'
-echo "When done (this may take a vew minutes), the Pi should be available over SSH as pi@teslausb.local"
+echo "When done (this may take a vew minutes), the Pi should be available over SSH as pi@teslausb.local."
+echo "It's recommended you have your Pi plugged into a PC USB port for power, and connected to the port labeled USB on the Pi."
+echo "That way, when setup is complete, you should see your CAM and/or MUSIC drives appear as confirmation."
 echo ""

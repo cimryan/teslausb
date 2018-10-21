@@ -5,6 +5,7 @@ BRANCH=master
 user_enabled_pushover=false
 LOGFILE=/boot/teslausb-headless-setup.log
 setup_complete=false
+stage_in_progress=false
 
 # if ! [ $(id -u) = 0 ]
 # then
@@ -42,7 +43,8 @@ function check_variable () {
   if [ -z "${!var_name+x}" ]
   then
     echo "STOP: Define the variable $var_name like this: export $var_name=value"
-    setup_log "SETUP FAILED: Define the variable $var_name as export $var_name=value in /boot/teslausb_setup_variables"
+    setup_log "SETUP FAILED: Define the variable $var_name as export $var_name=value in /boot/teslausb_setup_variables.conf"
+    /tmp/stage_flash 10 &>/dev/null
     exit 1
   fi
 }
@@ -50,73 +52,60 @@ function check_variable () {
 function check_pushover_enabled () {
   if [ ! -z "${pushover_enabled+x}" ]
   then
-    if [ ! -n "${pushover_user_key+x}" ] || [ ! -n "${pushover_app_key+x}"  ]
-    then
-      setup_log "ERROR: "
-      echo "STOP: You're trying to setup Pushover but didn't provide your User and/or App key."
-      echo "Define the variables like this:"
-      echo "export pushover_user_key=put_your_userkey_here"
-      echo "export pushover_app_key=put_your_appkey_here"
-      exit 1
-    elif [ "${pushover_user_key}" = "put_your_userkey_here" ] || [  "${pushover_app_key}" = "put_your_appkey_here" ]
-    then
-      echo "STOP: You're trying to setup Pushover, but didn't replace the default User and App key values."
-      exit 1
-    else
-      user_enabled_pushover=true
+      setup_log "Adding Pushover variables into /root/.teslaCamPushoverCredentials"
       echo "export pushover_enabled=true" > /root/.teslaCamPushoverCredentials
       echo "export pushover_user_key=$pushover_user_key" >> /root/.teslaCamPushoverCredentials
       echo "export pushover_app_key=$pushover_app_key" >> /root/.teslaCamPushoverCredentials
     fi
-  fi
 }
 
 function check_archive_server_reachable () {
-  echo "Verifying that the archive server $archiveserver is reachable..."
+  setup_log "Verifying that the archive server $archiveserver is reachable..."
   local serverunreachable=false
   ping -c 1 -w 1 "$archiveserver" 1>/dev/null 2>&1 || serverunreachable=true
 
   if [ "$serverunreachable" = true ]
   then
-    echo "STOP: The archive server $archiveserver is unreachable. Try specifying its IP address instead."
-    exit 1
+    setup_log "WARNING: The archive server $archiveserver is unreachable. Try specifying its IP address instead."
+    setup_log "Continuing setup, but you may need to edit /etc/fstab to verify your archive mount entry is correct"
   fi
 
-  echo "The archive server is reachable."
+  # echo "The archive server is reachable."
 }
 
 function check_available_space () {
-  echo "Verifying that there is sufficient space available on the MicroSD card..."
+  setup_log "Verifying that there is sufficient space available on the MicroSD card..."
 
   local available_space="$( parted -m /dev/mmcblk0 u b print free | tail -1 | cut -d ":" -f 4 | sed 's/B//g' )"
 
   if [ "$available_space" -lt  4294967296 ]
   then
-    echo "STOP: The MicroSD card is too small."
+    setup_log "ERROR: The MicroSD card is too small. Stopping setup."
+    /tmp/stage_flash 10 &>/dev/null
     exit 1
   fi
 
-  echo "There is sufficient space available."
+  setup_log "There is sufficient space available."
 }
 
-function get_ancillary_setup_scripts () {
-  pushd /tmp
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/create-backingfiles-partition.sh
-  chmod +x ./create-backingfiles-partition.sh
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/create-backingfiles.sh
-  chmod +x ./create-backingfiles.sh
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/make-root-fs-readonly.sh
-  chmod +x ./make-root-fs-readonly.sh
-  popd
-}
+# function get_ancillary_setup_scripts () {
+#   pushd /tmp
+#   wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/create-backingfiles-partition.sh
+#   chmod +x ./create-backingfiles-partition.sh
+#   wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/create-backingfiles.sh
+#   chmod +x ./create-backingfiles.sh
+#   wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/make-root-fs-readonly.sh
+#   chmod +x ./make-root-fs-readonly.sh
+#   popd
+# }
 
 function fix_cmdline_txt_modules_load ()
 {
-  echo "Fixing the modules-load parameter in /boot/cmdline.txt..."
+  setup_log "Fixing the modules-load parameter in /boot/cmdline.txt..."
   cp /boot/cmdline.txt ~
   cat ~/cmdline.txt | sed 's/[[:space:]]\+modules-load=[^ [:space:]]\+//' | sed 's/rootwait/rootwait modules-load=dwc2/' > /boot/cmdline.txt
   rm ~/cmdline.txt
-  echo "Fixed cmdline.txt."
+  setup_log "Fixed cmdline.txt."
 }
 
 BACKINGFILES_MOUNTPOINT=/backingfiles
@@ -125,61 +114,61 @@ function create_usb_drive_backing_files () {
   mkdir "$BACKINGFILES_MOUNTPOINT"
   /tmp/create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT"
 
-  echo "Mounting the partition for the backing files..."
+  setup_log "Mounting the partition for the backing files..."
   mount /backingfiles
-  echo "Mounted the partition for the backing files."
+  setup_log "Mounted the partition for the backing files."
 
   /tmp/create-backingfiles.sh "$campercent" "$BACKINGFILES_MOUNTPOINT"
 }
 
 function configure_archive () {
-  echo "Configuring the archive..."
+  setup_log "Configuring the archive..."
   mkdir /mnt/archive
   local archive_server_ip_address="$(ping -c 1 -w 1 $archiveserver 2>/dev/null | head -n 1 | grep -o -e "(\([[:digit:]]\{1,3\}\.\)\{3\}[[:digit:]]\{1,3\})" | tr -d '()')"
   echo "//$archive_server_ip_address/$sharename /mnt/archive cifs vers=3,credentials=/root/.teslaCamArchiveCredentials,iocharset=utf8,file_mode=0777,dir_mode=0777 0" >> /etc/fstab
 
   echo "username=$shareuser" > /root/.teslaCamArchiveCredentials
   echo "password=$sharepassword" >> /root/.teslaCamArchiveCredentials
-  echo "Configured the archive."
+  setup_log "Configured the archive."
 }
 
-function configure_archive_scripts () {
-  echo "Configuring the archive scripts..."
-  mkdir /root/bin
+# function configure_archive_scripts () {
+#   echo "Configuring the archive scripts..."
+#   mkdir /root/bin
 
-  pushd ~
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archiveloop
-  sed s/ARCHIVE_HOST_NAME=archiveserver/ARCHIVE_HOST_NAME=$archiveserver/ ~/archiveloop > /root/bin/archiveloop
-  rm ~/archiveloop
-  chmod +x /root/bin/archiveloop
-  popd
+#   pushd ~
+#   wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archiveloop
+#   sed s/ARCHIVE_HOST_NAME=archiveserver/ARCHIVE_HOST_NAME=$archiveserver/ ~/archiveloop > /root/bin/archiveloop
+#   rm ~/archiveloop
+#   chmod +x /root/bin/archiveloop
+#   popd
 
-  pushd /root/bin
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archive-teslacam-clips
-  chmod +x archive-teslacam-clips
-  popd
-  echo "Configured the archive scripts."
+#   pushd /root/bin
+#   wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archive-teslacam-clips
+#   chmod +x archive-teslacam-clips
+#   popd
+#   echo "Configured the archive scripts."
 
-  pushd /root
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/remountfs_rw
-  chmod +x remountfs_rw
-  popd
-  echo "Downloaded script to remount filesystems read/write if needed (/root/remountfs_rw)."
-}
+#   pushd /root
+#   wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/remountfs_rw
+#   chmod +x remountfs_rw
+#   popd
+#   echo "Downloaded script to remount filesystems read/write if needed (/root/remountfs_rw)."
+# }
 
 
-function configure_pushover_scripts() {
-if [ ${user_enabled_pushover} = "true" ]
-then
-  pushd /root/bin
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/send-pushover
-  chmod +x send-pushover
-  popd
-fi
-}
+# function configure_pushover_scripts() {
+# if [ ${user_enabled_pushover} = "true" ]
+# then
+#   pushd /root/bin
+#   wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/send-pushover
+#   chmod +x send-pushover
+#   popd
+# fi
+# }
 
 function configure_rc_local () {
-  echo "Configuring /etc/rc.local to run the archive scripts at startup..."
+  setup_log "Configuring /etc/rc.local to run the archive scripts at startup..."
   echo "#!/bin/bash -eu" > ~/rc.local
   tail -n +2 /etc/rc.local | sed '$d' >> ~/rc.local
 cat << 'EOF' >> ~/rc.local
@@ -198,11 +187,11 @@ EOF
 
   cat ~/rc.local > /etc/rc.local
   rm ~/rc.local
-  echo "Configured rc.local."
+  setup_log "Configured rc.local."
 }
 
 function configure_hostname () {
-  echo "Configuring the hostname..."
+  setup_log "Configuring the hostname..."
 
   local new_host_name="teslausb"
   cp /etc/hosts ~
@@ -210,22 +199,35 @@ function configure_hostname () {
 
   cp /etc/hostname ~
   sed "s/raspberrypi/$new_host_name/g" ~/hostname > /etc/hostname
-  echo "Configured the hostname."
+  setup_log "Configured the hostname."
 }
 
 function make_root_fs_readonly () {
   /tmp/make-root-fs-readonly.sh
 }
 
+# TURN OFF LED so we can start watching progress
+echo 1 | sudo tee /sys/class/leds/led0/brightness
+
+sleep 5
+
+# SETUP STAGE 1 - Check variables file
+
+/tmp/stage_flash 1 &>/dev/null
+setup_log "SETUP STAGE 1: Check variables file."
 if [ ! -e /boot/teslausb_setup_variables.conf ]
 then
   setup_log "ERROR: teslausb_setup_variables.conf file not found. Can't continue setup."
+  /tmp/stage_flash 10 &>/dev/null
   exit 1
 fi
 
 source /boot/teslausb_setup_variables.conf
 
-echo "Verifying environment variables..."
+# SETUP STAGE 2 - Validate variables. This should never fail but just in case.
+/tmp/stage_flash 2 &>/dev/null
+
+setup_log "SETUP STAGE 2: Verifying environment variables..."
 
 check_variable "archiveserver"
 check_variable "sharename"
@@ -237,19 +239,27 @@ check_pushover_enabled
 
 check_archive_server_reachable
 
+# SETUP STAGE 3 
+
+setup_log "SETUP STAGE 3: Check available space."
+/tmp/stage_flash 3 &>/dev/null
 check_available_space
 
-get_ancillary_setup_scripts
+# get_ancillary_setup_scripts
 
-pushd ~
+# pushd ~
 
-configure_archive_scripts
+# configure_archive_scripts
 
-configure_pushover_scripts
+# configure_pushover_scripts
 
 fix_cmdline_txt_modules_load
 
 echo "" >> /etc/fstab
+
+# SETUP STAGE 4 
+setup_log "SETUP STAGE 4: Create backing files and final config changes."
+/tmp/stage_flash 4 &>/dev/null
 
 create_usb_drive_backing_files
 
@@ -259,6 +269,10 @@ configure_rc_local
 
 configure_hostname
 
+# SETUP STAGE 5 and reboot
+# If you see 5 flashes we are probably good!
+
+/tmp/stage_flash 5 &>/dev/null
 mark_setup_success
 
 make_root_fs_readonly
