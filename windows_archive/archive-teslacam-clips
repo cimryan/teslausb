@@ -41,6 +41,13 @@ function mount_mountpoint () {
   if [ "$mounted" = true ]
   then
     log "Mounted $mount_point."
+    if [ -d "/mnt/cam/TeslaCam" ]
+    then
+    log "TeslaCam folder exists"
+    true
+    return
+  else
+    mkdir /mnt/cam/TeslaCam
     true
     return
   else
@@ -131,5 +138,5 @@ ensure_cam_drive_is_mounted
 move_clips_to_archive
 
 unmount_cam_drive
-
+ 
 connect_usb_drives_to_host

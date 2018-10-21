@@ -272,13 +272,12 @@ configure_hostname
 # SETUP STAGE 5 and reboot
 # If you see 5 flashes we are probably good!
 
-setup_log "SETUP STAGE 5: Marking successful and remounting filesystem readonly."
+setup_log "SETUP STAGE 5: Marking successful and making filesystem readonly."
 /etc/stage_flash 5 
 mark_setup_success
 
-echo 0 | sudo tee /sys/class/leds/led0/brightness
 make_root_fs_readonly
-
+# echo 0 | sudo tee /sys/class/leds/led0/brightness
 setup_log "Filesystems made read-only. Rebooting."
 
 reboot

@@ -28,6 +28,7 @@ WORK IN PROGRESS BUT MOSTLY RIGHT
 * Marker files will be created in `boot` like `TESLA_USB_SETUP_STARTED` and `TESLA_USB_SETUP_FINISHED` to track progress. May use a progress system so the script can pick back up if needed. (This is probably useful for the general/old way of setup too.)
 * The Pi LED will flash patterns as it gets to each stage (labeled in the setup-teslausb-headless script). 
   * 10 flashes means setup failed!
+  * After the final stage and reboot the LED will go back to normal
 
 
 #### Modifications to pi-gen builder from master
