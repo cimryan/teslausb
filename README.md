@@ -92,13 +92,13 @@ Now that you have Wifi up and running, it's time to set up the USB storage and s
     ping 192.168.0.41
     ```
 1. If you can't ping the archive server by IP address from the Pi, you should go do whatever you need to on your network to fix that. If you can't reach the archive server by name, from the Pi but you can by IP address, then use its IP address, below, in place of its name.
-1. Determine how much, as a percentage of the drive you want to allocate to recording dashcam footage by using:
+1. Determine how much, as a percentage, of the drive you want to allocate to recording dashcam footage by using:
     ```
     export campercent=<number>
     ```
-    For example, using `export campercent=100` would allocate 100% of the space to recording footage from your car. `export campercent=50` would be only allocate half of the space for dashcam footage, and allow the other half to be used by music.
-1. If you are trying to archive on an SFTP/rsync server, then follow these [instructions](SetupRSync.md), and skip the next step.
-1. Run these commands, subsituting your values for your shared drive:
+    For example, using `export campercent=100` would allocate 100% of the space to recording footage from your car, and would not create a separate music partition. `export campercent=50` would be only allocate half of the space for a dashcam footage drive, and allocates the other half to be a music storage drive.
+1. If you are trying to archive on an SFTP/rsync server, then follow these [instructions](SetupRSync.md) and skip step 7. Otherwise, skip this step.
+1. If you are trying to archive on a shared drive, run these commands, subsituting your values for your shared drive:
     ```
     export archiveserver=Nautilus
     export sharename=SailfishCam
