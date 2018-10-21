@@ -43,13 +43,14 @@ function mount_mountpoint () {
     log "Mounted $mount_point."
     if [ -d "/mnt/cam/TeslaCam" ]
     then
-    log "TeslaCam folder exists"
-    true
-    return
-  else
-    mkdir /mnt/cam/TeslaCam
-    true
-    return
+      log "TeslaCam folder exists"
+      true
+      return
+    else
+      mkdir /mnt/cam/TeslaCam
+      true
+      return
+    fi
   else
     log "Failed to mount $mount_point."
     false
@@ -69,7 +70,7 @@ function ensure_mountpoint_is_mounted () {
   else
     mount_mountpoint "$mount_point"
   fi
-}
+} 
 
 function ensure_mountpoint_is_mounted_with_retry () {
   retry ensure_mountpoint_is_mounted "$1"
