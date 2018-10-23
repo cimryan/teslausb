@@ -88,6 +88,8 @@ function check_archive_mountable () {
     echo "STOP: The archive couldn't be mounted with CIFS version ${cifs_version}. Try specifying a lower number for the CIFS version like this: export cifs_version=2"
 	exit 1
   fi
+  
+  umount "$test_mount_location"
 }
 
 function check_available_space () {
