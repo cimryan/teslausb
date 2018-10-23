@@ -1,8 +1,10 @@
 #!/bin/bash -eu
 
-REPO=cimryan
-BRANCH=master
-user_enabled_pushover=false
+USER_ENABLED_PUSHOVER=false
+
+REPO=${REPO:-cimryan}
+
+BRANCH=${BRANCH:-master}
 
 if ! [ $(id -u) = 0 ]
 then
@@ -34,7 +36,7 @@ function check_pushover_enabled () {
       echo "STOP: You're trying to setup Pushover, but didn't replace the default User and App key values."
       exit 1
     else
-      user_enabled_pushover=true
+      USER_ENABLED_PUSHOVER=true
       echo "export pushover_enabled=true" > /root/.teslaCamPushoverCredentials
       echo "export pushover_user_key=$pushover_user_key" >> /root/.teslaCamPushoverCredentials
       echo "export pushover_app_key=$pushover_app_key" >> /root/.teslaCamPushoverCredentials
@@ -54,6 +56,40 @@ function check_archive_server_reachable () {
   fi
 
   echo "The archive server is reachable."
+}
+
+function write_archive_credentials_to () {
+  local file_path="$1"
+  
+  echo "username=$shareuser" > "$file_path"
+  echo "password=$sharepassword" >> "$file_path"
+
+}
+
+function check_archive_mountable () {
+  local archive_server_ip_address="$1"
+  
+  local test_mount_location="/tmp/archivetestmount"
+  
+  if [ ! -e "$test_mount_location" ]
+  then
+    mkdir "$test_mount_location"
+  fi
+  
+  local tmp_credentials_file_path="/tmp/teslaCamArchiveCredentials"
+  
+  write_archive_credentials_to "$tmp_credentials_file_path"
+  
+  local mount_failed=false
+  mount -t cifs "//$archive_server_ip_address/$sharename" "$test_mount_location" -o "vers=${cifs_version},credentials=${tmp_credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777" || mount_failed=true
+
+  if [ "$mount_failed" = true ]
+  then
+    echo "STOP: The archive couldn't be mounted with CIFS version ${cifs_version}. Try specifying a lower number for the CIFS version like this: export cifs_version=2"
+	exit 1
+  fi
+  
+  umount "$test_mount_location"
 }
 
 function check_available_space () {
@@ -110,13 +146,23 @@ function create_teslacam_directory () {
 }
 
 function configure_archive () {
-  echo "Configuring the archive..."
-  mkdir /mnt/archive
-  local archive_server_ip_address="$(ping -c 1 -w 1 $archiveserver 2>/dev/null | head -n 1 | grep -o -e "(\([[:digit:]]\{1,3\}\.\)\{3\}[[:digit:]]\{1,3\})" | tr -d '()')"
-  echo "//$archive_server_ip_address/$sharename /mnt/archive cifs vers=3,credentials=/root/.teslaCamArchiveCredentials,iocharset=utf8,file_mode=0777,dir_mode=0777 0" >> /etc/fstab
+  local archive_server_ip_address="$1"
 
-  echo "username=$shareuser" > /root/.teslaCamArchiveCredentials
-  echo "password=$sharepassword" >> /root/.teslaCamArchiveCredentials
+  echo "Configuring the archive..."
+  
+  local archive_path="/mnt/archive"
+  
+  if [ ! -e "$archive_path" ]
+  then
+    mkdir "$archive_path"  
+  fi
+  
+  local credentials_file_path="/root/.teslaCamArchiveCredentials"
+
+  write_archive_credentials_to "$credentials_file_path"
+
+  echo "//$archive_server_ip_address/$sharename $archive_path cifs vers=${cifs_version},credentials=${credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777 0" >> /etc/fstab
+  
   echo "Configured the archive."
 }
 
@@ -144,9 +190,8 @@ function configure_archive_scripts () {
   echo "Downloaded script to remount filesystems read/write if needed (/root/remountfs_rw)."
 }
 
-
 function configure_pushover_scripts() {
-if [ ${user_enabled_pushover} = "true" ]
+if [ ${USER_ENABLED_PUSHOVER} = "true" ]
 then
   pushd /root/bin
   wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/send-pushover
@@ -196,6 +241,11 @@ function make_root_fs_readonly () {
 
 echo "Verifying environment variables..."
 
+if [ ! -n "${cifs_version+x}" ]
+then
+  cifs_version=3
+fi
+
 check_variable "archiveserver"
 check_variable "sharename"
 check_variable "shareuser"
@@ -205,6 +255,10 @@ check_variable "campercent"
 check_pushover_enabled
 
 check_archive_server_reachable
+
+ARCHIVE_SERVER_IP_ADDRESS="$(ping -c 1 -w 1 $archiveserver 2>/dev/null | head -n 1 | grep -o -e "(\([[:digit:]]\{1,3\}\.\)\{3\}[[:digit:]]\{1,3\})" | tr -d '()')"
+
+check_archive_mountable "$ARCHIVE_SERVER_IP_ADDRESS"
 
 check_available_space
 
@@ -224,7 +278,7 @@ create_usb_drive_backing_files
 
 create_teslacam_directory
 
-configure_archive
+configure_archive "$ARCHIVE_SERVER_IP_ADDRESS"
 
 configure_rc_local
 

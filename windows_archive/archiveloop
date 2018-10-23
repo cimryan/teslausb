@@ -188,9 +188,12 @@ function mount_and_fix_errors_in_cam_file () {
 }
 
 function mount_and_fix_errors_in_music_file () {
-  ensure_music_file_is_mounted
-  fix_errors_in_music_file
-  unmount_music_file
+  if [ -e "$MUSIC_MOUNT" ]
+  then
+    ensure_music_file_is_mounted
+    fix_errors_in_music_file
+    unmount_music_file
+  fi
 }
 
 function mount_and_fix_errors_in_files () {
