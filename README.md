@@ -106,7 +106,7 @@ Now that you have Wifi up and running, it's time to set up the USB storage and s
     ```
 1. Run this command:
     ```
-    shutdown -h now
+    halt
     ```
 
 On the next boot, the Pi hostname will become `teslausb`, so future `ssh` sessions will be `ssh pi@teslausb.local`. 
