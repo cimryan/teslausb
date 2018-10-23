@@ -1,6 +1,6 @@
 #!/bin/bash -eu
 
-user_enabled_pushover=false
+USER_ENABLED_PUSHOVER=false
 
 if [[ -z $REPO ]]
 then
@@ -28,9 +28,9 @@ function check_variable () {
 }
 
 function check_pushover_enabled () {
-  if [ ! -z "${pushover_enabled+x}" ]
+  if [ "$pushover_enabled" = "true" ]
   then
-    if [ ! -n "${pushover_user_key+x}" ] || [ ! -n "${pushover_app_key+x}"  ]
+    if [[ -z $pushover_user_key ]] || [[ -z $pushover_app_key ]]
     then
       echo "STOP: You're trying to setup Pushover but didn't provide your User and/or App key."
       echo "Define the variables like this:"
@@ -42,7 +42,7 @@ function check_pushover_enabled () {
       echo "STOP: You're trying to setup Pushover, but didn't replace the default User and App key values."
       exit 1
     else
-      user_enabled_pushover=true
+      USER_ENABLED_PUSHOVER=true
       echo "export pushover_enabled=true" > /root/.teslaCamPushoverCredentials
       echo "export pushover_user_key=$pushover_user_key" >> /root/.teslaCamPushoverCredentials
       echo "export pushover_app_key=$pushover_app_key" >> /root/.teslaCamPushoverCredentials
@@ -109,7 +109,6 @@ function check_available_space () {
 
   echo "There is sufficient space available."
 }
-
 
 function get_ancillary_setup_scripts () {
   pushd /tmp
@@ -189,9 +188,8 @@ function configure_archive_scripts () {
   echo "Downloaded script to remount filesystems read/write if needed (/root/remountfs_rw)."
 }
 
-
 function configure_pushover_scripts() {
-if [ ${user_enabled_pushover} = "true" ]
+if [ ${USER_ENABLED_PUSHOVER} = "true" ]
 then
   pushd /root/bin
   wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/send-pushover
