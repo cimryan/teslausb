@@ -2,15 +2,9 @@
 
 USER_ENABLED_PUSHOVER=false
 
-if [[ -z $REPO ]]
-then
-  REPO=cimryan
-fi
+REPO=${REPO:-cimryan}
 
-f [[ -z $BRANCH ]]
-then
-  BRANCH=master
-fi
+BRANCH=${BRANCH:-master}
 
 if ! [ $(id -u) = 0 ]
 then
@@ -28,9 +22,9 @@ function check_variable () {
 }
 
 function check_pushover_enabled () {
-  if [ "$pushover_enabled" = "true" ]
+  if [ ! -z "${pushover_enabled+x}" ]
   then
-    if [[ -z $pushover_user_key ]] || [[ -z $pushover_app_key ]]
+    if [ ! -n "${pushover_user_key+x}" ] || [ ! -n "${pushover_app_key+x}"  ]
     then
       echo "STOP: You're trying to setup Pushover but didn't provide your User and/or App key."
       echo "Define the variables like this:"
