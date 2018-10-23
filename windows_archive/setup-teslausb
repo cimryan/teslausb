@@ -1,8 +1,16 @@
 #!/bin/bash -eu
 
-REPO=cimryan
-BRANCH=master
 user_enabled_pushover=false
+
+if [[ -z $REPO ]]
+then
+  REPO=cimryan
+fi
+
+f [[ -z $BRANCH ]]
+then
+  BRANCH=master
+fi
 
 if ! [ $(id -u) = 0 ]
 then
