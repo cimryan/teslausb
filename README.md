@@ -114,7 +114,6 @@ After reboot, the Pi hostname will become `teslausb`, so future `ssh` sessions w
 ### Get the Pi set up for your Tesla.
 If you set up the Pi with a keyboard and a monitor disconnect it and connect it to a PC. If you're using a cable be sure to use the port labeled "USB" on the circuitboard. 
 1. Wait for the Pi to show up on the PC as a USB drive.
-1. Create a directory named TeslaCam at the root of the drive labeled CAM.
 1. Copy any music you'd like to the drive labeled MUSIC.
 1. Eject the drives.
 1. Unplug the Pi from the PC.
