@@ -20,7 +20,7 @@ If you prefer not to run the script, it's also a useful reference for the steps 
 1. Run the following commands:
     ```
     wget https://raw.githubusercontent.com/cimryan/teslausb/master/mac_linux_archive/setup-piForHeadlessConfig.sh
-    chmod +x update-rpi-mac-linux.sh
+    chmod +x setup-piForHeadlessConfig.sh
     ```
 1. Set your SSID (Wifi network name) and WIFIPASS environment variables. The script will insert them into the `wpa_supplicant.conf` when creating it:
 
@@ -29,7 +29,7 @@ If you prefer not to run the script, it's also a useful reference for the steps 
     export WIFIPASS=your_wifi_password_here
     ```
 1. Run the script: 
-    `./update-rpi-mac-linux.sh`
+    `./setup-piForHeadlessConfig.sh`
 1. If all goes well, the script will report: 
     `-- Files updated and ready for Wifi and SSH over USB --`
 1. Eject the SD card safely, insert into your Pi, and reboot. If the Pi is connected over USB to your host, and/or if the Wifi setup went correctly, you should be able to `ssh pi@raspberrypi.local`. The default password is `raspberry`. 
