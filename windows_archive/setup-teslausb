@@ -139,6 +139,12 @@ function create_usb_drive_backing_files () {
   /tmp/create-backingfiles.sh "$campercent" "$BACKINGFILES_MOUNTPOINT"
 }
 
+function create_teslacam_directory () {
+  mount /mnt/cam
+  mkdir /mnt/cam/TeslaCam
+  umount /mnt/cam
+}
+
 function configure_archive () {
   local archive_server_ip_address="$1"
 
@@ -269,6 +275,8 @@ fix_cmdline_txt_modules_load
 echo "" >> /etc/fstab
 
 create_usb_drive_backing_files
+
+create_teslacam_directory
 
 configure_archive "$ARCHIVE_SERVER_IP_ADDRESS"
 

@@ -106,15 +106,16 @@ Now that you have Wifi up and running, it's time to set up the USB storage and s
     ```
 1. Run this command:
     ```
-    reboot
+    shutdown -h now
     ```
 
-After reboot, the Pi hostname will become `teslausb`, so future `ssh` sessions will be `ssh pi@teslausb.local`. 
+On the next boot, the Pi hostname will become `teslausb`, so future `ssh` sessions will be `ssh pi@teslausb.local`. 
 
-### Get the Pi set up for your Tesla.
+Your Pi is now ready to be plugged into your Tesla.  If you want to add music to the Pi, follow the instructions in the next section.
+
+### (Optional) Add music to the Pi
 If you set up the Pi with a keyboard and a monitor disconnect it and connect it to a PC. If you're using a cable be sure to use the port labeled "USB" on the circuitboard. 
 1. Wait for the Pi to show up on the PC as a USB drive.
-1. Create a directory named TeslaCam at the root of the drive labeled CAM.
 1. Copy any music you'd like to the drive labeled MUSIC.
 1. Eject the drives.
 1. Unplug the Pi from the PC.
