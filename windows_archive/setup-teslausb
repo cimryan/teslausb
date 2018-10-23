@@ -4,7 +4,6 @@ REPO=cimryan
 BRANCH=master
 user_enabled_pushover=false
 
-
 if ! [ $(id -u) = 0 ]
 then
   echo "STOP: Run sudo -i."
@@ -42,8 +41,6 @@ function check_pushover_enabled () {
     fi
   fi
 }
-
-check_pushover_enabled
 
 function check_archive_server_reachable () {
   echo "Verifying that the archive server $archiveserver is reachable..."

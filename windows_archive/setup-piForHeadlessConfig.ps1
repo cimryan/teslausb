@@ -44,14 +44,18 @@ if ([System.IO.File]::Exists("$wpaSupplicantConfPath")) {
   del "$wpaSupplicantConfPath"
 }
 
-"ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev`
-update_config=1`
-`
-network={`
-  ssid=`"$wifiSSID`"`
-  psk=`"$wifiPSK`"`
-  key_mgmt=WPA-PSK`
-}`
-" | Out-File -FilePath "$wpaSupplicantConfPath" -Encoding utf8
+$wpaSupplicantConfContent=@"
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+
+network={
+  ssid="$wifiSSID"
+  psk="$wifiPSK"
+}
+"@
+
+$utf8 = New-Object System.Text.UTF8Encoding $false
+
+Set-Content -Value $utf8.GetBytes($wpaSupplicantConfContent) -Encoding Byte -Path "$wpaSupplicantConfPath"
 
 Write-Verbose "All done."
