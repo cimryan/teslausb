@@ -50,10 +50,12 @@ Download and install:
 * [Etcher](http://etcher.io)
  
 ## Create your archive
-### Hosting on Windows
-Set up a share on a Windows (or macOS using Sharing, or Linux using Samba) machine to host the archive. These instructions assume that you created a share named "SailfishCam" on the server "Nautilus". It is recommended that you create a new user. Grant the user you'll be using read/write access to the share. These instructions will assume that the user you've created is named "sailfish" and that the password for this user is "pa$$w0rd".
+### Hosting on Windows File Shares, MacOS Sharing, or Samba on Linux
+Set up a share to host the archive. These instructions assume that you created a share named "SailfishCam" on the server "Nautilus". It is recommended that you create a new user. Grant the user you'll be using read/write access to the share. These instructions will assume that the user you've created is named "sailfish" and that the password for this user is "pa$$w0rd".
 
-Get the IP address of the archive machine. You'll need this later, so write it down, somewhere. You can do this by opening a command prompt on the archive machine and typing ipconfig. Get the IP address from the line labeled "IPv4 Address". These instructions will assume that the IP address of the archive server is 192.168.0.41.
+Get the IP address of the archive machine. You'll need this later, so write it down, somewhere.
+* On Windows you can do this by opening a command prompt on the archive machine and typing ipconfig. Get the IP address from the line labeled "IPv4 Address". These instructions will assume that the IP address of the archive server is 192.168.0.41.
+* On MacOS or Linux open a terminal and type ifconfig.
 
 ### Hosting via SFTP/rsync
 Since sftp/rsync is accessing a computer through SSH, the only requirement for hosting an SFTP/rsync server is to have a box running Linux. An example can be another Raspberry Pi connected to your local network with a USB storage drive plugged in. The official Raspberry Pi site has a good example on [how to mount an external drive](https://www.raspberrypi.org/documentation/configuration/external-storage.md). You will need the username and host/IP of the storage server, as well as the path for the files to go in, and the storage server will need to allow SSH.
