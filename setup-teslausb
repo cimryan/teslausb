@@ -132,7 +132,7 @@ function configure_archive_scripts () {
 
 function configure_pushover_scripts() {
   pushd /root/bin
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/send-pushover
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/send-pushover
   chmod +x send-pushover
   popd
 }
