@@ -11,8 +11,8 @@
 ## Configure the SD card before first boot of the Pi
 
 
-1. Flash the image from [here](https://www.dropbox.com/s/zfzjbmx4744q810/image_2018-10-21-teslausb_headless-lite.zip?dl=0) using Etcher or similar. 
-1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment varibles normally needed for setup (including archive, Wifi, and push notifications (if desired).) See the main README for all the variables. I.e. file should contain at a minimum (replace with your own values):
+1. Flash the image from [here (10-24 dated image)](https://www.dropbox.com/s/6f8kxenvtz8pkj9/image_2018-10-24-teslausb_headless-lite.zip?dl=0) using Etcher or similar. 
+1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment varibles normally needed for setup (including archive, Wifi, and push notifications (if desired).) A sample conf file is in this repo.  I.e. file should contain at a minimum (replace with your own values):
     ```
     export archiveserver=Nautilus
     export sharename=SailfishCam
@@ -22,29 +22,25 @@
     export SSID=your_ssid
     export WIFIPASS=your_wifi_password
     ```
-1. Run the `setup-piForHeadlessBuild.sh` (note: **not** `setup-piForHeadlessSetup.sh`):
-    ```
-    curl https://raw.githubusercontent.com/rtgoodwin/teslausb/headless-patch/headless-scripts/setup-piForHeadlessBuild.sh -o setup-piForHeadlessBuild.sh
-
-    chmod +x setup-piForHeadlessBuild.sh
-
-    ./setup-piForHeadlessBuild.sh <location_of_boot_directory>
-    ```
-1. If all goes well, put card into Pi and boot. 
-1. Wait for the the Pi to come up as a CAM USB drive, if you have it plugged into your computer. If plugged into just a power source, or your car, give it a few minutes until the LED starts pulsing steadily which means the archive loop is running and you're good to go. 
+* Boot it in your Pi, give it a bit, watching for a series of flashes (2, 3, 4, 5, maybe 6) and then a reboot and/or the CAM to become available on your PC/Mac.
+* The Pi should be available at teslausb.local over Wifi (if it works) or USB networking (if it doesn't). Takes about 5 minutes for me. You should see in `/boot` the TESLAUSB_SETUP_FINISHED and WIFI_ENABLED files as markers of success too.
+* Currently doesn't create the TeslaCam folder, so you'll need to do that before taking to your car.
+* If plugged into just a power source, or your car, give it a few minutes until the LED starts pulsing steadily which means the archive loop is running and you're good to go. 
 
 ## What happens under the covers
 
 When the Pi boots the first time: 
 * A `/boot/teslausb-headless-setup.log` file will be created and stages logged. This takes the place of the "STOP" commands 
-* Marker files will be created in `boot` like `TESLA_USB_SETUP_STARTED` and `TESLA_USB_SETUP_FINISHED` to track progress. May use a progress system so the script can pick back up if needed. (This is probably useful for the general/old way of setup too.)
-* The Pi LED will flash patterns as it gets to each stage (labeled in the setup-teslausb-headless script). 
+* Marker files will be created in `boot` like `TESLA_USB_SETUP_STARTED` and `TESLA_USB_SETUP_FINISHED` to track progress. 
+* (Working on a progress system so the script can pick back up if needed. This is probably useful for the general/old way of setup too.)
+* Wifi is detected by looking for `/boot/WIFI_ENABLED` and if not, creates the `wpa_supplicant.conf` file in place and reboots. 
+* The Pi LED will flash patterns (2, 3, 4, 5, maybe 6) as it gets to each stage (labeled in the setup-teslausb-headless script). 
   * 10 flashes means setup failed!
   * After the final stage and reboot the LED will go back to normal. Remember, the step to remount the filesystem takes a few minutes.
 
 At this point the next boot should start the Dashcam/music drives like normal. If you're watching the LED it will start flashing every 1 second, which is the archive loop running. 
 
-> NOTE: Don't delete the `TESLAUSB_SETUP_FINISHED` file. This is how the system knows setup is complete. 
+> NOTE: Don't delete the `TESLAUSB_SETUP_FINISHED` or `WIFI_ENABLED` files. This is how the system knows setup is complete. 
 
 ### Image builder source and patches
 

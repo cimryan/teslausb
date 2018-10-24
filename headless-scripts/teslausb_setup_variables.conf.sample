@@ -1,0 +1,10 @@
+export archiveserver=your_archive_name_or_ip
+export sharename=your_archive_share_name
+export shareuser=username
+export sharepassword=password
+export campercent=100
+export SSID=your_ssid
+export WIFIPASS=your_pass
+# export pushover_enabled=false
+# export pushover_user_key=user_key
+# export pushover_app_key=app_key
