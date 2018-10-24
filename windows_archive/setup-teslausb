@@ -178,22 +178,20 @@ function make_root_fs_readonly () {
 
 echo "Verifying environment variables..."
 
-if [ ! -n "${cifs_version+x}" ]
-then
-  cifs_version=3
-fi
-
 if [ $RSYNC_ENABLE = true ]
 then
-    check_variable "RSYNC_USER"
-    check_variable "RSYNC_SERVER"
-    export archiveserver=$RSYNC_SERVER
-    check_variable "RSYNC_PATH"
+  check_variable "RSYNC_USER"
+  check_variable "RSYNC_SERVER"
+  export archiveserver=$RSYNC_SERVER
+  check_variable "RSYNC_PATH"
 else # Else for now, TODO allow both for more redundancy?
-    check_variable "sharename"
-    check_variable "shareuser"
-    check_variable "sharepassword"
+  check_variable "sharename"
+  check_variable "shareuser"
+  check_variable "sharepassword"
+  
+  export cifs_version="${cifs_version:-3}"
 fi
+
 check_variable "archiveserver"
 check_variable "campercent"
 

@@ -1,7 +1,5 @@
 #!/bin/bash -eu
 
-cifs_version="${cifs_version:-3}"
-
 function check_archive_server_reachable () {
   echo "Verifying that the archive server $archiveserver is reachable..."
   local serverunreachable=false

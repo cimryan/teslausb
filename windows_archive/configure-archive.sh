@@ -1,7 +1,5 @@
 #!/bin/bash -eu
 
-cifs_version="${cifs_version:-3}"
-
 function configure_archive () {
   local archive_server_ip_address="$1"
 
