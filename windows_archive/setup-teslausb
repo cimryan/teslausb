@@ -185,8 +185,8 @@ function configure_archive_scripts () {
 
   if [ $RSYNC_ENABLE = true ]
   then
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/archive-rsync.sh
-    chmod +x archive-rsync.sh
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/archive-clips.sh
+    chmod +x archive-clips.sh
     
     wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/connect-archive-rsync.sh
     chmod +x connect-archive-rsync.sh
@@ -194,8 +194,8 @@ function configure_archive_scripts () {
     wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/disconnect-archive-rsync.sh
     chmod +x disconnect-archive-rsync.sh
   else
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archive-cifs.sh
-    chmod +x archive-cifs.sh
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archive-clips.sh
+    chmod +x archive-clips.sh
     
     wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/connect-archive-cifs.sh
     chmod +x connect-archive-cifs.sh
