@@ -108,11 +108,11 @@ function configure_archive_scripts () {
 
     wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/disconnect-archive.sh
   else
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archive-clips.sh
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/cifs_archive/archive-clips.sh
     
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/connect-archive.sh
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/cifs_archive/connect-archive.sh
 
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/disconnect-archive.sh
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/cifs_archive/disconnect-archive.sh
   fi
   
   chmod +x archiveloop
@@ -205,10 +205,10 @@ then
   wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/verify-archive-configuration.sh
   wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/configure-archive.sh
 else
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/verify-archive-configuration.sh
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/configure-archive.sh
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/cifs_archive/verify-archive-configuration.sh
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/cifs_archive/configure-archive.sh
   
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/write-archive-credentials-to.sh
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/cifs_archive/write-archive-credentials-to.sh
   chmod +x write-archive-credentials-to.sh
 fi
 
