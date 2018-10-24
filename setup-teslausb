@@ -60,11 +60,11 @@ function check_available_space () {
 
 function get_ancillary_setup_scripts () {
   pushd /tmp
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/create-backingfiles-partition.sh
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/create-backingfiles-partition.sh
   chmod +x ./create-backingfiles-partition.sh
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/create-backingfiles.sh
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/create-backingfiles.sh
   chmod +x ./create-backingfiles.sh
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/make-root-fs-readonly.sh
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/make-root-fs-readonly.sh
   chmod +x ./make-root-fs-readonly.sh
   popd
 }
