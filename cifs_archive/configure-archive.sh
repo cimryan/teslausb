@@ -14,7 +14,7 @@ function configure_archive () {
 
   local credentials_file_path="/root/.teslaCamArchiveCredentials"
 
-  /root/bin/write_archive_credentials_to.sh "$credentials_file_path"
+  /root/bin/write-archive-credentials-to.sh "$credentials_file_path"
 
   echo "//$archive_server_ip_address/$sharename $archive_path cifs vers=${cifs_version},credentials=${credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777 0" >> /etc/fstab
 
