@@ -86,7 +86,7 @@ function check_archive_mountable () {
   if [ "$mount_failed" = true ]
   then
     echo "STOP: The archive couldn't be mounted with CIFS version ${cifs_version}. Try specifying a lower number for the CIFS version like this: export cifs_version=2"
-	exit 1
+    exit 1
   fi
   
   umount "$test_mount_location"
@@ -187,9 +187,21 @@ function configure_archive_scripts () {
   then
     wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archive-rsync.sh
     chmod +x archive-rsync.sh
+    
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/connect-archive-rsync.sh
+    chmod +x connect-archive-rsync.sh
+
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/disconnect-archive-rsync.sh
+    chmod +x disconnect-archive-rsync.sh
   else
     wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archive-cifs.sh
-	chmod +x archive-cifs.sh
+    chmod +x archive-cifs.sh
+    
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/connect-archive-cifs.sh
+    chmod +x connect-archive-cifs.sh
+
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/disconnect-archive-cifs.sh
+    chmod +x disconnect-archive-cifs.sh
   fi 
   popd
   echo "Configured the archive scripts."

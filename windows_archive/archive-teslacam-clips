@@ -14,19 +14,15 @@ function disconnect_usb_drives_from_host () {
   log "Disconnected usb from host."
 }
 
-function ensure_archive_is_mounted () {
-  log "Ensuring cam archive is mounted..."
-  ensure_mountpoint_is_mounted_with_retry "$ARCHIVE_MOUNT"
-  log "Ensured cam archive is mounted."
-}
-
 export -f log
 
 log "Starting..."
 
-if [ ! -r "/root/.teslaCamRsyncConfig" ]
+if [ -r "/root/.teslaCamRsyncConfig" ]
 then
-    ensure_archive_is_mounted
+  /root/bin/connect-archive-rsync.sh
+else
+  /root/bin/connect-archive-cifs.sh
 fi
 
 disconnect_usb_drives_from_host
@@ -40,6 +36,13 @@ then
     /root/bin/archive-rsync.sh
 else
     /root/bin/archive-cifs.sh
+fi
+
+if [ -r "/root/.teslaCamRsyncConfig" ]
+then
+    /root/bin/disconnect-archive-rsync.sh
+else
+    /root/bin/disconnect-archive-cifs.sh
 fi
 
 unmount_cam_file
