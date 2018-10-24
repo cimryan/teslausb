@@ -199,13 +199,10 @@ function configure_archive_scripts () {
 }
 
 function configure_pushover_scripts() {
-if [ ${USER_ENABLED_PUSHOVER} = "true" ]
-then
   pushd /root/bin
   wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/send-pushover
   chmod +x send-pushover
   popd
-fi
 }
 
 function configure_rc_local () {
