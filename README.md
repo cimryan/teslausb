@@ -70,6 +70,10 @@ There are three phases to setting up the Pi:
 2. Use Etcher to write the zip file you downloaded to the SD card. Etcher works well and is multi-platform.
    > Note: you don't need to uncompress the zip file you downloaded.
 
+#### (Experimental) 
+
+There is an experimental image that requires only a configuration file. Needs testing and issues filed _on this specific image/process_ at [this repo](https://github.com/rtgoodwin/teslausb/tree/headless-patch/headless-scripts). Issues about general functionality should still be filed on the main (cimryan) repo. 
+
 ### Get a shell on the Pi
 If you used a Windows computer to flash the OS onto the MicroSD card, follow these [Instructions](GetShellWithoutMonitorOnWindows.md).
 
