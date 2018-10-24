@@ -111,7 +111,7 @@ Now that you have Wifi up and running, it's time to set up the USB storage and s
 1. If you'd like to receive a text message when your Pi finishes archiving clips follow these [Instructions](ConfigureNotificationsForArchive.md).
 1. Run these commands:
     ```
-    wget https://raw.githubusercontent.com/cimryan/teslausb/master/windows_archive/setup-teslausb
+    wget https://raw.githubusercontent.com/cimryan/teslausb/master/setup-teslausb
     chmod +x setup-teslausb
     ./setup-teslausb
     ```
