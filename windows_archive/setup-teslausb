@@ -141,6 +141,8 @@ function configure_rc_local () {
   echo "Configuring /etc/rc.local to run the archive scripts at startup..."
   echo "#!/bin/bash -eu" > ~/rc.local
   tail -n +2 /etc/rc.local | sed '$d' >> ~/rc.local
+
+  echo "archiveserver=\"${archiveserver}\"" >> ~/rc.local
 cat << 'EOF' >> ~/rc.local
 LOGFILE=/tmp/rc.local.log
 
