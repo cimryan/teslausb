@@ -27,7 +27,7 @@
     ```
     (Pushover should be working but commented out by default.)
 * Boot it in your Pi, give it a bit, watching for a series of flashes (2, 3, 4, 5, maybe 6) and then a reboot and/or the CAM to become available on your PC/Mac.
-* The Pi should be available at teslausb.local over Wifi (if it works) or USB networking (if it doesn't). Takes about 5 minutes for me. You should see in `/boot` the TESLAUSB_SETUP_FINISHED and WIFI_ENABLED files as markers of success too.
+* The Pi should be available at `teslausb.local` over Wifi (if it works) or USB networking (if it doesn't). Takes about 5 minutes for me. You should see in `/boot` the TESLAUSB_SETUP_FINISHED and WIFI_ENABLED files as markers of success too.
 * Currently doesn't create the TeslaCam folder, so you'll need to do that before taking to your car.
 * If plugged into just a power source, or your car, give it a few minutes until the LED starts pulsing steadily which means the archive loop is running and you're good to go. 
 
