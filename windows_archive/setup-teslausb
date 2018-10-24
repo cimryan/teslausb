@@ -96,9 +96,9 @@ function configure_archive_scripts () {
   mkdir /root/bin
 
   pushd /root/bin
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archiveloop
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/archiveloop
 
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archive-teslacam-clips
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/archive-teslacam-clips
 
   if [ $RSYNC_ENABLE = true ]
   then
@@ -124,11 +124,10 @@ function configure_archive_scripts () {
   popd
   echo "Configured the archive scripts."
 
-  pushd /root
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/remountfs_rw
+  pushd /root/bin
+  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/remountfs_rw
   chmod +x remountfs_rw
   popd
-  echo "Downloaded script to remount filesystems read/write if needed (/root/remountfs_rw)."
 }
 
 function configure_pushover_scripts() {
