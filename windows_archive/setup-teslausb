@@ -186,23 +186,22 @@ function configure_archive_scripts () {
   if [ $RSYNC_ENABLE = true ]
   then
     wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/archive-clips.sh
-    chmod +x archive-clips.sh
     
     wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/connect-archive.sh
-    chmod +x connect-archive.sh
 
     wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/disconnect-archive.sh
-    chmod +x disconnect-archive.sh
   else
     wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archive-clips.sh
-    chmod +x archive-clips.sh
     
     wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/connect-archive.sh
-    chmod +x connect-archive.sh
 
     wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/disconnect-archive.sh
-    chmod +x disconnect-archive.sh
   fi 
+
+  chmod +x archive-clips.sh
+  chmod +x connect-archive.sh
+  chmod +x disconnect-archive.sh
+
   popd
   echo "Configured the archive scripts."
 
