@@ -58,11 +58,10 @@ Get the IP address of the archive machine. You'll need this later, so write it d
 ### TODO Other hosting solutions
 
 ## Set up the Raspberry Pi
-There are four phases to setting up the Pi:
+There are three phases to setting up the Pi:
 1. Get the OS onto the micro sd card.
 1. Get a shell on the Pi.
 1. Set up the USB storage functionality.
-1. Get the Pi set up for your Tesla.
 
 ### Get the OS onto the micro SD card
 
@@ -73,13 +72,17 @@ There are four phases to setting up the Pi:
 
 ### Get a shell on the Pi
 If you used a Windows computer to flash the OS onto the MicroSD card, follow these [Instructions](GetShellWithoutMonitorOnWindows.md).
+
 If you used a Mac or a Linux computer, follow these [Instructions](GetShellWithoutMonitorOnLinux.md).
 
 ### Set up the USB storage functionality
 
 Now that you have Wifi up and running, it's time to set up the USB storage and scripts that will manage the dashcam and (optionally) music storage.
 
-1. SSH to the Pi and run `sudo -i`
+1. SSH to the Pi and run
+    ```
+    sudo -i
+    ```
 1. Try to ping your archive server from the Pi. In this example the server is named `nautilus`.
     ```
     ping -c 3 nautilus
@@ -106,30 +109,32 @@ Now that you have Wifi up and running, it's time to set up the USB storage and s
     ```
 1. Run this command:
     ```
-    reboot
+    halt
     ```
+1. Disconnect the Pi from the computer.
 
-After reboot, the Pi hostname will become `teslausb`, so future `ssh` sessions will be `ssh pi@teslausb.local`. 
+On the next boot, the Pi hostname will become `teslausb`, so future `ssh` sessions will be `ssh pi@teslausb.local`. 
 
-### Get the Pi set up for your Tesla.
-If you set up the Pi with a keyboard and a monitor disconnect it and connect it to a PC. If you're using a cable be sure to use the port labeled "USB" on the circuitboard. 
-1. Wait for the Pi to show up on the PC as a USB drive.
-1. Create a directory named TeslaCam at the root of the drive labeled CAM.
+Your Pi is now ready to be plugged into your Tesla. If you want to add music to the Pi, follow the instructions in the next section.
+
+## (Optional) Add music to the Pi
+Connect the Pi to a computer. If you're using a cable be sure to use the port labeled "USB" on the circuitboard. 
+1. Wait for the Pi to show up on the computer as a USB drive.
 1. Copy any music you'd like to the drive labeled MUSIC.
 1. Eject the drives.
 1. Unplug the Pi from the PC.
 1. Plug the Pi into your Tesla.
 
 ## Making changes to the system after setup
-The setup process configures the Pi with read-only file systems for the operating system but with read-write access through the USB
- interface. This means that you'll be able to record dashcam video and add and remove music files but you won't be able to make changes 
- to files on / or on /boot. This is to protect against corruption of the operating system when the Tesla cuts power to the Pi.
+The setup process configures the Pi with read-only file systems for the operating system but with read-write
+access through the USB interface. This means that you'll be able to record dashcam video and add and remove
+music files but you won't be able to make changes to files on / or on /boot. This is to protect against
+corruption of the operating system when the Tesla cuts power to the Pi.
 
 To make changes to the system partitions:
 ```
 ssh pi@teslausb.
 sudo -i
-mount / -o remount,rw
-mount /boot -o remount,rw
+/root/bin/remountfs_rw
 ```
 Then make whatever changes you need to. The next time the system boots the partitions will once again be read-only.
