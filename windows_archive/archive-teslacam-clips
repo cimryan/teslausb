@@ -1,72 +1,11 @@
 #!/bin/bash -eu
 
 LOG_FILE=/tmp/archive-teslacam-clips.log
-CAM_MOUNT=/mnt/cam
 ARCHIVE_MOUNT=/mnt/archive
 
 function log () {
   echo "$( date )" >> "$LOG_FILE"
   echo "$1" >> "$LOG_FILE"
-}
-
-function retry () {
-  local attempts=0
-  while [ true ]
-  do
-    if eval "$@"
-    then
-      true
-      return
-    fi
-    if [ "$attempts" -ge 10 ]
-    then
-      log "Attempts exhausted."
-      false
-      return
-    fi
-    log "Sleeping before retry..."
-    /bin/sleep 1
-    attempts=$((attempts + 1))
-    log "Retrying..."
-  done
-  false
-  return
-}
-
-function mount_mountpoint () {
-  local mount_point="$1"
-  log "Mounting $mount_point..."
-
-  local mounted=true
-  mount "$mount_point" >> "$LOG_FILE" 2>&1 || mounted=false
-  if [ "$mounted" = true ]
-  then
-    log "Mounted $mount_point."
-    true
-    return
-  else
-    log "Failed to mount $mount_point."
-    false
-    return
-  fi
-}
-
-function ensure_mountpoint_is_mounted () {
-  local mount_point="$1"
-  local mount_exists=true
-
-  findmnt --mountpoint "$mount_point" > /dev/null || mount_exists=false
-
-  if [ "$mount_exists" = true ]
-  then
-    log "$mount_point is already mounted."
-  else
-    mount_mountpoint "$mount_point"
-  fi
-}
-
-function ensure_mountpoint_is_mounted_with_retry () {
-  retry ensure_mountpoint_is_mounted "$1"
 }
 
 function move_clips_to_archive () {
@@ -97,28 +36,10 @@ function disconnect_usb_drives_from_host () {
   log "Disconnected usb from host."
 }
 
-function fix_errors_on_cam_drive () {
-  log "Running fsck..."
-  /sbin/fsck "$CAM_MOUNT" -- -a >> "$LOG_FILE" 2>&1 || echo ""
-  log "Finished running fsck."
-}
-
 function ensure_archive_is_mounted () {
   log "Ensuring cam archive is mounted..."
   ensure_mountpoint_is_mounted_with_retry "$ARCHIVE_MOUNT"
   log "Ensured cam archive is mounted."
-}
-
-function ensure_cam_drive_is_mounted () {
-  log "Ensuring cam drive is mounted..."
-  ensure_mountpoint_is_mounted_with_retry "$CAM_MOUNT"
-  log "Ensured cam drive is mounted."
-}
-
-function unmount_cam_drive () {
-  log "Unmounting cam drive..."
-  umount "$CAM_MOUNT"
-  log "Unmounted cam drive."
 }
 
 log "Starting..."
@@ -130,9 +51,9 @@ fi
 
 disconnect_usb_drives_from_host
 
-fix_errors_on_cam_drive
+ensure_cam_file_is_mounted
 
-ensure_cam_drive_is_mounted
+fix_errors_in_cam_file
 
 if [ -r "/root/.teslaCamRsyncConfig" ]
 then
@@ -142,6 +63,6 @@ else
     move_clips_to_archive
 fi
 
-unmount_cam_drive
+unmount_cam_file
 
 connect_usb_drives_to_host
