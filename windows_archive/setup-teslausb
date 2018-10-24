@@ -188,20 +188,20 @@ function configure_archive_scripts () {
     wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/archive-clips.sh
     chmod +x archive-clips.sh
     
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/connect-archive-rsync.sh
-    chmod +x connect-archive-rsync.sh
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/connect-archive.sh
+    chmod +x connect-archive.sh
 
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/disconnect-archive-rsync.sh
-    chmod +x disconnect-archive-rsync.sh
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/disconnect-archive.sh
+    chmod +x disconnect-archive.sh
   else
     wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archive-clips.sh
     chmod +x archive-clips.sh
     
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/connect-archive-cifs.sh
-    chmod +x connect-archive-cifs.sh
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/connect-archive.sh
+    chmod +x connect-archive.sh
 
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/disconnect-archive-cifs.sh
-    chmod +x disconnect-archive-cifs.sh
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/disconnect-archive.sh
+    chmod +x disconnect-archive.sh
   fi 
   popd
   echo "Configured the archive scripts."

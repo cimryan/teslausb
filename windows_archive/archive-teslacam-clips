@@ -18,12 +18,7 @@ export -f log
 
 log "Starting..."
 
-if [ -r "/root/.teslaCamRsyncConfig" ]
-then
-  /root/bin/connect-archive-rsync.sh
-else
-  /root/bin/connect-archive-cifs.sh
-fi
+/root/bin/connect-archive.sh
 
 disconnect_usb_drives_from_host
 
@@ -33,12 +28,7 @@ fix_errors_in_cam_file
 
 /root/bin/archive-clips.sh
 
-if [ -r "/root/.teslaCamRsyncConfig" ]
-then
-    /root/bin/disconnect-archive-rsync.sh
-else
-    /root/bin/disconnect-archive-cifs.sh
-fi
+/root/bin/disconnect-archive.sh
 
 unmount_cam_file
 
