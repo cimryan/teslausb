@@ -27,7 +27,7 @@ function create_teslacam_directory () {
   umount /mnt/cam
 }
 
-FREE_1K_BLOCKS="$(df --output=avail --block-size=1K /backingfiles/ | tail -n 1)"
+FREE_1K_BLOCKS="$(df --output=avail --block-size=1K $BACKINGFILES_MOUNTPOINT/ | tail -n 1)"
 
 CAM_DISK_SIZE="$(( $FREE_1K_BLOCKS * $CAM_PERCENT / 100 ))"
 CAM_DISK_FILE_NAME="$BACKINGFILES_MOUNTPOINT/cam_disk.bin"
