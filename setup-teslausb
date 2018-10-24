@@ -73,7 +73,7 @@ function fix_cmdline_txt_modules_load ()
 {
   echo "Fixing the modules-load parameter in /boot/cmdline.txt..."
   cp /boot/cmdline.txt ~
-  cat ~/cmdline.txt | sed 's/[[:space:]]\+modules-load=[^ [:space:]]\+//' | sed 's/rootwait/rootwait modules-load=dwc2/' > /boot/cmdline.txt
+  cat ~/cmdline.txt | sed 's/ modules-load=dwc2,g_ether/ modules-load=dwc2/' > /boot/cmdline.txt
   rm ~/cmdline.txt
   echo "Fixed cmdline.txt."
 }
@@ -81,19 +81,31 @@ function fix_cmdline_txt_modules_load ()
 BACKINGFILES_MOUNTPOINT=/backingfiles
 
 function create_usb_drive_backing_files () {
-  mkdir "$BACKINGFILES_MOUNTPOINT"
-  /tmp/create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT"
+  if [! -e "$BACKINGFILES_MOUNTPOINT" ]
+  then
+    mkdir "$BACKINGFILES_MOUNTPOINT"
+  fi
 
-  echo "Mounting the partition for the backing files..."
-  mount /backingfiles
-  echo "Mounted the partition for the backing files."
+  if [! -e /dev/mmcblk0p3 ]
+  then
+    /tmp/create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT"
+  fi
+  
+  if ! findmnt --mountpoint /backingfiles
+  then
+    echo "Mounting the partition for the backing files..."
+    mount /backingfiles
+    echo "Mounted the partition for the backing files."
+  fi
 
-  /tmp/create-backingfiles.sh "$campercent" "$BACKINGFILES_MOUNTPOINT"
+  if [! -e /backingfiles/* ]
+  then
+    /tmp/create-backingfiles.sh "$campercent" "$BACKINGFILES_MOUNTPOINT"
+  fi
 }
 
 function configure_archive_scripts () {
   echo "Configuring the archive scripts..."
-  mkdir /root/bin
 
   pushd /root/bin
   wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/archiveloop
@@ -138,8 +150,14 @@ function configure_pushover_scripts() {
 }
 
 function configure_rc_local () {
+  if grep -q archiveloop /etc/rc.local
+  then
+    return
+  fi
+  
   echo "Configuring /etc/rc.local to run the archive scripts at startup..."
   echo "#!/bin/bash -eu" > ~/rc.local
+  # Get everything but the last two lines
   tail -n +2 /etc/rc.local | sed '$d' >> ~/rc.local
 
   echo "archiveserver=\"${archiveserver}\"" >> ~/rc.local
@@ -180,11 +198,13 @@ function make_root_fs_readonly () {
 
 echo "Verifying environment variables..."
 
-if [ $RSYNC_ENABLE = true ]
+RSYNC_ENABLE="${RSYNC_ENABLE:-false}"
+
+if [ "$RSYNC_ENABLE" = true ]
 then
   check_variable "RSYNC_USER"
   check_variable "RSYNC_SERVER"
-  export archiveserver=$RSYNC_SERVER
+  export archiveserver="$RSYNC_SERVER"
   check_variable "RSYNC_PATH"
 else # Else for now, TODO allow both for more redundancy?
   check_variable "sharename"
@@ -199,8 +219,13 @@ check_variable "campercent"
 
 check_pushover_enabled
 
+if [ ! -e /root/bin ]
+then
+  mkdir /root/bin
+fi
+
 pushd /root/bin
-if [ $RSYNC_ENABLE = true ]
+if [ "$RSYNC_ENABLE" = true ]
 then
   wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/verify-archive-configuration.sh
   wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/configure-archive.sh
