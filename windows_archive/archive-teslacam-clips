@@ -37,7 +37,7 @@ fix_errors_in_cam_file
 
 if [ -r "/root/.teslaCamRsyncConfig" ]
 then
-    /root/bin/archive-rsync
+    /root/bin/archive-rsync.sh
 else
     /root/bin/archive-cifs.sh
 fi

@@ -185,8 +185,11 @@ function configure_archive_scripts () {
 
   if [ $RSYNC_ENABLE = true ]
   then
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archive-rsync
-    chmod +x archive-rsync
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archive-rsync.sh
+    chmod +x archive-rsync.sh
+  else
+    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archive-cifs.sh
+	chmod +x archive-cifs.sh
   fi 
   popd
   echo "Configured the archive scripts."
