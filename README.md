@@ -78,9 +78,9 @@ There are three phases to setting up the Pi:
    > Note: you don't need to uncompress the zip file you downloaded.
 
 ### Get a shell on the Pi
-If you used a Windows computer to flash the OS onto the MicroSD card, follow these [Instructions](GetShellWithoutMonitorOnWindows.md).
+If you used a Windows computer to flash the OS onto the MicroSD card, follow these [Instructions](doc/GetShellWithoutMonitorOnWindows.md).
 
-If you used a Mac or a Linux computer, follow these [Instructions](GetShellWithoutMonitorOnLinux.md).
+If you used a Mac or a Linux computer, follow these [Instructions](doc/GetShellWithoutMonitorOnLinux.md).
 
 ### Set up the USB storage functionality
 
@@ -104,7 +104,7 @@ Now that you have Wifi up and running, it's time to set up the USB storage and s
     export campercent=<number>
     ```
     For example, using `export campercent=100` would allocate 100% of the space to recording footage from your car, and would not create a separate music partition. `export campercent=50` would be only allocate half of the space for a dashcam footage drive, and allocates the other half to be a music storage drive.
-1. If you are trying to archive on an SFTP/rsync server, then follow these [instructions](SetupRSync.md) and skip step 7. Otherwise, skip this step.
+1. If you are trying to archive on an SFTP/rsync server, then follow these [instructions](doc/SetupRSync.md) and skip step 7. Otherwise, skip this step.
 1. If you are trying to archive on a shared drive, run these commands, subsituting your values for your shared drive:
     ```
     export archiveserver=Nautilus
@@ -112,10 +112,10 @@ Now that you have Wifi up and running, it's time to set up the USB storage and s
     export shareuser=sailfish
     export sharepassword=pa$$w0rd
     ```
-1. If you'd like to receive a text message when your Pi finishes archiving clips follow these [Instructions](ConfigureNotificationsForArchive.md).
+1. If you'd like to receive a text message when your Pi finishes archiving clips follow these [Instructions](doc/ConfigureNotificationsForArchive.md).
 1. Run these commands:
     ```
-    wget https://raw.githubusercontent.com/cimryan/teslausb/master/setup-teslausb
+    wget https://raw.githubusercontent.com/cimryan/teslausb/master/setup/pi/setup-teslausb
     chmod +x setup-teslausb
     ./setup-teslausb
     ```
