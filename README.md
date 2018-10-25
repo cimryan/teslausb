@@ -58,6 +58,8 @@ Get the IP address of the archive machine. You'll need this later, so write it d
 * On MacOS or Linux open a terminal and type ifconfig.
 
 ### Hosting via SFTP/rsync
+**EXPERIMENTAL - Hosting the archive on SFTP hasn't been thoroughly tested**
+
 Since sftp/rsync is accessing a computer through SSH, the only requirement for hosting an SFTP/rsync server is to have a box running Linux. An example can be another Raspberry Pi connected to your local network with a USB storage drive plugged in. The official Raspberry Pi site has a good example on [how to mount an external drive](https://www.raspberrypi.org/documentation/configuration/external-storage.md). You will need the username and host/IP of the storage server, as well as the path for the files to go in, and the storage server will need to allow SSH.
 
 ### ***TODO: Other hosting solutions***
