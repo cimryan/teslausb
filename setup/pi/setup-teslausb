@@ -95,14 +95,14 @@ function create_usb_drive_backing_files () {
     /tmp/create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT"
   fi
   
-  if ! findmnt --mountpoint /backingfiles
+  if ! findmnt --mountpoint $BACKINGFILES_MOUNTPOINT
   then
     echo "Mounting the partition for the backing files..."
-    mount /backingfiles
+    mount $BACKINGFILES_MOUNTPOINT
     echo "Mounted the partition for the backing files."
   fi
 
-  if [ ! -e /backingfiles/*.bin ]
+  if [ ! -e $BACKINGFILES_MOUNTPOINT/*.bin ]
   then
     /tmp/create-backingfiles.sh "$campercent" "$BACKINGFILES_MOUNTPOINT"
   fi
