@@ -1,0 +1,247 @@
+#!/bin/bash -eu
+
+USER_ENABLED_PUSHOVER=false
+
+REPO=${REPO:-cimryan}
+
+BRANCH=${BRANCH:-master}
+
+if ! [ $(id -u) = 0 ]
+then
+  echo "STOP: Run sudo -i."
+  exit 1
+fi
+
+function check_variable () {
+  local var_name="$1"
+  if [ -z "${!var_name+x}" ]
+  then
+    echo "STOP: Define the variable $var_name like this: export $var_name=value"
+    exit 1
+  fi
+}
+
+function check_pushover_enabled () {
+  if [ ! -z "${pushover_enabled+x}" ]
+  then
+    if [ ! -n "${pushover_user_key+x}" ] || [ ! -n "${pushover_app_key+x}"  ]
+    then
+      echo "STOP: You're trying to setup Pushover but didn't provide your User and/or App key."
+      echo "Define the variables like this:"
+      echo "export pushover_user_key=put_your_userkey_here"
+      echo "export pushover_app_key=put_your_appkey_here"
+      exit 1
+    elif [ "${pushover_user_key}" = "put_your_userkey_here" ] || [  "${pushover_app_key}" = "put_your_appkey_here" ]
+    then
+      echo "STOP: You're trying to setup Pushover, but didn't replace the default User and App key values."
+      exit 1
+    else
+      USER_ENABLED_PUSHOVER=true
+      echo "export pushover_enabled=true" > /root/.teslaCamPushoverCredentials
+      echo "export pushover_user_key=$pushover_user_key" >> /root/.teslaCamPushoverCredentials
+      echo "export pushover_app_key=$pushover_app_key" >> /root/.teslaCamPushoverCredentials
+    fi
+  fi
+}
+
+function check_available_space () {
+  echo "Verifying that there is sufficient space available on the MicroSD card..."
+
+  local available_space="$( parted -m /dev/mmcblk0 u b print free | tail -1 | cut -d ":" -f 4 | sed 's/B//g' )"
+
+  if [ "$available_space" -lt  4294967296 ]
+  then
+    echo "STOP: The MicroSD card is too small."
+    exit 1
+  fi
+
+  echo "There is sufficient space available."
+}
+
+function get_script () {
+  local local_path="$1"
+  local name="$2"
+  local remote_path="${3:-}"
+  
+  wget -O "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
+  chmod +x "$local_path/$name"
+}
+
+function get_ancillary_setup_scripts () {
+  get_script /tmp create-backingfiles-partition.sh setup/pi
+  get_script /tmp create-backingfiles.sh setup/pi
+  get_script /tmp make-root-fs-readonly.sh setup/pi
+}
+
+function fix_cmdline_txt_modules_load ()
+{
+  echo "Fixing the modules-load parameter in /boot/cmdline.txt..."
+  cp /boot/cmdline.txt ~
+  cat ~/cmdline.txt | sed 's/ modules-load=dwc2,g_ether/ modules-load=dwc2/' > /boot/cmdline.txt
+  rm ~/cmdline.txt
+  echo "Fixed cmdline.txt."
+}
+
+BACKINGFILES_MOUNTPOINT=/backingfiles
+
+function create_usb_drive_backing_files () {
+  if [ ! -e "$BACKINGFILES_MOUNTPOINT" ]
+  then
+    mkdir "$BACKINGFILES_MOUNTPOINT"
+  fi
+
+  if [ ! -e /dev/mmcblk0p3 ]
+  then
+    /tmp/create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT"
+  fi
+  
+  if ! findmnt --mountpoint /backingfiles
+  then
+    echo "Mounting the partition for the backing files..."
+    mount /backingfiles
+    echo "Mounted the partition for the backing files."
+  fi
+
+  if [ ! -e /backingfiles/*.bin ]
+  then
+    /tmp/create-backingfiles.sh "$campercent" "$BACKINGFILES_MOUNTPOINT"
+  fi
+}
+
+function configure_archive_scripts () {
+  echo "Configuring the archive scripts..."
+
+  get_script /root/bin archiveloop run
+  get_script /root/bin archive-teslacam-clips run
+
+  if [ $RSYNC_ENABLE = true ]
+  then
+    get_script /root/bin archive-clips.sh run/rsync_archive
+    get_script /root/bin connect-archive.sh run/rsync_archive
+    get_script /root/bin disconnect-archive.sh run/rsync_archive
+  else
+    get_script /root/bin archive-clips.sh run/cifs_archive
+    get_script /root/bin connect-archive.sh run/cifs_archive
+    get_script /root/bin disconnect-archive.sh run/cifs_archive
+  fi
+
+  get_script /root/bin remountfs_rw run
+  
+  echo "Configured the archive scripts."
+}
+
+function configure_pushover_scripts() {
+  get_script /root/bin send-pushover run
+}
+
+function configure_rc_local () {
+  if grep -q archiveloop /etc/rc.local
+  then
+    return
+  fi
+  
+  echo "Configuring /etc/rc.local to run the archive scripts at startup..."
+  echo "#!/bin/bash -eu" > ~/rc.local
+  echo "archiveserver=\"${archiveserver}\"" >> ~/rc.local
+cat << 'EOF' >> ~/rc.local
+LOGFILE=/tmp/rc.local.log
+
+function log () {
+  echo "$( date )" >> "$LOGFILE"
+  echo "$1" >> "$LOGFILE"
+}
+
+log "Launching archival script..."
+/root/bin/archiveloop "$archiveserver" &
+log "All done"
+exit 0
+EOF
+
+  cat ~/rc.local > /etc/rc.local
+  rm ~/rc.local
+  echo "Configured rc.local."
+}
+
+function configure_hostname () {
+  echo "Configuring the hostname..."
+
+  local new_host_name="teslausb"
+  cp /etc/hosts ~
+  sed "s/raspberrypi/$new_host_name/g" ~/hosts > /etc/hosts
+
+  cp /etc/hostname ~
+  sed "s/raspberrypi/$new_host_name/g" ~/hostname > /etc/hostname
+  echo "Configured the hostname."
+}
+
+function make_root_fs_readonly () {
+  /tmp/make-root-fs-readonly.sh
+}
+
+echo "Verifying environment variables..."
+
+RSYNC_ENABLE="${RSYNC_ENABLE:-false}"
+
+if [ "$RSYNC_ENABLE" = true ]
+then
+  check_variable "RSYNC_USER"
+  check_variable "RSYNC_SERVER"
+  export archiveserver="$RSYNC_SERVER"
+  check_variable "RSYNC_PATH"
+else # Else for now, TODO allow both for more redundancy?
+  check_variable "sharename"
+  check_variable "shareuser"
+  check_variable "sharepassword"
+  
+  export cifs_version="${cifs_version:-3}"
+fi
+
+check_variable "archiveserver"
+check_variable "campercent"
+
+check_pushover_enabled
+
+if [ ! -e /root/bin ]
+then
+  mkdir /root/bin
+fi
+
+if [ "$RSYNC_ENABLE" = true ]
+then
+  get_script /root/bin verify-archive-configuration.sh run/rsync_archive
+  get_script /root/bin configure-archive.sh run/rsync_archive
+else
+  get_script /root/bin verify-archive-configuration.sh run/cifs_archive
+  get_script /root/bin configure-archive.sh run/cifs_archive
+  get_script /root/bin write-archive-credentials-to.sh run/cifs_archive
+fi
+
+get_script /root/bin get-archiveserver-ip-address.sh run
+
+/root/bin/verify-archive-configuration.sh
+
+check_available_space
+
+get_ancillary_setup_scripts
+
+pushd ~
+
+configure_archive_scripts
+
+configure_pushover_scripts
+
+fix_cmdline_txt_modules_load
+
+echo "" >> /etc/fstab
+
+create_usb_drive_backing_files
+
+/root/bin/configure-archive.sh
+
+configure_rc_local
+
+configure_hostname
+
+make_root_fs_readonly
+
+echo "All done."
