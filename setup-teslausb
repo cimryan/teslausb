@@ -58,15 +58,19 @@ function check_available_space () {
   echo "There is sufficient space available."
 }
 
+function get_script () {
+  local local_path="$1"
+  local name="$2"
+  local remote_path="${3:-}"
+  
+  wget -O "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
+  chmod +x "$local_path/$name"
+}
+
 function get_ancillary_setup_scripts () {
-  pushd /tmp
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/create-backingfiles-partition.sh
-  chmod +x ./create-backingfiles-partition.sh
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/create-backingfiles.sh
-  chmod +x ./create-backingfiles.sh
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/make-root-fs-readonly.sh
-  chmod +x ./make-root-fs-readonly.sh
-  popd
+  get_script /tmp create-backingfiles-partition.sh
+  get_script /tmp create-backingfiles.sh
+  get_script /tmp make-root-fs-readonly.sh
 }
 
 function fix_cmdline_txt_modules_load ()
@@ -81,12 +85,12 @@ function fix_cmdline_txt_modules_load ()
 BACKINGFILES_MOUNTPOINT=/backingfiles
 
 function create_usb_drive_backing_files () {
-  if [! -e "$BACKINGFILES_MOUNTPOINT" ]
+  if [ ! -e "$BACKINGFILES_MOUNTPOINT" ]
   then
     mkdir "$BACKINGFILES_MOUNTPOINT"
   fi
 
-  if [! -e /dev/mmcblk0p3 ]
+  if [ ! -e /dev/mmcblk0p3 ]
   then
     /tmp/create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT"
   fi
@@ -107,46 +111,27 @@ function create_usb_drive_backing_files () {
 function configure_archive_scripts () {
   echo "Configuring the archive scripts..."
 
-  pushd /root/bin
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/archiveloop
-
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/archive-teslacam-clips
+  get_script /root/bin archiveloop
+  get_script /root/bin archive-teslacam-clips
 
   if [ $RSYNC_ENABLE = true ]
   then
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/archive-clips.sh
-    
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/connect-archive.sh
-
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/disconnect-archive.sh
+    get_script /root/bin archive-clips.sh rsync_archive
+    get_script /root/bin connect-archive.sh rsync_archive
+    get_script /root/bin disconnect-archive.sh rsync_archive
   else
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/cifs_archive/archive-clips.sh
-    
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/cifs_archive/connect-archive.sh
-
-    wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/cifs_archive/disconnect-archive.sh
+    get_script /root/bin archive-clips.sh cifs_archive
+    get_script /root/bin connect-archive.sh cifs_archive
+    get_script /root/bin disconnect-archive.sh cifs_archive
   fi
+
+  get_script /root/bin remountfs_rw
   
-  chmod +x archiveloop
-  chmod +x archive-teslacam-clips
-  chmod +x archive-clips.sh
-  chmod +x connect-archive.sh
-  chmod +x disconnect-archive.sh
-
-  popd
   echo "Configured the archive scripts."
-
-  pushd /root/bin
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/remountfs_rw
-  chmod +x remountfs_rw
-  popd
 }
 
 function configure_pushover_scripts() {
-  pushd /root/bin
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/send-pushover
-  chmod +x send-pushover
-  popd
+  get_script /root/bin send-pushover
 }
 
 function configure_rc_local () {
@@ -224,26 +209,17 @@ then
   mkdir /root/bin
 fi
 
-pushd /root/bin
 if [ "$RSYNC_ENABLE" = true ]
 then
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/verify-archive-configuration.sh
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/rsync_archive/configure-archive.sh
+  get_script /root/bin verify-archive-configuration.sh rsync_archive
+  get_script /root/bin configure-archive.sh rsync_archive
 else
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/cifs_archive/verify-archive-configuration.sh
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/cifs_archive/configure-archive.sh
-  
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/cifs_archive/write-archive-credentials-to.sh
-  chmod +x write-archive-credentials-to.sh
+  get_script /root/bin verify-archive-configuration.sh cifs_archive
+  get_script /root/bin configure-archive.sh cifs_archive
+  get_script /root/bin write-archive-credentials-to.sh cifs_archive
 fi
 
-chmod +x verify-archive-configuration.sh
-chmod +x configure-archive.sh
-
-wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/get-archiveserver-ip-address.sh
-chmod +x get-archiveserver-ip-address.sh
-
-popd
+get_script /root/bin get-archiveserver-ip-address.sh
 
 /root/bin/verify-archive-configuration.sh
 
