@@ -47,7 +47,7 @@
     ```
 1. Change your password! While not required, it is recommended, especially if you may be using any public or insecure WiFi connections.  To do so Enter
     ```
-    passwod
+    passwd
     ```
 1. Then enter your new password and press Enter
 1. Confirm your new password and press Enter
