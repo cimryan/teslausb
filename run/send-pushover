@@ -7,7 +7,7 @@ function log () {
   echo "$1" >> "$LOG_FILE"
 }
 
-if [ -r "/root/.teslaCamPushoverCredentials" ] && [ $NUM_FILES_MOVED > 0]
+if [ -r "/root/.teslaCamPushoverCredentials" ] && [ $NUM_FILES_MOVED > 0 ]
 then
   log "Sending Pushover message for moved files."
 
