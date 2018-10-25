@@ -205,7 +205,7 @@ else # Else for now, TODO allow both for more redundancy?
   check_variable "shareuser"
   check_variable "sharepassword"
   
-  export cifs_version="${cifs_version:-3}"
+  export cifs_version="${cifs_version:-3.0}"
 fi
 
 check_variable "archiveserver"
