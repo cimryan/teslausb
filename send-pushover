@@ -1,0 +1,21 @@
+#!/bin/bash -eu
+
+NUM_FILES_MOVED="$1"
+
+function log () {
+  echo "$( date )" >> "$LOG_FILE"
+  echo "$1" >> "$LOG_FILE"
+}
+
+if [ -r "/root/.teslaCamPushoverCredentials" ] && [ $NUM_FILES_MOVED > 0]
+then
+  log "Sending Pushover message for moved files."
+
+  source /root/.teslaCamPushoverCredentials
+
+  curl -F "token=$pushover_app_key" \
+  -F "user=$pushover_user_key" \
+  -F "title=Dashcam Copy Complete" \
+  -F "message=$NUM_FILES_MOVED file(s) were copied." \
+  https://api.pushover.net/1/messages
+fi
