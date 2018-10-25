@@ -2,7 +2,7 @@
 
 log "Moving clips to archive..."
 
-local move_count=0
+move_count=0
 
 for file_name in "$CAM_MOUNT"/TeslaCam/saved*; do
   [ -e "$file_name" ] || continue
