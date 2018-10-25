@@ -55,7 +55,7 @@
     ```
     /root/bin/remountfs_rw
     ```
-or
+1. or
     ```
     mount / -o remount,rw
     ```
