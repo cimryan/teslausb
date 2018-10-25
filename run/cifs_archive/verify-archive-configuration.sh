@@ -33,7 +33,9 @@ function check_archive_mountable () {
 
   if [ "$mount_failed" = true ]
   then
-    echo "STOP: The archive couldn't be mounted with CIFS version ${cifs_version}. Try specifying a lower number for the CIFS version like this: export cifs_version=2"
+    echo "STOP: The archive couldn't be mounted with CIFS version ${cifs_version}. Try specifying a lower number for the CIFS version like this:"
+    echo "  export cifs_version=2.1"
+    echo "Other versions you can try are 2.0 and 1.0"
     exit 1
   fi
   
