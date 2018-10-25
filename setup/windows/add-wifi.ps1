@@ -11,21 +11,8 @@ Param
     [string]$wifiPSK
 )
 
-$drivePath="${driveLetter}:"
+Import-Module -Name ".\WpaSupplicantConf.psm1" -Force
 
-$wpaSupplicantConfPath="$drivePath\wpa_supplicant.conf"
-
-$wpaSupplicantConfContent=@"
-
-
-network={
-  ssid="$wifiSSID"
-  psk="$wifiPSK"
-}
-"@
-
-$utf8 = New-Object System.Text.UTF8Encoding $false
-
-Add-Content -Value $utf8.GetBytes($wpaSupplicantConfContent) -Encoding Byte -Path "$wpaSupplicantConfPath"
+Add-Network "$driveLetter" "$wifiSSID" "$wifiPSK"
 
 Write-Verbose "All done."

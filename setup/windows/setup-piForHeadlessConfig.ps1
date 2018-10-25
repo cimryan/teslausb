@@ -11,6 +11,8 @@ Param
     [string]$wifiPSK
 )
 
+Import-Module -Name ".\WpaSupplicantConf.psm1" -Force
+
 $drivePath="${driveLetter}:"
 $configPath = "$drivePath\config.txt"
 $cmdlinePath = "$drivePath\cmdline.txt"
@@ -34,28 +36,9 @@ $cmdlinetxtContent.Replace("rootwait", "rootwait modules-load=dwc2,g_ether").Rep
 Write-Verbose "Enabling SSH ..."
 [System.IO.File]::CreateText($sshPath).Dispose()
 
-# Sets up wifi credentials so wifi will be 
-# auto configured on first boot
-
-$wpaSupplicantConfPath="$drivePath\wpa_supplicant.conf"
-
 Write-Verbose "(Re)creating WiFi configuration file $wpaSupplicantConfPath."
-if ([System.IO.File]::Exists("$wpaSupplicantConfPath")) {
-  del "$wpaSupplicantConfPath"
-}
 
-$wpaSupplicantConfContent=@"
-ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-update_config=1
-
-network={
-  ssid="$wifiSSID"
-  psk="$wifiPSK"
-}
-"@
-
-$utf8 = New-Object System.Text.UTF8Encoding $false
-
-Set-Content -Value $utf8.GetBytes($wpaSupplicantConfContent) -Encoding Byte -Path "$wpaSupplicantConfPath"
+Write-Header "$driveLetter"
+Add-Network "$driveLetter" "$wifiSSID" "$wifiPSK"
 
 Write-Verbose "All done."

@@ -15,6 +15,7 @@
     ```
     cd ~
     wget https://raw.githubusercontent.com/cimryan/teslausb/master/setup/windows/setup-piForHeadlessConfig.ps1 -OutFile setup-piForHeadlessConfig.ps1
+    wget https://raw.githubusercontent.com/cimryan/teslausb/master/setup/windows/WpaSupplicantConf.psm1 -OutFile WpaSupplicantConf.psm1
     ./setup-piForHeadlessConfig.ps1 -Verbose
     ```
 1. Enter the single letter of the "boot" drive and press Enter.
