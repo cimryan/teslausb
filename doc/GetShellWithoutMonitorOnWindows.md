@@ -15,7 +15,6 @@
     ```
     cd ~
     wget https://raw.githubusercontent.com/cimryan/teslausb/master/setup/windows/setup-piForHeadlessConfig.ps1 -OutFile setup-piForHeadlessConfig.ps1
-    wget https://raw.githubusercontent.com/cimryan/teslausb/master/setup/windows/WpaSupplicantConf.psm1 -OutFile WpaSupplicantConf.psm1
     ./setup-piForHeadlessConfig.ps1 -Verbose
     ```
 1. Enter the single letter of the "boot" drive and press Enter.
@@ -23,7 +22,6 @@
 1. Enter the Pre-Shared Key of your WiFi network and press Enter.
 1. If you want to add additional WiFi networks, execute:
     ```
-    wget https://raw.githubusercontent.com/cimryan/teslausb/master/setup/windows/add-wifi.ps1 -OutFile add-wifi.ps1
     ./add-wifi.ps1 -Verbose
     ```
 1. If you will use any public or insecure networks, be sure to update your password using the instructions at the end of this document.
