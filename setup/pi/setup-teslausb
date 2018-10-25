@@ -68,9 +68,9 @@ function get_script () {
 }
 
 function get_ancillary_setup_scripts () {
-  get_script /tmp create-backingfiles-partition.sh
-  get_script /tmp create-backingfiles.sh
-  get_script /tmp make-root-fs-readonly.sh
+  get_script /tmp create-backingfiles-partition.sh setup/pi
+  get_script /tmp create-backingfiles.sh setup/pi
+  get_script /tmp make-root-fs-readonly.sh setup/pi
 }
 
 function fix_cmdline_txt_modules_load ()
@@ -111,27 +111,27 @@ function create_usb_drive_backing_files () {
 function configure_archive_scripts () {
   echo "Configuring the archive scripts..."
 
-  get_script /root/bin archiveloop
-  get_script /root/bin archive-teslacam-clips
+  get_script /root/bin archiveloop run
+  get_script /root/bin archive-teslacam-clips run
 
   if [ $RSYNC_ENABLE = true ]
   then
-    get_script /root/bin archive-clips.sh rsync_archive
-    get_script /root/bin connect-archive.sh rsync_archive
-    get_script /root/bin disconnect-archive.sh rsync_archive
+    get_script /root/bin archive-clips.sh run/rsync_archive
+    get_script /root/bin connect-archive.sh run/rsync_archive
+    get_script /root/bin disconnect-archive.sh run/rsync_archive
   else
-    get_script /root/bin archive-clips.sh cifs_archive
-    get_script /root/bin connect-archive.sh cifs_archive
-    get_script /root/bin disconnect-archive.sh cifs_archive
+    get_script /root/bin archive-clips.sh run/cifs_archive
+    get_script /root/bin connect-archive.sh run/cifs_archive
+    get_script /root/bin disconnect-archive.sh run/cifs_archive
   fi
 
-  get_script /root/bin remountfs_rw
+  get_script /root/bin remountfs_rw run
   
   echo "Configured the archive scripts."
 }
 
 function configure_pushover_scripts() {
-  get_script /root/bin send-pushover
+  get_script /root/bin send-pushover run
 }
 
 function configure_rc_local () {
@@ -208,15 +208,15 @@ fi
 
 if [ "$RSYNC_ENABLE" = true ]
 then
-  get_script /root/bin verify-archive-configuration.sh rsync_archive
-  get_script /root/bin configure-archive.sh rsync_archive
+  get_script /root/bin verify-archive-configuration.sh run/rsync_archive
+  get_script /root/bin configure-archive.sh run/rsync_archive
 else
-  get_script /root/bin verify-archive-configuration.sh cifs_archive
-  get_script /root/bin configure-archive.sh cifs_archive
-  get_script /root/bin write-archive-credentials-to.sh cifs_archive
+  get_script /root/bin verify-archive-configuration.sh run/cifs_archive
+  get_script /root/bin configure-archive.sh run/cifs_archive
+  get_script /root/bin write-archive-credentials-to.sh run/cifs_archive
 fi
 
-get_script /root/bin get-archiveserver-ip-address.sh
+get_script /root/bin get-archiveserver-ip-address.sh run
 
 /root/bin/verify-archive-configuration.sh
 
