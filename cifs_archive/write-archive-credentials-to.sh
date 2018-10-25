@@ -1,6 +1,6 @@
 #!/bin/bash -eu
 
-local file_path="$1"
+FILE_PATH="$1"
 
-echo "username=$shareuser" > "$file_path"
-echo "password=$sharepassword" >> "$file_path"
+echo "username=$shareuser" > "$FILE_PATH"
+echo "password=$sharepassword" >> "$FILE_PATH"
