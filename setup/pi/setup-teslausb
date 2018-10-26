@@ -48,6 +48,7 @@ function headless_setup_mark_setup_success () {
 
     rm /boot/TESLAUSB_SETUP_STARTED
     touch /boot/TESLAUSB_SETUP_FINISHED
+    sed -i'.bak' -e "s/TEMPARCHIVESERVER/$archiveserver/g" /etc/rc.local
     setup_progress "Main setup completed. Remounting file systems read only."
   fi
 }
