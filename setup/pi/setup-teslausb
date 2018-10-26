@@ -112,7 +112,6 @@ function configure_archive_scripts () {
   echo "Configuring the archive scripts..."
 
   get_script /root/bin archiveloop run
-  get_script /root/bin archive-teslacam-clips run
 
   if [ $RSYNC_ENABLE = true ]
   then

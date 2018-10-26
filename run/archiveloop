@@ -1,10 +1,11 @@
 #!/bin/bash -eu
 ARCHIVE_HOST_NAME="$1"
 
-LOG_FILE=/tmp/archiveloop.log
+export LOG_FILE=/tmp/archiveloop.log
 
 export CAM_MOUNT=/mnt/cam
 export MUSIC_MOUNT=/mnt/music
+export ARCHIVE_MOUNT=/mnt/archive
 
 function log () {
   echo "$( date )" >> "$LOG_FILE"
@@ -154,12 +155,6 @@ function fix_errors_in_music_file () {
   fix_errors_in_mount_point "$MUSIC_MOUNT"
 }
 
-function archive_clips () {
-  log "Archiving..."
-  /root/bin/archive-teslacam-clips
-  log "Finished archiving."
-}
-
 function wait_for_archive_to_be_unreachable () {
   log "Waiting for archive to be unreachable..."
   while [ true ]
@@ -199,17 +194,47 @@ function mount_and_fix_errors_in_files () {
   mount_and_fix_errors_in_music_file
 }
 
-export -f fix_errors_in_mount_point
-export -f fix_errors_in_cam_file
-export -f retry
+function disconnect_usb_drives_from_host () {
+  log "Disconnecting usb from host..."
+  modprobe -r g_mass_storage
+  log "Disconnected usb from host."
+}
+
+function archive_teslacam_clips () {
+  log "Starting..."
+
+  /root/bin/connect-archive.sh
+
+  disconnect_usb_drives_from_host
+
+  ensure_cam_file_is_mounted
+
+  fix_errors_in_cam_file
+
+  /root/bin/archive-clips.sh
+
+  /root/bin/disconnect-archive.sh
+
+  unmount_cam_file
+
+  connect_usb_drives_to_host
+}
+
+function archive_clips () {
+  log "Archiving..."
+  if archive_teslacam_clips
+  then
+    log "Finished archiving."
+  else
+    log "Archiving failed."
+  fi
+}
+
 export -f mount_mountpoint
 export -f ensure_mountpoint_is_mounted
+export -f retry
 export -f ensure_mountpoint_is_mounted_with_retry
-export -f ensure_cam_file_is_mounted
-export -f fix_errors_in_cam_file
-export -f unmount_mount_point
-export -f unmount_cam_file
-export -f connect_usb_drives_to_host
+export -f log
 
 log "Starting..."
 
