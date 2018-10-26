@@ -68,7 +68,8 @@ function setup_led_off () {
 
   if [ $USE_LED_FOR_SETUP_PROGRESS = "true" ]
   then
-    echo 1 | sudo tee /sys/class/leds/led1/brightness
+    echo "none" | sudo tee /sys/class/leds/led0/trigger > /dev/null
+    echo 1 | sudo tee /sys/class/leds/led0/brightness > /dev/null
   fi
 }
 
@@ -76,7 +77,7 @@ function setup_led_on () {
 
   if [ $USE_LED_FOR_SETUP_PROGRESS = "true" ]
   then
-    echo 0 | sudo tee /sys/class/leds/led1/brightness
+    echo 0 | sudo tee /sys/class/leds/led1/brightness > /dev/null
   fi
 }
 
