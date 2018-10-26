@@ -106,9 +106,9 @@ function check_pushover_enabled () {
       exit 1
     else
       USER_ENABLED_PUSHOVER=true
-      setup_progress "export pushover_enabled=true" > /root/.teslaCamPushoverCredentials
-      setup_progress "export pushover_user_key=$pushover_user_key" >> /root/.teslaCamPushoverCredentials
-      setup_progress "export pushover_app_key=$pushover_app_key" >> /root/.teslaCamPushoverCredentials
+      echo "export pushover_enabled=true" > /root/.teslaCamPushoverCredentials
+      echo "export pushover_user_key=$pushover_user_key" >> /root/.teslaCamPushoverCredentials
+      echo "export pushover_app_key=$pushover_app_key" >> /root/.teslaCamPushoverCredentials
     fi
   fi
 }
@@ -173,6 +173,7 @@ function create_usb_drive_backing_files () {
 
   if [ ! -e $BACKINGFILES_MOUNTPOINT/*.bin ]
   then
+    setup_progress "Creating backing disk files."
     /tmp/create-backingfiles.sh "$campercent" "$BACKINGFILES_MOUNTPOINT"
   fi
 }
@@ -256,7 +257,7 @@ headless_setup_populate_variables
 setup_led_off
 
 # Flash for stage 2 headless (verify variables)
-headless_setup_progress_flash 2
+headless_setup_progress_flash 1
 
 setup_progress "Verifying environment variables..."
 
@@ -282,7 +283,7 @@ check_variable "campercent"
 check_pushover_enabled
 
 # Flash for Stage 3 headless (grab scripts)
-headless_setup_progress_flash 3
+headless_setup_progress_flash 2
 
 if [ ! -e /root/bin ]
 then
@@ -319,7 +320,7 @@ fix_cmdline_txt_modules_load
 echo "" >> /etc/fstab
 
 # Flash for stage 4 headless (Create backing files)
-headless_setup_progress_flash 4
+headless_setup_progress_flash 3
 
 create_usb_drive_backing_files
 
@@ -330,7 +331,7 @@ configure_rc_local
 configure_hostname
 
 # Flash for stage 5 headless (Mark success, FS readonly)
-headless_setup_progress_flash 5
+headless_setup_progress_flash 4
 
 headless_setup_mark_setup_success
 
