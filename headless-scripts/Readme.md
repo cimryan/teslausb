@@ -11,7 +11,7 @@
 ## Configure the SD card before first boot of the Pi
 
 
-1. Flash the image from [here (10-24 dated image)](https://www.dropbox.com/s/6f8kxenvtz8pkj9/image_2018-10-24-teslausb_headless-lite.zip?dl=0) using Etcher or similar. 
+1. Flash the image from [here (10-24 dated image)](https://www.dropbox.com/s/6f8kxenvtz8pkj9/image_2018-10-24-teslausb_headless-lite.zip?dl=0) using Etcher or similar.  (Be sure to click the `...` on Dropbox and download the `.zip` file.)
 1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment varibles normally needed for setup (including archive, Wifi, and push notifications (if desired).) A sample conf file is in this repo.  I.e. file should contain at a minimum (replace with your own values):
     ```
     export archiveserver=Nautilus
