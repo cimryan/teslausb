@@ -132,8 +132,10 @@ function get_script () {
   local name="$2"
   local remote_path="${3:-}"
   
-  wget -O "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
+  curl -o "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
+  # wget -O "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
   chmod +x "$local_path/$name"
+  setup_progress "Downloaded $local_path/$name ..."
 }
 
 function get_ancillary_setup_scripts () {
@@ -284,6 +286,8 @@ check_pushover_enabled
 
 # Flash for Stage 3 headless (grab scripts)
 headless_setup_progress_flash 2
+
+setup_progress "Downloading additional setup scripts."
 
 if [ ! -e /root/bin ]
 then
