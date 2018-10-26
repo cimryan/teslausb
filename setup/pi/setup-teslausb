@@ -5,6 +5,8 @@ SETUP_LOGFILE=/boot/teslausb-headless-setup.log
 REPO=${REPO:-cimryan}
 BRANCH=${BRANCH:-master}
 HEADLESS_SETUP=${HEADLESS_SETUP:-false}
+USE_LED_FOR_SETUP_PROGRESS=true
+
 
 
 if ! [ $(id -u) = 0 ]
@@ -28,6 +30,7 @@ function headless_setup_populate_variables () {
     source /boot/teslausb_setup_variables.conf
   fi
 }
+
 
 function headless_setup_mark_setup_failed () {
   if [ $HEADLESS_SETUP = "true" ]
@@ -58,6 +61,22 @@ function headless_setup_progress_flash () {
   if [ $HEADLESS_SETUP = "true" ]
   then
     /etc/stage_flash $1
+  fi
+}
+
+function setup_led_off () {
+
+  if [ $USE_LED_FOR_SETUP_PROGRESS = "true" ]
+  then
+    echo 1 | sudo tee /sys/class/leds/led1/brightness
+  fi
+}
+
+function setup_led_on () {
+
+  if [ $USE_LED_FOR_SETUP_PROGRESS = "true" ]
+  then
+    echo 0 | sudo tee /sys/class/leds/led1/brightness
   fi
 }
 
@@ -232,6 +251,12 @@ function make_root_fs_readonly () {
 
 headless_setup_populate_variables
 
+# If USE_LED_FOR_SETUP_PROGRESS = true. 
+setup_led_off
+
+# Flash for stage 2 headless (verify variables)
+headless_setup_progress_flash 2
+
 setup_progress "Verifying environment variables..."
 
 RSYNC_ENABLE="${RSYNC_ENABLE:-false}"
@@ -254,6 +279,9 @@ check_variable "archiveserver"
 check_variable "campercent"
 
 check_pushover_enabled
+
+# Flash for Stage 3 headless (grab scripts)
+headless_setup_progress_flash 3
 
 if [ ! -e /root/bin ]
 then
@@ -280,6 +308,7 @@ get_ancillary_setup_scripts
 
 pushd ~
 
+
 configure_archive_scripts
 
 configure_pushover_scripts
@@ -287,6 +316,9 @@ configure_pushover_scripts
 fix_cmdline_txt_modules_load
 
 echo "" >> /etc/fstab
+
+# Flash for stage 4 headless (Create backing files)
+headless_setup_progress_flash 4
 
 create_usb_drive_backing_files
 
@@ -296,8 +328,14 @@ configure_rc_local
 
 configure_hostname
 
+# Flash for stage 5 headless (Mark success, FS readonly)
+headless_setup_progress_flash 5
+
 headless_setup_mark_setup_success
 
 make_root_fs_readonly
 
-echo "All done."
+# If USE_LED_FOR_SETUP_PROGRESS = true. 
+setup_led_on
+
+setup_progress "All done."
