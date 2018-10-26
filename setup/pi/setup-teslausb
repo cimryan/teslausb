@@ -58,7 +58,7 @@ function headless_setup_mark_setup_success () {
 }
 
 function headless_setup_progress_flash () {
-  if [ $HEADLESS_SETUP = "true" ]
+  if [ $USE_LED_FOR_SETUP_PROGRESS = "true" ] && [ $HEADLESS_SETUP = "true" ]
   then
     /etc/stage_flash $1
   fi
