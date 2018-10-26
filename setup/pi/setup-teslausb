@@ -224,7 +224,7 @@ then
   get_script /root/bin configure-archive.sh run/rsync_archive
 elif [ "$RCLONE_ENABLE" = true ]
 then
-  get_script /root/bin verify-archive-configuration.sh run/clone_archive
+  get_script /root/bin verify-archive-configuration.sh run/rclone_archive
   get_script /root/bin configure-archive.sh run/rclone_archive
 else
   get_script /root/bin verify-archive-configuration.sh run/cifs_archive
