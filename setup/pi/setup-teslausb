@@ -21,7 +21,7 @@ function setup_progress () {
     echo $1
 }
 
-function headless_populate_variables () {
+function headless_setup_populate_variables () {
   # Pull in the conf file variables to make avail to this script and subscripts
   if [ -e /boot/teslausb_setup_variables.conf ] && [ $HEADLESS_SETUP = "true" ]
   then
@@ -29,22 +29,30 @@ function headless_populate_variables () {
   fi
 }
 
-function headless_mark_setup_failed () {
-  setup_log "ERROR: Setup Failed."
-  touch /boot/TESLAUSB_SETUP_FAILED
-}
-
-function headless_mark_setup_success () {
-  if [ -e /boot/TESLAUSB_SETUP_FAILED ]
+function headless_setup_mark_setup_failed () {
+  if [ $HEADLESS_SETUP = "true" ]
   then
-     rm /boot/TESLAUSB_SETUP_FAILED
+    setup_log "ERROR: Setup Failed."
+    touch /boot/TESLAUSB_SETUP_FAILED
   fi
-  rm /boot/TESLAUSB_SETUP_STARTED
-  touch /boot/TESLAUSB_SETUP_FINISHED
-  setup_log "Main setup completed. Remounting file systems read only."
 }
 
-function headless_progress_flash () {
+function headless_setup_mark_setup_success () {
+  if [ $HEADLESS_SETUP = "true" ]
+  then
+
+    if [ -e /boot/TESLAUSB_SETUP_FAILED ]
+    then
+      rm /boot/TESLAUSB_SETUP_FAILED
+    fi
+
+    rm /boot/TESLAUSB_SETUP_STARTED
+    touch /boot/TESLAUSB_SETUP_FINISHED
+    setup_log "Main setup completed. Remounting file systems read only."
+  fi
+}
+
+function headless_setup_progress_flash () {
   if [ $HEADLESS_SETUP = "true" ]
   then
     /etc/stage_flash $1
@@ -220,6 +228,8 @@ function make_root_fs_readonly () {
   /tmp/make-root-fs-readonly.sh
 }
 
+headless_setup_populate_variables
+
 setup_progress "Verifying environment variables..."
 
 RSYNC_ENABLE="${RSYNC_ENABLE:-false}"
@@ -283,7 +293,9 @@ create_usb_drive_backing_files
 configure_rc_local
 
 configure_hostname
-headless_mark_setup_success
+
+headless_setup_mark_setup_success
+
 make_root_fs_readonly
 
 echo "All done."
