@@ -11,6 +11,11 @@ Param
     [string]$wifiPSK
 )
 
+wget https://raw.githubusercontent.com/cimryan/teslausb/master/setup/windows/WpaSupplicantConf.psm1 -OutFile WpaSupplicantConf.psm1
+wget https://raw.githubusercontent.com/cimryan/teslausb/master/setup/windows/add-wifi.ps1 -OutFile add-wifi.ps1
+
+Import-Module -Name ".\WpaSupplicantConf.psm1" -Force
+
 $drivePath="${driveLetter}:"
 $configPath = "$drivePath\config.txt"
 $cmdlinePath = "$drivePath\cmdline.txt"
@@ -34,24 +39,9 @@ $cmdlinetxtContent.Replace("rootwait", "rootwait modules-load=dwc2,g_ether").Rep
 Write-Verbose "Enabling SSH ..."
 [System.IO.File]::CreateText($sshPath).Dispose()
 
-# Sets up wifi credentials so wifi will be 
-# auto configured on first boot
-
-$wpaSupplicantConfPath="$drivePath\wpa_supplicant.conf"
-
 Write-Verbose "(Re)creating WiFi configuration file $wpaSupplicantConfPath."
-if ([System.IO.File]::Exists("$wpaSupplicantConfPath")) {
-  del "$wpaSupplicantConfPath"
-}
 
-"ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev`
-update_config=1`
-`
-network={`
-  ssid=`"$wifiSSID`"`
-  psk=`"$wifiPSK`"`
-  key_mgmt=WPA-PSK`
-}`
-" | Out-File -FilePath "$wpaSupplicantConfPath" -Encoding utf8
+Write-Header "$driveLetter"
+Add-Network "$driveLetter" "$wifiSSID" "$wifiPSK"
 
 Write-Verbose "All done."

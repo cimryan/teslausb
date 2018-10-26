@@ -1,9 +1,10 @@
 #!/bin/bash -eu
 
-REPO=cimryan
-BRANCH=master
-user_enabled_pushover=false
+USER_ENABLED_PUSHOVER=false
 
+REPO=${REPO:-cimryan}
+
+BRANCH=${BRANCH:-master}
 
 if ! [ $(id -u) = 0 ]
 then
@@ -35,28 +36,12 @@ function check_pushover_enabled () {
       echo "STOP: You're trying to setup Pushover, but didn't replace the default User and App key values."
       exit 1
     else
-      user_enabled_pushover=true
+      USER_ENABLED_PUSHOVER=true
       echo "export pushover_enabled=true" > /root/.teslaCamPushoverCredentials
       echo "export pushover_user_key=$pushover_user_key" >> /root/.teslaCamPushoverCredentials
       echo "export pushover_app_key=$pushover_app_key" >> /root/.teslaCamPushoverCredentials
     fi
   fi
-}
-
-check_pushover_enabled
-
-function check_archive_server_reachable () {
-  echo "Verifying that the archive server $archiveserver is reachable..."
-  local serverunreachable=false
-  ping -c 1 -w 1 "$archiveserver" 1>/dev/null 2>&1 || serverunreachable=true
-
-  if [ "$serverunreachable" = true ]
-  then
-    echo "STOP: The archive server $archiveserver is unreachable. Try specifying its IP address instead."
-    exit 1
-  fi
-
-  echo "The archive server is reachable."
 }
 
 function check_available_space () {
@@ -73,22 +58,26 @@ function check_available_space () {
   echo "There is sufficient space available."
 }
 
+function get_script () {
+  local local_path="$1"
+  local name="$2"
+  local remote_path="${3:-}"
+  
+  wget -O "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
+  chmod +x "$local_path/$name"
+}
+
 function get_ancillary_setup_scripts () {
-  pushd /tmp
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/create-backingfiles-partition.sh
-  chmod +x ./create-backingfiles-partition.sh
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/create-backingfiles.sh
-  chmod +x ./create-backingfiles.sh
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/make-root-fs-readonly.sh
-  chmod +x ./make-root-fs-readonly.sh
-  popd
+  get_script /tmp create-backingfiles-partition.sh setup/pi
+  get_script /tmp create-backingfiles.sh setup/pi
+  get_script /tmp make-root-fs-readonly.sh setup/pi
 }
 
 function fix_cmdline_txt_modules_load ()
 {
   echo "Fixing the modules-load parameter in /boot/cmdline.txt..."
   cp /boot/cmdline.txt ~
-  cat ~/cmdline.txt | sed 's/[[:space:]]\+modules-load=[^ [:space:]]\+//' | sed 's/rootwait/rootwait modules-load=dwc2/' > /boot/cmdline.txt
+  cat ~/cmdline.txt | sed 's/ modules-load=dwc2,g_ether/ modules-load=dwc2/' > /boot/cmdline.txt
   rm ~/cmdline.txt
   echo "Fixed cmdline.txt."
 }
@@ -96,66 +85,63 @@ function fix_cmdline_txt_modules_load ()
 BACKINGFILES_MOUNTPOINT=/backingfiles
 
 function create_usb_drive_backing_files () {
-  mkdir "$BACKINGFILES_MOUNTPOINT"
-  /tmp/create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT"
+  if [ ! -e "$BACKINGFILES_MOUNTPOINT" ]
+  then
+    mkdir "$BACKINGFILES_MOUNTPOINT"
+  fi
 
-  echo "Mounting the partition for the backing files..."
-  mount /backingfiles
-  echo "Mounted the partition for the backing files."
+  if [ ! -e /dev/mmcblk0p3 ]
+  then
+    /tmp/create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT"
+  fi
+  
+  if ! findmnt --mountpoint $BACKINGFILES_MOUNTPOINT
+  then
+    echo "Mounting the partition for the backing files..."
+    mount $BACKINGFILES_MOUNTPOINT
+    echo "Mounted the partition for the backing files."
+  fi
 
-  /tmp/create-backingfiles.sh "$campercent" "$BACKINGFILES_MOUNTPOINT"
-}
-
-function configure_archive () {
-  echo "Configuring the archive..."
-  mkdir /mnt/archive
-  local archive_server_ip_address="$(ping -c 1 -w 1 $archiveserver 2>/dev/null | head -n 1 | grep -o -e "(\([[:digit:]]\{1,3\}\.\)\{3\}[[:digit:]]\{1,3\})" | tr -d '()')"
-  echo "//$archive_server_ip_address/$sharename /mnt/archive cifs vers=3,credentials=/root/.teslaCamArchiveCredentials,iocharset=utf8,file_mode=0777,dir_mode=0777 0" >> /etc/fstab
-
-  echo "username=$shareuser" > /root/.teslaCamArchiveCredentials
-  echo "password=$sharepassword" >> /root/.teslaCamArchiveCredentials
-  echo "Configured the archive."
+  if [ ! -e $BACKINGFILES_MOUNTPOINT/*.bin ]
+  then
+    /tmp/create-backingfiles.sh "$campercent" "$BACKINGFILES_MOUNTPOINT"
+  fi
 }
 
 function configure_archive_scripts () {
   echo "Configuring the archive scripts..."
-  mkdir /root/bin
 
-  pushd ~
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archiveloop
-  sed s/ARCHIVE_HOST_NAME=archiveserver/ARCHIVE_HOST_NAME=$archiveserver/ ~/archiveloop > /root/bin/archiveloop
-  rm ~/archiveloop
-  chmod +x /root/bin/archiveloop
-  popd
+  get_script /root/bin archiveloop run
 
-  pushd /root/bin
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/archive-teslacam-clips
-  chmod +x archive-teslacam-clips
-  popd
+  if [ $RSYNC_ENABLE = true ]
+  then
+    get_script /root/bin archive-clips.sh run/rsync_archive
+    get_script /root/bin connect-archive.sh run/rsync_archive
+    get_script /root/bin disconnect-archive.sh run/rsync_archive
+  else
+    get_script /root/bin archive-clips.sh run/cifs_archive
+    get_script /root/bin connect-archive.sh run/cifs_archive
+    get_script /root/bin disconnect-archive.sh run/cifs_archive
+  fi
+
+  get_script /root/bin remountfs_rw run
+  
   echo "Configured the archive scripts."
-
-  pushd /root
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/remountfs_rw
-  chmod +x remountfs_rw
-  popd
-  echo "Downloaded script to remount filesystems read/write if needed (/root/remountfs_rw)."
 }
 
-
 function configure_pushover_scripts() {
-if [ ${user_enabled_pushover} = "true" ]
-then
-  pushd /root/bin
-  wget https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/windows_archive/send-pushover
-  chmod +x send-pushover
-  popd
-fi
+  get_script /root/bin send-pushover run
 }
 
 function configure_rc_local () {
+  if grep -q archiveloop /etc/rc.local
+  then
+    return
+  fi
+  
   echo "Configuring /etc/rc.local to run the archive scripts at startup..."
   echo "#!/bin/bash -eu" > ~/rc.local
-  tail -n +2 /etc/rc.local | sed '$d' >> ~/rc.local
+  echo "archiveserver=\"${archiveserver}\"" >> ~/rc.local
 cat << 'EOF' >> ~/rc.local
 LOGFILE=/tmp/rc.local.log
 
@@ -165,7 +151,7 @@ function log () {
 }
 
 log "Launching archival script..."
-/root/bin/archiveloop &
+/root/bin/archiveloop "$archiveserver" &
 log "All done"
 exit 0
 EOF
@@ -193,15 +179,45 @@ function make_root_fs_readonly () {
 
 echo "Verifying environment variables..."
 
+RSYNC_ENABLE="${RSYNC_ENABLE:-false}"
+
+if [ "$RSYNC_ENABLE" = true ]
+then
+  check_variable "RSYNC_USER"
+  check_variable "RSYNC_SERVER"
+  export archiveserver="$RSYNC_SERVER"
+  check_variable "RSYNC_PATH"
+else # Else for now, TODO allow both for more redundancy?
+  check_variable "sharename"
+  check_variable "shareuser"
+  check_variable "sharepassword"
+  
+  export cifs_version="${cifs_version:-3.0}"
+fi
+
 check_variable "archiveserver"
-check_variable "sharename"
-check_variable "shareuser"
-check_variable "sharepassword"
 check_variable "campercent"
 
 check_pushover_enabled
 
-check_archive_server_reachable
+if [ ! -e /root/bin ]
+then
+  mkdir /root/bin
+fi
+
+if [ "$RSYNC_ENABLE" = true ]
+then
+  get_script /root/bin verify-archive-configuration.sh run/rsync_archive
+  get_script /root/bin configure-archive.sh run/rsync_archive
+else
+  get_script /root/bin verify-archive-configuration.sh run/cifs_archive
+  get_script /root/bin configure-archive.sh run/cifs_archive
+  get_script /root/bin write-archive-credentials-to.sh run/cifs_archive
+fi
+
+get_script /root/bin get-archiveserver-ip-address.sh run
+
+/root/bin/verify-archive-configuration.sh
 
 check_available_space
 
@@ -219,7 +235,7 @@ echo "" >> /etc/fstab
 
 create_usb_drive_backing_files
 
-configure_archive
+/root/bin/configure-archive.sh
 
 configure_rc_local
 

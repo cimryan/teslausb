@@ -14,12 +14,18 @@
 1. Run the following commands:
     ```
     cd ~
-    wget https://raw.githubusercontent.com/cimryan/teslausb/master/windows_archive/setup-piForHeadlessConfig.ps1 -OutFile setup-piForHeadlessConfig.ps1
+    wget https://raw.githubusercontent.com/cimryan/teslausb/master/setup/windows/setup-piForHeadlessConfig.ps1 -OutFile setup-piForHeadlessConfig.ps1
     ./setup-piForHeadlessConfig.ps1 -Verbose
     ```
 1. Enter the single letter of the "boot" drive and press Enter.
 1. Enter the SSID of your WiFi network and press Enter.
 1. Enter the Pre-Shared Key of your WiFi network and press Enter.
+1. If you want to add additional WiFi networks, execute:
+    ```
+    ./add-wifi.ps1 -Verbose
+    ```
+1. If you will use any public or insecure networks, be sure to update your password using the instructions at the end of this document.
+1. Enter the additional SSID and Pre-Shared Key of the WiFi network and repeat as necessary.
 1. Eject the sd card.
 1. Move the sd card to the Pi.
 1. Connect a micro usb cable to the port labeled "USB" on the Raspberry Pi, and to the PC.
@@ -36,4 +42,18 @@
 1. You should be prompted for the password for the user "pi". Enter
     ```
     raspberry
+    ```
+1. Change your password! While not required, it is recommended, especially if you may be using any public or insecure WiFi connections.  To do so Enter
+    ```
+    passwd
+    ```
+1. Then enter your new password and press Enter
+1. Confirm your new password and press Enter
+1. If you want to change your password later, you must set the system partition to writeable with either
+    ```
+    /root/bin/remountfs_rw
+    ```
+1. or
+    ```
+    mount / -o remount,rw
     ```

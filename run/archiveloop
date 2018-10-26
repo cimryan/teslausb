@@ -1,0 +1,262 @@
+#!/bin/bash -eu
+ARCHIVE_HOST_NAME="$1"
+
+export LOG_FILE=/tmp/archiveloop.log
+
+export CAM_MOUNT=/mnt/cam
+export MUSIC_MOUNT=/mnt/music
+export ARCHIVE_MOUNT=/mnt/archive
+
+function log () {
+  echo "$( date )" >> "$LOG_FILE"
+  echo "$1" >> "$LOG_FILE"
+}
+
+function fix_errors_in_mount_point () {
+  local mount_point="$1"
+  log "Running fsck on $mount_point..."
+  /sbin/fsck "$mount_point" -- -a >> "$LOG_FILE" 2>&1 || echo ""
+  log "Finished fsck on $mount_point."
+}
+
+function fix_errors_in_mounted_files () {
+  fix_errors_in_mount_point "$CAM_MOUNT"
+  fix_errors_in_mount_point "$MUSIC_MOUNT"
+}
+
+function archive_is_reachable () {
+  local reachable=true
+  ping -q -w 1 -c 1 "$ARCHIVE_HOST_NAME" > /dev/null 2>&1 || reachable=false
+  if [ "$reachable" = false ]
+  then
+    false
+    return
+  fi
+  true
+}
+
+function connect_usb_drives_to_host() {
+  log "Connecting usb to host..."
+  modprobe g_mass_storage
+  log "Connected usb to host."
+}
+
+function wait_for_archive_to_be_reachable () {
+  log "Waiting for archive to be reachable..."
+  while [ true ]
+  do
+    if archive_is_reachable
+    then
+      log "Archive is reachable."
+      break
+    fi
+    if [ -e /tmp/archive_is_reachable ]
+    then
+      log "Simulating archive is reachable"
+      rm /tmp/archive_is_reachable
+      break
+    fi
+    sleep 1
+  done
+}
+
+function retry () {
+  local attempts=0
+  while [ true ]
+  do
+    if eval "$@"
+    then
+      true
+      return
+    fi
+    if [ "$attempts" -ge 10 ]
+    then
+      log "Attempts exhausted."
+      false
+      return
+    fi
+    log "Sleeping before retry..."
+    /bin/sleep 1
+    attempts=$((attempts + 1))
+    log "Retrying..."
+  done
+  false
+  return
+}
+
+function mount_mountpoint () {
+  local mount_point="$1"
+  log "Mounting $mount_point..."
+
+  local mounted=true
+  mount "$mount_point" >> "$LOG_FILE" 2>&1 || mounted=false
+  if [ "$mounted" = true ]
+  then
+    log "Mounted $mount_point."
+    true
+    return
+  else
+    log "Failed to mount $mount_point."
+    false
+    return
+  fi
+}
+
+function ensure_mountpoint_is_mounted () {
+  local mount_point="$1"
+  local mount_exists=true
+
+  findmnt --mountpoint "$mount_point" > /dev/null || mount_exists=false
+
+  if [ "$mount_exists" = true ]
+  then
+    log "$mount_point is already mounted."
+  else
+    mount_mountpoint "$mount_point"
+  fi
+}
+
+function ensure_mountpoint_is_mounted_with_retry () {
+  retry ensure_mountpoint_is_mounted "$1"
+}
+
+function fix_errors_in_cam_file () {
+  fix_errors_in_mount_point "$CAM_MOUNT"
+}
+
+function ensure_cam_file_is_mounted () {
+  log "Ensuring cam file is mounted..."
+  ensure_mountpoint_is_mounted_with_retry "$CAM_MOUNT"
+  log "Ensured cam file is mounted."
+}
+
+function ensure_music_file_is_mounted () {
+  log "Ensuring music backing file is mounted..."
+  ensure_mountpoint_is_mounted_with_retry "$MUSIC_MOUNT"
+  log "Ensured cam drive is mounted."
+}
+
+function unmount_mount_point () {
+  local mount_point="$1"
+  log "Unmounting $mount_point..."
+  umount "$mount_point" >> "$LOG_FILE" 2>&1
+  log "Unmounted $mount_point."
+}
+
+function unmount_cam_file () {
+  unmount_mount_point "$CAM_MOUNT"
+}
+
+function unmount_music_file () {
+  unmount_mount_point "$MUSIC_MOUNT"
+}
+
+function fix_errors_in_music_file () {
+  fix_errors_in_mount_point "$MUSIC_MOUNT"
+}
+
+function wait_for_archive_to_be_unreachable () {
+  log "Waiting for archive to be unreachable..."
+  while [ true ]
+    do
+      if ! archive_is_reachable
+      then
+        log "Archive is unreachable."
+        break
+      fi
+      if [ -e /tmp/archive_is_unreachable ]
+      then
+        log "Simulating archive being unreachable."
+        rm /tmp/archive_is_unreachable
+        break
+      fi
+      sleep 1
+  done
+}
+
+function mount_and_fix_errors_in_cam_file () {
+  ensure_cam_file_is_mounted
+  fix_errors_in_cam_file
+  unmount_cam_file
+}
+
+function mount_and_fix_errors_in_music_file () {
+  if [ -e "$MUSIC_MOUNT" ]
+  then
+    ensure_music_file_is_mounted
+    fix_errors_in_music_file
+    unmount_music_file
+  fi
+}
+
+function mount_and_fix_errors_in_files () {
+  mount_and_fix_errors_in_cam_file
+  mount_and_fix_errors_in_music_file
+}
+
+function disconnect_usb_drives_from_host () {
+  log "Disconnecting usb from host..."
+  modprobe -r g_mass_storage
+  log "Disconnected usb from host."
+}
+
+function archive_teslacam_clips () {
+  log "Starting..."
+
+  /root/bin/connect-archive.sh
+
+  disconnect_usb_drives_from_host
+
+  ensure_cam_file_is_mounted
+
+  fix_errors_in_cam_file
+
+  /root/bin/archive-clips.sh
+
+  /root/bin/disconnect-archive.sh
+
+  unmount_cam_file
+
+  connect_usb_drives_to_host
+}
+
+function archive_clips () {
+  log "Archiving..."
+  if archive_teslacam_clips
+  then
+    log "Finished archiving."
+  else
+    log "Archiving failed."
+  fi
+}
+
+export -f mount_mountpoint
+export -f ensure_mountpoint_is_mounted
+export -f retry
+export -f ensure_mountpoint_is_mounted_with_retry
+export -f log
+
+log "Starting..."
+
+if archive_is_reachable
+then
+  # archive_clips will fix errors in the cam file
+  mount_and_fix_errors_in_music_file
+
+  archive_clips
+
+  wait_for_archive_to_be_unreachable
+else
+  mount_and_fix_errors_in_files
+
+  connect_usb_drives_to_host
+fi
+
+while [ true ]
+do
+  wait_for_archive_to_be_reachable
+
+  archive_clips
+
+  wait_for_archive_to_be_unreachable
+done
