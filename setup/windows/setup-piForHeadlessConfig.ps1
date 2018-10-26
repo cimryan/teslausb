@@ -11,6 +11,9 @@ Param
     [string]$wifiPSK
 )
 
+wget https://raw.githubusercontent.com/cimryan/teslausb/master/setup/windows/WpaSupplicantConf.psm1 -OutFile WpaSupplicantConf.psm1
+wget https://raw.githubusercontent.com/cimryan/teslausb/master/setup/windows/add-wifi.ps1 -OutFile add-wifi.ps1
+
 Import-Module -Name ".\WpaSupplicantConf.psm1" -Force
 
 $drivePath="${driveLetter}:"
