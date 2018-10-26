@@ -66,7 +66,7 @@ function headless_setup_progress_flash () {
 
 function setup_led_off () {
 
-  if [ $USE_LED_FOR_SETUP_PROGRESS = "true" ]
+  if [ $USE_LED_FOR_SETUP_PROGRESS = "true" ] && [ $HEADLESS_SETUP = "true" ]
   then
     echo "none" | sudo tee /sys/class/leds/led0/trigger > /dev/null
     echo 1 | sudo tee /sys/class/leds/led0/brightness > /dev/null
@@ -75,7 +75,7 @@ function setup_led_off () {
 
 function setup_led_on () {
 
-  if [ $USE_LED_FOR_SETUP_PROGRESS = "true" ]
+  if [ $USE_LED_FOR_SETUP_PROGRESS = "true" ] && [ $HEADLESS_SETUP = "true" ]
   then
     echo 0 | sudo tee /sys/class/leds/led0/brightness > /dev/null
   fi
