@@ -19,6 +19,9 @@ for file_name in "$CAM_MOUNT"/TeslaCam/saved*; do
 done
 log "Moved $NUM_FILES_MOVED file(s)."
 
+if [ $NUM_FILES_MOVED -gt 0 ]
+then
 /root/bin/send-pushover "$NUM_FILES_MOVED"
+fi
 
 log "Finished moving clips to archive."
