@@ -32,7 +32,7 @@ function headless_setup_populate_variables () {
 function headless_setup_mark_setup_failed () {
   if [ $HEADLESS_SETUP = "true" ]
   then
-    setup_log "ERROR: Setup Failed."
+    setup_progress "ERROR: Setup Failed."
     touch /boot/TESLAUSB_SETUP_FAILED
   fi
 }
@@ -48,7 +48,7 @@ function headless_setup_mark_setup_success () {
 
     rm /boot/TESLAUSB_SETUP_STARTED
     touch /boot/TESLAUSB_SETUP_FINISHED
-    setup_log "Main setup completed. Remounting file systems read only."
+    setup_progress "Main setup completed. Remounting file systems read only."
   fi
 }
 

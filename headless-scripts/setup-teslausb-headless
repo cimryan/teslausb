@@ -3,7 +3,7 @@
 REPO=rtgoodwin
 BRANCH="headless-patch"
 user_enabled_pushover=false
-LOGFILE=/boot/teslausb-headless-setup.log
+SETUP_LOGFILE=/boot/teslausb-headless-setup.log
 setup_complete=false
 
 # if ! [ $(id -u) = 0 ]
@@ -12,7 +12,7 @@ setup_complete=false
 #   exit 1
 # fi
 
-function setup_log () {
+function setup_progress () {
   echo "$( date ) : $1" >> "$LOGFILE"
 }
 
