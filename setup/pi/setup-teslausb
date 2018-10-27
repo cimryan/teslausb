@@ -118,6 +118,11 @@ function configure_archive_scripts () {
     get_script /root/bin archive-clips.sh run/rsync_archive
     get_script /root/bin connect-archive.sh run/rsync_archive
     get_script /root/bin disconnect-archive.sh run/rsync_archive
+  elif [ $RCLONE_ENABLE = true ]
+  then
+    get_script /root/bin archive-clips.sh run/rclone_archive
+    get_script /root/bin connect-archive.sh run/rclone_archive
+    get_script /root/bin disconnect-archive.sh run/rclone_archive
   else
     get_script /root/bin archive-clips.sh run/cifs_archive
     get_script /root/bin connect-archive.sh run/cifs_archive
@@ -180,6 +185,7 @@ function make_root_fs_readonly () {
 echo "Verifying environment variables..."
 
 RSYNC_ENABLE="${RSYNC_ENABLE:-false}"
+RCLONE_ENABLE="${RCLONE_ENABLE:-false}"
 
 if [ "$RSYNC_ENABLE" = true ]
 then
@@ -187,6 +193,12 @@ then
   check_variable "RSYNC_SERVER"
   export archiveserver="$RSYNC_SERVER"
   check_variable "RSYNC_PATH"
+elif [ "$RCLONE_ENABLE" = true ]
+then
+  check_variable "RCLONE_DRIVE"
+  check_variable "RCLONE_PATH"
+  # since it's a cloud hosted drive we'll just set this to google dns
+  export archiveserver="8.8.8.8"
 else # Else for now, TODO allow both for more redundancy?
   check_variable "sharename"
   check_variable "shareuser"
@@ -209,6 +221,10 @@ if [ "$RSYNC_ENABLE" = true ]
 then
   get_script /root/bin verify-archive-configuration.sh run/rsync_archive
   get_script /root/bin configure-archive.sh run/rsync_archive
+elif [ "$RCLONE_ENABLE" = true ]
+then
+  get_script /root/bin verify-archive-configuration.sh run/rclone_archive
+  get_script /root/bin configure-archive.sh run/rclone_archive
 else
   get_script /root/bin verify-archive-configuration.sh run/cifs_archive
   get_script /root/bin configure-archive.sh run/cifs_archive
