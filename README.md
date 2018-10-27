@@ -62,6 +62,9 @@ Get the IP address of the archive machine. You'll need this later, so write it d
 
 Since sftp/rsync is accessing a computer through SSH, the only requirement for hosting an SFTP/rsync server is to have a box running Linux. An example can be another Raspberry Pi connected to your local network with a USB storage drive plugged in. The official Raspberry Pi site has a good example on [how to mount an external drive](https://www.raspberrypi.org/documentation/configuration/external-storage.md). You will need the username and host/IP of the storage server, as well as the path for the files to go in, and the storage server will need to allow SSH.
 
+### Hosting via rclone (for Google Drive, S3, DropBox, etc)
+**EXPERIMENTAL** - This hasn't been thoroughly tested yet but you can follow these [instructions](/doc/SetupRClone.md) and give it a spin.
+
 ### ***TODO: Other hosting solutions***
 
 ## Set up the Raspberry Pi
