@@ -1,16 +1,27 @@
 #!/bin/bash -eu
 
 BACKINGFILES_MOUNTPOINT="$1"
-  
-PARTITION_TABLE=$(parted -m /dev/mmcblk0 unit s print)
-ROOT_PARTITION_LINE=$(echo "$PARTITION_TABLE" | grep -e "^2:")
-LAST_ROOT_PARTITION_SECTOR=$(echo "$ROOT_PARTITION_LINE" | sed 's/s//g' | cut -d ":" -f 3)
+MUTABLE_MOUNTPOINT="$2"
 
-FIRST_BACKINGFILES_PARTITION_SECTOR=$(( $LAST_ROOT_PARTITION_SECTOR + 1 ))
+PARTITION_TABLE=$(parted -m /dev/mmcblk0 unit B print)
+DISK_LINE=$(echo "$PARTITION_TABLE" | grep -e "^/dev/mmcblk0:")
+DISK_SIZE=$(echo "$DISK_LINE" | cut -d ":" -f 2 | sed 's/B//' )
+
+ROOT_PARTITION_LINE=$(echo "$PARTITION_TABLE" | grep -e "^2:")
+LAST_ROOT_PARTITION_BYTE=$(echo "$ROOT_PARTITION_LINE" | sed 's/B//g' | cut -d ":" -f 3)
+
+FIRST_BACKINGFILES_PARTITION_BYTE="$(( $LAST_ROOT_PARTITION_BYTE + 1 ))"
+LAST_BACKINGFILES_PARTITION_DESIRED_BYTE="$(( $DISK_SIZE - (100 * (2 ** 20)) - 1))"
 
 ORIGINAL_DISK_IDENTIFIER=$( fdisk -l /dev/mmcblk0 | grep -e "^Disk identifier" | sed "s/Disk identifier: 0x//" )
 
-parted -m /dev/mmcblk0 u s mkpart primary ext4 "$FIRST_BACKINGFILES_PARTITION_SECTOR" 100%
+BACKINGFILES_PARTITION_END_SPEC="$(( $LAST_BACKINGFILES_PARTITION_DESIRED_BYTE / 1000000 ))M"
+parted -a optimal -m /dev/mmcblk0 unit B mkpart primary ext4 "$FIRST_BACKINGFILES_PARTITION_BYTE" "$BACKINGFILES_PARTITION_END_SPEC"
+
+LAST_BACKINGFILES_PARTITION_BYTE=$(parted -m /dev/mmcblk0 unit B print | grep -e "^3:" | cut -d ":" -f 3 | sed 's/B//g' )
+
+MUTABLE_PARTITION_START_SPEC="$(( $LAST_BACKINGFILES_PARTITION_BYTE / 1000000 ))M"
+parted -a optimal -m /dev/mmcblk0 unit B mkpart primary ext4 "$MUTABLE_PARTITION_START_SPEC" 100%
 
 NEW_DISK_IDENTIFIER=$( fdisk -l /dev/mmcblk0 | grep -e "^Disk identifier" | sed "s/Disk identifier: 0x//" )
 
@@ -18,5 +29,7 @@ sed -i "s/${ORIGINAL_DISK_IDENTIFIER}/${NEW_DISK_IDENTIFIER}/g" /etc/fstab
 sed -i "s/${ORIGINAL_DISK_IDENTIFIER}/${NEW_DISK_IDENTIFIER}/" /boot/cmdline.txt
 
 mkfs.ext4 -F /dev/mmcblk0p3
+mkfs.ext4 -F /dev/mmcblk0p4
 
 echo "/dev/mmcblk0p3 $BACKINGFILES_MOUNTPOINT ext4 auto,rw,noatime 0 2" >> /etc/fstab
+echo "/dev/mmcblk0p4 $MUTABLE_MOUNTPOINT ext4 auto,rw 0 2" >> /etc/fstab

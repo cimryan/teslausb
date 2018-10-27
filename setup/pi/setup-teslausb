@@ -83,6 +83,7 @@ function fix_cmdline_txt_modules_load ()
 }
 
 BACKINGFILES_MOUNTPOINT=/backingfiles
+MUTABLE_MOUNTPOINT=/mutable
 
 function create_usb_drive_backing_files () {
   if [ ! -e "$BACKINGFILES_MOUNTPOINT" ]
@@ -90,9 +91,14 @@ function create_usb_drive_backing_files () {
     mkdir "$BACKINGFILES_MOUNTPOINT"
   fi
 
+  if [ ! -e "$MUTABLE_MOUNTPOINT" ]
+  then
+    mkdir "$MUTABLE_MOUNTPOINT"
+  fi
+  
   if [ ! -e /dev/mmcblk0p3 ]
   then
-    /tmp/create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT"
+    /tmp/create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT" "$MUTABLE_MOUNTPOINT"
   fi
   
   if ! findmnt --mountpoint $BACKINGFILES_MOUNTPOINT
