@@ -1,18 +1,25 @@
 # Flashable image to get started more quickly
 
-# This is a WORK IN PROGRESS, SHOULD BE WORKING. 
+# This is a WORK IN PROGRESS, SHOULD CURRENTLY BE WORKING. 
 
 
 ## Notes 
 
-* Assumes your Pi has access to Wifi, with internet access (during setup). (But all setup methods do currently.) USB networking still enabled for troubleshooting.
+* Assumes your Pi has access to Wifi, with internet access (during setup). (But all setup methods do currently.) USB networking is still enabled for troubleshooting or manual setup
+* This image will work for either headless or automatic setup.
+
 
 
 ## Configure the SD card before first boot of the Pi
 
 
-1. Flash the image from [here (10-24 dated image)](https://www.dropbox.com/s/6f8kxenvtz8pkj9/image_2018-10-24-teslausb_headless-lite.zip?dl=0) using Etcher or similar.  (Be sure to click the `...` on Dropbox and download the `.zip` file.)
-1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment varibles normally needed for setup (including archive, Wifi, and push notifications (if desired).) A sample conf file is in this repo.  I.e. file should contain at a minimum (replace with your own values):
+1. Flash the image from [Image dated 2018-10-27](https://www.dropbox.com/s/pr9gampu6upmmaf/image_2018-10-27-teslausb_headless-lite.zip?dl=0) using Etcher or similar. Be sure to download the `.zip` file, although the `.img` file should work also. 
+
+### For headless (automatic) setup
+
+1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment varibles normally needed for setup (including archive, Wifi, and push notifications (if desired).) A sample conf file is located in the `boot` folder on the SD card.  
+
+    The  file should contain at a minimum (replace with your own values):
     ```
     export archiveserver=Nautilus
     export sharename=SailfishCam
@@ -21,22 +28,40 @@
     export campercent=100
     export SSID=your_ssid
     export WIFIPASS=your_wifi_password
+    export HEADLESS_SETUP=true
+    export REPO=rtgoodwin
+    export BRANCH=headless-patch
+    # Currently set to track this repo/branch while under development.
     # export pushover_enabled=false
     # export pushover_user_key=user_key
     # export pushover_app_key=app_key
     ```
     (Pushover should be working but commented out by default.)
 * Boot it in your Pi, give it a bit, watching for a series of flashes (2, 3, 4, 5, maybe 6) and then a reboot and/or the CAM to become available on your PC/Mac.
-* The Pi should be available at `teslausb.local` over Wifi (if it works) or USB networking (if it doesn't). Takes about 5 minutes for me. You should see in `/boot` the TESLAUSB_SETUP_FINISHED and WIFI_ENABLED files as markers of success too.
-* Currently doesn't create the TeslaCam folder, so you'll need to do that before taking to your car.
+* The Pi should be available at `teslausb.local` over Wifi (if it works) or USB networking (if it doesn't). Takes about 5 minutes, or more depending on network speed, etc. You should see in `/boot` the TESLAUSB_SETUP_FINISHED and WIFI_ENABLED files as markers of success too.
 * If plugged into just a power source, or your car, give it a few minutes until the LED starts pulsing steadily which means the archive loop is running and you're good to go. 
+
+### For manual setup
+
+After flashing the image, boot it in your Pi and connect via USB networking. (The Pi must be connected to your PC and plugged into the port labeled USB on the Pi.)
+
+Follow the steps starting at [Set up the USB storage functionality](https://github.com/cimryan/teslausb#set-up-the-usb-storage-functionality) in the main guide. 
+
+### Troubleshooting
+
+* `ssh` to `pi@teslausb.local` (assuming Wifi came up, or your Pi is connected to your computer via USB) and look at the `/boot/teslausb-headless-setup.log`. 
+* Try `sudo -i` and then run `/etc/rc.local`. The scripts are now fairly resilient to restarting and not completing previous steps. 
+* If Wifi didn't come up, doublecheck the SSID and WIFIPASS variables in `teslausb_setup_variables.conf`.
+  * Remove `/boot/WIFI_ENABLED` and re-run `/etc/rc.local`.
+  * If all else fails, copy `/boot/wpa_supplicant.conf.sample` to `/boot/wpa_supplicant.conf` and edit out the `TEMP` variables to your desired settings. 
+  * You may have to `sudo` and run `/root/bin/remountfs_rw` if the filesystems have already been remounted as read-only. 
+
 
 ## What happens under the covers
 
 When the Pi boots the first time: 
 * A `/boot/teslausb-headless-setup.log` file will be created and stages logged. This takes the place of the "STOP" commands 
 * Marker files will be created in `boot` like `TESLA_USB_SETUP_STARTED` and `TESLA_USB_SETUP_FINISHED` to track progress. 
-* (Working on a progress system so the script can pick back up if needed. This is probably useful for the general/old way of setup too.)
 * Wifi is detected by looking for `/boot/WIFI_ENABLED` and if not, creates the `wpa_supplicant.conf` file in place and reboots. 
 * The Pi LED will flash patterns (2, 3, 4, 5, maybe 6) as it gets to each stage (labeled in the setup-teslausb-headless script). 
   * 10 flashes means setup failed!
