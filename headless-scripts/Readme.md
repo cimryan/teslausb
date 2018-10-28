@@ -15,7 +15,8 @@
 
 ### For headless (automatic) setup
 
-1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment varibles normally needed for manual setup (including archive info, Wifi, and push notifications (if desired).) A sample conf file is located in the `boot` folder on the SD card. 
+1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment varibles normally needed for manual setup (including archive info, Wifi, and push notifications (if desired). 
+A sample conf file is located in the `boot` folder on the SD card. 
 
 
     The file should contain the entries below at a minimum, but **replace with your own values**:
@@ -38,7 +39,7 @@
     ```
      (For now, please leave the REPO and BRANCH set to the settings above.)
 
-* Boot it in your Pi, give it a bit, watching for a series of flashes (2, 3, 4, 5) and then a reboot and/or the CAM to become available on your PC/Mac. The LED flash stages are:
+* Boot it in your Pi, give it a bit, watching for a series of flashes (2, 3, 4, 5) and then a reboot and/or the CAM/music drives to become available on your PC/Mac. The LED flash stages are:
 
 | Stage (number of flashes)  |  Activity |
 |---|---|
@@ -51,13 +52,13 @@
 
 * The Pi should be available for `ssh` at `pi@teslausb.local`, over Wifi (if automatic setup works) or USB networking (if it doesn't). It takes about 5 minutes, or more depending on network speed, etc. 
 * If plugged into just a power source, or your car, give it a few minutes until the LED starts pulsing steadily which means the archive loop is running and you're good to go. 
-* You should see in `/boot` the TESLAUSB_SETUP_FINISHED and WIFI_ENABLED files as markers of success as well.
+* You should see in `/boot` the `TESLAUSB_SETUP_FINISHED` and `WIFI_ENABLED` files as markers of headless setup success as well.
 
 ### For manual setup
 
 1. After flashing the image, boot it in your Pi and:
     *  connect via USB networking at `ssh pi@teslausb.local`. (The Pi must be connected to your PC and plugged into the port labeled USB on the Pi. Or...
-    * You can also automate only the Wifi portion of setup by creating the `boot/teslausb_setup_variables.conf` file and populating it with the `SSID` and `WIFIPASS` variables:
+    * You can also just automate the Wifi portion of setup by creating the `boot/teslausb_setup_variables.conf` file and populating it with the `SSID` and `WIFIPASS` variables:
     ```
     export SSID=your_ssid
     export WIFIPASS=your_wifi_pass
@@ -74,7 +75,7 @@
     * Double-check the SSID and WIFIPASS variables in `teslausb_setup_variables.conf`, and remove `/boot/WIFI_ENABLED`, then booting the SD in your Pi to retry automatic Wifi setup. 
   * If still no go, re-run `/etc/rc.local`
   * If all else fails, copy `/boot/wpa_supplicant.conf.sample` to `/boot/wpa_supplicant.conf` and edit out the `TEMP` variables to your desired settings. 
-  * (Note: if you get an error about `read-only filesystem`, you may have to `sudo -i` and run `/root/bin/remountfs_rw`.
+* (Note: if you get an error about `read-only filesystem`, you may have to `sudo -i` and run `/root/bin/remountfs_rw`.
 
 
 # Background information
@@ -85,8 +86,8 @@ When the Pi boots the first time:
 * Marker files will be created in `boot` like `TESLA_USB_SETUP_STARTED` and `TESLA_USB_SETUP_FINISHED` to track progress. 
 * Wifi is detected by looking for `/boot/WIFI_ENABLED` and if not, creates the `wpa_supplicant.conf` file in place, using `SSID` and `WIFIPASS` from `teslausb_setup_varibles.conf` and reboots. 
 * The Pi LED will flash patterns (2, 3, 4, 5) as it gets to each stage (labeled in the setup-teslausb-headless script). 
-  * 10 flashes means setup failed!
-  * After the final stage and reboot the LED will go back to normal. Remember, the step to remount the filesystem takes a few minutes.
+  * ~~10 flashes means setup failed!~~ (not currently working)
+* After the final stage and reboot the LED will go back to normal. Remember, the step to remount the filesystem takes a few minutes.
 
 At this point the next boot should start the Dashcam/music drives like normal. If you're watching the LED it will start flashing every 1 second, which is the archive loop running. 
 
@@ -100,7 +101,7 @@ For now the image creation work is at:
 
 
 ### Image refinement TODOs
-1. ~Patch the hostname to teslausb~
+1. ~~Patch the hostname to teslausb~~
 1. Make it so if someone deletes the `TESLAUSB_SETUP_FINISHED` file it's handled gracefully. (Right now it will try to re-run setup which should be fine.) 
 1. Cache the remount packages? Might mess with first boot like `rsyslog`
 1. Aspirational TODO: Remove more packages and set services to stopped to make the boot process faster? 
@@ -114,7 +115,7 @@ The image is built on a Raspberry Pi 3B running Stretch, for maximum Pi-ception.
 This is the basic configuration, but it's helpful to just [look at the code itself](https://github.com/rtgoodwin/pi-gen/tree/teslausb-headless-image) and the Readme for Pi-gen which explains this all in much greater detail:
 
 1. Added SKIP and SKIP_IMAGES files to stage3, 4, and 5 (if present). We want to build the default image up to stage2, then add our own stage for tweaks we want. 
-1. Added a `stage6` (or 7, just something beyond stage5). (There are stages 0-4 in the main repo by default, but may be a stage5 in some cases. This will help keep a clean merge later.)
+1. Added a `stage6` (or 7, just something beyond stage5). (There are stages 0-4 in the main Raspbian pi-gen repo by default, but may be a stage5 in some cases. This will help keep a clean merge later.)
 1. Copy the prerun.sh from `stage2`. Be SURE to `chmod +x` it. 
 1. Remove or rename the EXPORT_NOOBS files in all stages. We don't need a NOOBS image built. 
 1. In `stage6`, create a `00-tweaks` folder, with a `00-patches` folder and patches inside. Currently patched:
@@ -130,7 +131,7 @@ This is the basic configuration, but it's helpful to just [look at the code itse
     * The path for any patching you do at this stage is `stage6/rootfs/FILEPATH` where `rootfs` represents the Pi's `/`. So, `cmdline.txt` is `stage6/rootfs/boot/cmdline.txt`.
 
 1. Added a file called `series` in the patches directory with the name of each `.diff` file in the order you want them applied.
-1. Added a `files` folder in stage6 with modified `rc.local`, and whatever else you want copied into the image. The modified `rc.local` will handle pulling down the `setup-teslausb-headless` file the first time.
+1. Added a `files` folder in stage6 with modified `rc.local`, and whatever else you want copied into the image. The modified `rc.local` will handle pulling down the `setup-teslausb-headless` file the first time and doing Wifi setup. 
 1. Added a script to flash the Pi LED  
 1. Files are moved into final locations using the  `00-run.sh` script using the `install` command. See the script for details. I also `touch /boot/ssh` here so SSH is ready out of the box.
 1. Run `sudo ./build.sh` from the `pi-gen` directory.
