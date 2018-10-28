@@ -8,18 +8,15 @@
 * Assumes your Pi has access to Wifi, with internet access (during setup). (But all setup methods do currently.) USB networking is still enabled for troubleshooting or manual setup
 * This image will work for either headless or automatic setup.
 
-
-
 ## Configure the SD card before first boot of the Pi
 
-
-1. Flash the image from [Image dated 2018-10-27](https://www.dropbox.com/s/pr9gampu6upmmaf/image_2018-10-27-teslausb_headless-lite.zip?dl=0) using Etcher or similar. Be sure to download the `.zip` file, although the `.img` file should work also. 
+1. Flash the [latest image release] using Etcher or similar. 
 
 ### For headless (automatic) setup
 
 1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment varibles normally needed for setup (including archive, Wifi, and push notifications (if desired).) A sample conf file is located in the `boot` folder on the SD card.  
 
-    The  file should contain at a minimum (replace with your own values):
+    The file should contain at a minimum, but (**replace with your own values**):
     ```
     export archiveserver=Nautilus
     export sharename=SailfishCam
