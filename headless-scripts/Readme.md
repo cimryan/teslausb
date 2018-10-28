@@ -38,34 +38,53 @@
     ```
      (For now, please leave the REPO and BRANCH set to the settings above.)
 
-* Boot it in your Pi, give it a bit, watching for a series of flashes (2, 3, 4, 5) and then a reboot and/or the CAM to become available on your PC/Mac.
+* Boot it in your Pi, give it a bit, watching for a series of flashes (2, 3, 4, 5) and then a reboot and/or the CAM to become available on your PC/Mac. The LED flash stages are:
+
+| Stage (number of flashes)  |  Activity |
+|---|---|
+| 2 | Verify setup variables  |
+| 3 | Grab scripts to start/continue setup |
+| 4 | Create partition and files to store camera clips/music) |
+| 5 | Setup completed; remounting filesystems as read-only and rebooting |
+
+
+
 * The Pi should be available for `ssh` at `pi@teslausb.local`, over Wifi (if automatic setup works) or USB networking (if it doesn't). It takes about 5 minutes, or more depending on network speed, etc. 
 * If plugged into just a power source, or your car, give it a few minutes until the LED starts pulsing steadily which means the archive loop is running and you're good to go. 
 * You should see in `/boot` the TESLAUSB_SETUP_FINISHED and WIFI_ENABLED files as markers of success as well.
 
 ### For manual setup
 
-After flashing the image, boot it in your Pi and connect via USB networking. (The Pi must be connected to your PC and plugged into the port labeled USB on the Pi.)
+1. After flashing the image, boot it in your Pi and:
+    *  connect via USB networking at `ssh pi@teslausb.local`. (The Pi must be connected to your PC and plugged into the port labeled USB on the Pi. Or...
+    * You can also automate only the Wifi portion of setup by creating the `boot/teslausb_setup_variables.conf` file and populating it with the `SSID` and `WIFIPASS` variables:
+    ```
+    export SSID=your_ssid
+    export WIFIPASS=your_wifi_pass
+    ```
 
-Follow the steps starting at [Set up the USB storage functionality](https://github.com/cimryan/teslausb#set-up-the-usb-storage-functionality) in the main guide. 
+1. Once you have an `ssh` session, follow the steps starting at [Set up the USB storage functionality](https://github.com/cimryan/teslausb#set-up-the-usb-storage-functionality) in the main guide. 
 
 ### Troubleshooting
 
+#### Headless (full or Wifi) setup 
 * `ssh` to `pi@teslausb.local` (assuming Wifi came up, or your Pi is connected to your computer via USB) and look at the `/boot/teslausb-headless-setup.log`. 
-* Try `sudo -i` and then run `/etc/rc.local`. The scripts are now fairly resilient to restarting and not completing previous steps. 
-* If Wifi didn't come up, doublecheck the SSID and WIFIPASS variables in `teslausb_setup_variables.conf`.
-  * Remove `/boot/WIFI_ENABLED` and re-run `/etc/rc.local`.
+* Try `sudo -i` and then run `/etc/rc.local`. The scripts are  fairly resilient to restarting and not re-running previous steps, and will tell you about progress/failure.
+* If Wifi didn't come up:
+    * Double-check the SSID and WIFIPASS variables in `teslausb_setup_variables.conf`, and remove `/boot/WIFI_ENABLED`, then booting the SD in your Pi to retry automatic Wifi setup. 
+  * If still no go, re-run `/etc/rc.local`
   * If all else fails, copy `/boot/wpa_supplicant.conf.sample` to `/boot/wpa_supplicant.conf` and edit out the `TEMP` variables to your desired settings. 
-  * You may have to `sudo` and run `/root/bin/remountfs_rw` if the filesystems have already been remounted as read-only. 
+  * (Note: if you get an error about `read-only filesystem`, you may have to `sudo -i` and run `/root/bin/remountfs_rw`.
 
 
+# Background information
 ## What happens under the covers
 
 When the Pi boots the first time: 
-* A `/boot/teslausb-headless-setup.log` file will be created and stages logged. This takes the place of the "STOP" commands 
+* A `/boot/teslausb-headless-setup.log` file will be created and stages logged. 
 * Marker files will be created in `boot` like `TESLA_USB_SETUP_STARTED` and `TESLA_USB_SETUP_FINISHED` to track progress. 
-* Wifi is detected by looking for `/boot/WIFI_ENABLED` and if not, creates the `wpa_supplicant.conf` file in place and reboots. 
-* The Pi LED will flash patterns (2, 3, 4, 5, maybe 6) as it gets to each stage (labeled in the setup-teslausb-headless script). 
+* Wifi is detected by looking for `/boot/WIFI_ENABLED` and if not, creates the `wpa_supplicant.conf` file in place, using `SSID` and `WIFIPASS` from `teslausb_setup_varibles.conf` and reboots. 
+* The Pi LED will flash patterns (2, 3, 4, 5) as it gets to each stage (labeled in the setup-teslausb-headless script). 
   * 10 flashes means setup failed!
   * After the final stage and reboot the LED will go back to normal. Remember, the step to remount the filesystem takes a few minutes.
 
@@ -80,29 +99,39 @@ For now the image creation work is at:
 * `headless-patch` branch of rtgoodwin fork [https://github.com/rtgoodwin/teslausb/tree/headless-patch/headless-scripts](https://github.com/rtgoodwin/teslausb/tree/headless-patch/headless-scripts)
 
 
-### Image creation TODOs
-1. Patch the hostname to teslausb
-1. Make it so if someone deletes the `TESLAUSB_SETUP_FINISHED` file it's handled gracefully. 
-1. I still see some errors during pi-gen about locale, may need to be fixed? stage0/01-locale/debconf en_US.UTF-8
+### Image refinement TODOs
+1. ~Patch the hostname to teslausb~
+1. Make it so if someone deletes the `TESLAUSB_SETUP_FINISHED` file it's handled gracefully. (Right now it will try to re-run setup which should be fine.) 
 1. Cache the remount packages? Might mess with first boot like `rsyslog`
-1. Any other steps to move into the base image?
 1. Aspirational TODO: Remove more packages and set services to stopped to make the boot process faster? 
-1. NOTE: I moved all script downloads and variable creation to the initial setup. At this point, I'm designing it to pull the setup scripts dynamically, since development is still ongoing. If/when we reach a good frozen state, we can generate an image that is ready to run. I think it'll also be pretty tricky to do some of the remounting and creating the backing files etc. on the image creation side. Open to suggestions/contributions there though! At the very least we could bake in stable first stage headlessBuild scripts for Mac/Linux/Windows.
+1. At this point, it's designed to pull the setup scripts _dynamically_, since development is still ongoing. If/when we reach a good frozen state, we can generate an image that is essentially ready to run. I think it'll also be pretty tricky to do some of the remounting and creating the backing files etc. on the image creation side. Open to suggestions/contributions there though! 
 
 
 #### Modifications to pi-gen builder from master
 
-Built image on a Raspi running Stretch, for maximum Pi-ception. 
+The image is built on a Raspberry Pi 3B running Stretch, for maximum Pi-ception. 
 
-1. Add SKIP and SKIP_IMAGES files to stage3, 4, and 5 (if present). 
-1. Add a stage6. (There are stages0-5, but may be a stage5 in some cases. This will help keep a clean merge later.)
-1. Copy the prerun.sh from `stage2`. Be SURE to mark `chmod +x` it. 
+This is the basic configuration, but it's helpful to just [look at the code itself](https://github.com/rtgoodwin/pi-gen/tree/teslausb-headless-image) and the Readme for Pi-gen which explains this all in much greater detail:
+
+1. Added SKIP and SKIP_IMAGES files to stage3, 4, and 5 (if present). We want to build the default image up to stage2, then add our own stage for tweaks we want. 
+1. Added a `stage6` (or 7, just something beyond stage5). (There are stages 0-4 in the main repo by default, but may be a stage5 in some cases. This will help keep a clean merge later.)
+1. Copy the prerun.sh from `stage2`. Be SURE to `chmod +x` it. 
 1. Remove or rename the EXPORT_NOOBS files in all stages. We don't need a NOOBS image built. 
-1. In `stage6`, create a `00-tweaks` folder, with a `00-patches` folder and patch inside to patch `cmdline.txt` to remove the resize and add the needed modules. The build process uses `quilt` for patching. Note: the path for any patching you do at this stage is `stage6/rootfs/FILEPATH` where `rootfs` represents the Pi's `/`. So, `cmdline.txt` is `stage6/rootfs/boot/cmdline.txt`.
-1. Add a patch for the `config.txt` file.
-1. Add a file called `series` in the patches directory with the name of each `.diff` file in the order you want them applied.
-1. Add a `files` folder in stage6 with modified `rc.local`. The modified `rc.local` will handle pulling down the `setup-teslausb-headless` file the first time. (Still working on build logic here.) Files are moved into final locations in a `00-run.sh` script and the `install` command. See the script for details. 
-1. (Yes at this point you could suggest that just putting the end state files in place instead of patching would be good, but why not be idiomatic? :)  )
-1. Add a script to flash LEDs
+1. In `stage6`, create a `00-tweaks` folder, with a `00-patches` folder and patches inside. Currently patched:
+
+    | File  | Change  |
+    |---|---|
+    | `cmdline.txt`| Add the dwc2,g_ether modules  |
+    | `config.txt`| Add the dwc2 module  |
+    | `hosts` | Change hostname to `teslausb` |
+    | `hostname` | Change hostname to `teslausb` |
+    
+    * The build process uses `quilt` for patching
+    * The path for any patching you do at this stage is `stage6/rootfs/FILEPATH` where `rootfs` represents the Pi's `/`. So, `cmdline.txt` is `stage6/rootfs/boot/cmdline.txt`.
+
+1. Added a file called `series` in the patches directory with the name of each `.diff` file in the order you want them applied.
+1. Added a `files` folder in stage6 with modified `rc.local`, and whatever else you want copied into the image. The modified `rc.local` will handle pulling down the `setup-teslausb-headless` file the first time.
+1. Added a script to flash the Pi LED  
+1. Files are moved into final locations using the  `00-run.sh` script using the `install` command. See the script for details. I also `touch /boot/ssh` here so SSH is ready out of the box.
 1. Run `sudo ./build.sh` from the `pi-gen` directory.
-1. If you get a failure, it's almost certainly after stage2, so you can add SKIP files in stage2-stage5 present) and rerun `sudo CLEAN=1 ./build.sh`
+1. If you get a failure, it's almost certainly after stage2, so you can add SKIP files in all successful stages and rerun `sudo CLEAN=1 ./build.sh`
