@@ -6,17 +6,19 @@
 ## Notes 
 
 * Assumes your Pi has access to Wifi, with internet access (during setup). (But all setup methods do currently.) USB networking is still enabled for troubleshooting or manual setup
-* This image will work for either headless or automatic setup.
+* This image will work for either _headless_ (tested) or _manual_ (tested less) setup.
+* Currently not tested with the RSYNC/SFTP method when using headless setup. 
 
 ## Configure the SD card before first boot of the Pi
 
-1. Flash the [latest image release] using Etcher or similar. 
+1. Flash the [latest image release](https://github.com/rtgoodwin/teslausb/releases) using Etcher or similar. 
 
 ### For headless (automatic) setup
 
-1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment varibles normally needed for setup (including archive, Wifi, and push notifications (if desired).) A sample conf file is located in the `boot` folder on the SD card.  
+1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment varibles normally needed for manual setup (including archive info, Wifi, and push notifications (if desired).) A sample conf file is located in the `boot` folder on the SD card. 
 
-    The file should contain at a minimum, but (**replace with your own values**):
+
+    The file should contain the entries below at a minimum, but **replace with your own values**:
     ```
     export archiveserver=Nautilus
     export sharename=SailfishCam
@@ -29,14 +31,17 @@
     export REPO=rtgoodwin
     export BRANCH=headless-patch
     # Currently set to track this repo/branch while under development.
+
     # export pushover_enabled=false
     # export pushover_user_key=user_key
     # export pushover_app_key=app_key
     ```
-    (Pushover should be working but commented out by default.)
-* Boot it in your Pi, give it a bit, watching for a series of flashes (2, 3, 4, 5, maybe 6) and then a reboot and/or the CAM to become available on your PC/Mac.
-* The Pi should be available at `teslausb.local` over Wifi (if it works) or USB networking (if it doesn't). Takes about 5 minutes, or more depending on network speed, etc. You should see in `/boot` the TESLAUSB_SETUP_FINISHED and WIFI_ENABLED files as markers of success too.
+     (For now, please leave the REPO and BRANCH set to the settings above.)
+
+* Boot it in your Pi, give it a bit, watching for a series of flashes (2, 3, 4, 5) and then a reboot and/or the CAM to become available on your PC/Mac.
+* The Pi should be available for `ssh` at `pi@teslausb.local`, over Wifi (if automatic setup works) or USB networking (if it doesn't). It takes about 5 minutes, or more depending on network speed, etc. 
 * If plugged into just a power source, or your car, give it a few minutes until the LED starts pulsing steadily which means the archive loop is running and you're good to go. 
+* You should see in `/boot` the TESLAUSB_SETUP_FINISHED and WIFI_ENABLED files as markers of success as well.
 
 ### For manual setup
 
