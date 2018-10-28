@@ -131,7 +131,7 @@ This is the basic configuration, but it's helpful to just [look at the code itse
     * The path for any patching you do at this stage is `stage6/rootfs/FILEPATH` where `rootfs` represents the Pi's `/`. So, `cmdline.txt` is `stage6/rootfs/boot/cmdline.txt`.
 
 1. Added a file called `series` in the patches directory with the name of each `.diff` file in the order you want them applied.
-1. Added a `files` folder in stage6 with modified `rc.local`, and whatever else you want copied into the image. The modified `rc.local` will handle pulling down the `setup-teslausb-headless` file the first time and doing Wifi setup. 
+1. Added a `files` folder in stage6 with modified `rc.local`, and whatever else you want copied into the image. The modified `rc.local` will handle pulling down the `setup-teslausb-headless` file the first time and doing Wifi setup.
 1. Added a script to flash the Pi LED  
 1. Files are moved into final locations using the  `00-run.sh` script using the `install` command. See the script for details. I also `touch /boot/ssh` here so SSH is ready out of the box.
 1. Run `sudo ./build.sh` from the `pi-gen` directory.
