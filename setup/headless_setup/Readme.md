@@ -29,15 +29,15 @@ A sample conf file is located in the `boot` folder on the SD card.
     export SSID=your_ssid
     export WIFIPASS=your_wifi_password
     export HEADLESS_SETUP=true
-    export REPO=rtgoodwin
-    export BRANCH=headless-patch
-    # Currently set to track this repo/branch while under development.
+    # export REPO=rtgoodwin
+    # export BRANCH=headless-patch
+    # By default will use the main repo, but if you've been asked to test the image, 
+    # these variables should be uncommunted and updated to point to the right repo/branch 
 
     # export pushover_enabled=false
     # export pushover_user_key=user_key
     # export pushover_app_key=app_key
     ```
-     (For now, please leave the REPO and BRANCH set to the settings above.)
 
 * Boot it in your Pi, give it a bit, watching for a series of flashes (2, 3, 4, 5) and then a reboot and/or the CAM/music drives to become available on your PC/Mac. The LED flash stages are:
 
