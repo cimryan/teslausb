@@ -63,7 +63,7 @@ Whichever instructions you followed above will leave you in a command shell on t
 ### Set up the archive for dashcam clips
 Follow the instructions corresponding to the technology you'd like to use to host the archive for your dashcam clips. You must choose just one of these technoloies; don't follow more than one of these sets of instructions:
 * Windows file share, MacOS Sharing, or Samba on Linux: [Instructions](doc/SetupShare.md).
-* SFTP/rsync: [Instructions](doc/SetupRsync.md)
+* SFTP/rsync: [Instructions](doc/pi/SetupRSync.md)
 * **Experimental:** Google Drive, Amazon S3, DropBox, Microsoft OneDrive: [Instructions](doc/SetupRClone.md)
 
 ### Set up the USB storage functionality
