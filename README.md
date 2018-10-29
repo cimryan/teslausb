@@ -5,17 +5,12 @@ This repo contains steps and scripts originally from [this thread on Reddit]( ht
 
 Many people in that thread suggested that the scripts be hosted on Github but the author didn't seem interested in making that happen. I've hosted the scripts here with his/her permission.
 
-The original post on Reddit assumed that the archive would be hosted on Windows and that the Pi would be set up using a Windows machine but this Git repo welcomes the contribution of instructions for other platforms.
-
 ## Intro
 
-You can configure a Raspberry Pi Zero W so that your Tesla thinks it's a USB drive and will write dashcam footage to it. Since it's a computer, you can run scripts on the Pi to automatically copy the clips to an archive server when you get home. The Pi is going to continually:
-1. Wait until it can connect to the archive server
-1. Archive the clips
-1. Wait until it can't connect to the archive server
-1. GOTO 1.
-
-The scripts in this repo will also allow you to use the Pi to store music that the Tesla can read through the USB interface.
+You can configure a Raspberry Pi Zero W so that your Tesla thinks it's a USB drive and will write dashcam footage to it. Since it's a computer:
+* Scripts running on the Pi can automatically copy the clips to an archive server when you get home. 
+* The Pi can hold both dashcam clips and music files.
+* The Pi can automatically repair filesystem corruption produced by the Tesla's current failure to properly dismount the USB drives before cutting power to the USB ports.
 
 Archiving the clips can take from seconds to hours depending on how many clips you've saved and how strong the WiFi signal is in your Tesla. If you find that the clips aren't getting completely transferred before the car powers down after you park or before you leave you can use the Tesla app to turn on the Climate control. This will send power to the Raspberry Pi, allowing it to complete the archival operation.
 
@@ -24,14 +19,12 @@ Archiving the clips can take from seconds to hours depending on how many clips y
 ### Assumptions
 * You park in range of your wireless network.
 * Your wireless network is configured with WPA2 PSK access.
-* You'll be archiving your dashcam clips to a Windows machine, and the Windows machine has a stable IP address on your home network. 
-* You'll be setting up the Raspberry Pi using a Windows machine.
 
 ### Hardware
 
 Required:
 * [Raspberry Pi Zero W](https://www.raspberrypi.org/products/raspberry-pi-zero-w/):  [Adafruit](https://www.adafruit.com/product/3400) or [Amazon](https://www.amazon.com/Raspberry-Pi-Zero-Wireless-model/dp/B06XFZC3BX/)
-  > Note: Of the many varieties of Raspberry Pi only the Raspberry Pi Zero and Raspberry Pi Zero W can be used as simulated USB drives. It may be possible to use a Pi Zero with a USB Wifi adapter to achieve the same result as the Pi Zero W, but this hasn't been confirmed.
+  > Note: Of the many varieties of Raspberry Pi avaiable only the Raspberry Pi Zero and Raspberry Pi Zero W can be used as simulated USB drives. It may be possible to use a Pi Zero with a USB Wifi adapter to achieve the same result as the Pi Zero W but this hasn't been confirmed.
 
 * A Micro SD card, at least 8 GB in size, and an adapter (if necessary) to connect the card to your computer.
 * A mechanism to connect the Pi to the Tesla. Either:
@@ -44,74 +37,41 @@ Optional:
 
 ### Software
 Download [Raspbian Stretch Lite](https://www.raspberrypi.org/downloads/raspbian/)
-* Note: Bittorrent is dramatically faster than direct download.
-
 Download and install:
 * [Etcher](http://etcher.io)
  
-## Create your archive
-### Hosting on Windows File Shares, MacOS Sharing, or Samba on Linux
-Set up a share to host the archive. These instructions assume that you created a share named "SailfishCam" on the server "Nautilus". It is recommended that you create a new user. Grant the user you'll be using read/write access to the share. These instructions will assume that the user you've created is named "sailfish" and that the password for this user is "pa$$w0rd".
-
-Get the IP address of the archive machine. You'll need this later, so write it down, somewhere.
-* On Windows you can do this by opening a command prompt on the archive machine and typing ipconfig. Get the IP address from the line labeled "IPv4 Address". These instructions will assume that the IP address of the archive server is 192.168.0.41.
-* On MacOS or Linux open a terminal and type ifconfig.
-
-### Hosting via SFTP/rsync
-**EXPERIMENTAL - Hosting the archive on SFTP hasn't been thoroughly tested**
-
-Since sftp/rsync is accessing a computer through SSH, the only requirement for hosting an SFTP/rsync server is to have a box running Linux. An example can be another Raspberry Pi connected to your local network with a USB storage drive plugged in. The official Raspberry Pi site has a good example on [how to mount an external drive](https://www.raspberrypi.org/documentation/configuration/external-storage.md). You will need the username and host/IP of the storage server, as well as the path for the files to go in, and the storage server will need to allow SSH.
-
-### ***TODO: Other hosting solutions***
-
 ## Set up the Raspberry Pi
-There are three phases to setting up the Pi:
+There are four phases to setting up the Pi:
 1. Get the OS onto the micro sd card.
 1. Get a shell on the Pi.
+1. Set up the archive for dashcam clips.
 1. Set up the USB storage functionality.
 
-### Get the OS onto the micro SD card
-
+### Get the OS onto the MicroSD card
 [These instructions](https://www.raspberrypi.org/documentation/installation/installing-images/README.md) tell you how to get Raspbian onto your MicroSD card. Basically:
 1. Connect your SD card to your computer.
-2. Use Etcher to write the zip file you downloaded to the SD card. Etcher works well and is multi-platform.
+2. Use Etcher to write the zip file you downloaded to the SD card.
    > Note: you don't need to uncompress the zip file you downloaded.
 
 ### Get a shell on the Pi
-If you used a Windows computer to flash the OS onto the MicroSD card, follow these [Instructions](doc/GetShellWithoutMonitorOnWindows.md).
+Follow the instructions corresponding to the OS you used to flash the OS onto the MicroSD card:
+* Windows: [Instructions](doc/GetShellWithoutMonitorOnWindows.md).
+* MacOS or Linux: [Instructions](doc/GetShellWithoutMonitorOnLinux.md).
 
-If you used a Mac or a Linux computer, follow these [Instructions](doc/GetShellWithoutMonitorOnLinux.md).
+Whichever instructions you followed above will leave you in a command shell on the Pi. Use this shell for the rest of the steps in these instructions.
+
+### Set up the archive for dashcam clips
+Follow the instructions corresponding to the technology you'd like to use to host the archive for your dashcam clips. You must choose just one of these technoloies; don't follow more than one of these sets of instructions:
+* Windows file share, MacOS Sharing, or Samba on Linux: [Instructions](doc/SetupShare.md).
+* SFTP/rsync: [Instructions](doc/SetupRsync.md)
+* **Experimental:** Google Drive, Amazon S3, DropBox, Microsoft OneDrive: [Instructions](doc/SetupRClone.md)
 
 ### Set up the USB storage functionality
-
-Now that you have Wifi up and running, it's time to set up the USB storage and scripts that will manage the dashcam and (optionally) music storage.
-
-1. SSH to the Pi and run
-    ```
-    sudo -i
-    ```
-1. Try to ping your archive server from the Pi. In this example the server is named `nautilus`.
-    ```
-    ping -c 3 nautilus
-    ```
-1. If the server can't be reached, ping its IP address:
-    ```
-    ping 192.168.0.41
-    ```
-1. If you can't ping the archive server by IP address from the Pi, you should go do whatever you need to on your network to fix that. If you can't reach the archive server by name, from the Pi but you can by IP address, then use its IP address, below, in place of its name.
-1. Determine how much, as a percentage, of the drive you want to allocate to recording dashcam footage by using:
+1. Indicate how much, as a percentage, of the drive you want to allocate to recording dashcam footage by running this command:
     ```
     export campercent=<number>
     ```
-    For example, using `export campercent=100` would allocate 100% of the space to recording footage from your car, and would not create a separate music partition. `export campercent=50` would be only allocate half of the space for a dashcam footage drive, and allocates the other half to be a music storage drive.
-1. If you are trying to archive on an SFTP/rsync server, then follow these [instructions](doc/SetupRSync.md) and skip step 7. Otherwise, skip this step.
-1. If you are trying to archive on a shared drive, run these commands, subsituting your values for your shared drive:
-    ```
-    export archiveserver=Nautilus
-    export sharename=SailfishCam
-    export shareuser=sailfish
-    export sharepassword=pa$$w0rd
-    ```
+    For example, using `export campercent=100` would allocate 100% of the space to recording footage from your car, and would not create a separate music partition. `export campercent=50` would allocate half of the space for a dashcam footage drive and allocates the other half to for a music storage drive.
 1. If you'd like to receive a text message when your Pi finishes archiving clips follow these [Instructions](doc/ConfigureNotificationsForArchive.md).
 1. Run these commands:
     ```
@@ -134,7 +94,7 @@ Connect the Pi to a computer. If you're using a cable be sure to use the port la
 1. Wait for the Pi to show up on the computer as a USB drive.
 1. Copy any music you'd like to the drive labeled MUSIC.
 1. Eject the drives.
-1. Unplug the Pi from the PC.
+1. Unplug the Pi from the computer.
 1. Plug the Pi into your Tesla.
 
 ## Making changes to the system after setup
