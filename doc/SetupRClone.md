@@ -16,7 +16,7 @@ curl -L https://raw.github.com/pageauc/rclone4pi/master/rclone-install.sh | bash
 You can also install the script manually by following these [instructions](https://github.com/pageauc/rclone4pi/wiki#manual-install).
 
 
-Once installed, the script will install rclone-install.sh, rclone-sync.sh and create a subfolder rpi-sync in users home eg. /home/pi
+Once installed, the script will install rclone-install.sh, rclone-sync.sh and create a subfolder rpi-sync in users home eg. /root
 
 # Step 2: Configure rclone storage system
 
@@ -26,7 +26,7 @@ Next, run this command as root to configure a storage system.
 rclone config
 ```
 
-**Important:** Run this as root since archiveloop runs as root and the rclone config is bound to the user running the config.
+**Important:** Make sure to run this as root since archiveloop runs as root and the rclone config is bound to the user running the config. The config file is also moved with the assumption that the root user ran config.
 
 This will launch an interactive setup with a series of questions. I highly recommend you look at the documents for your storage system by going to [rclone](https://rclone.org/) and selecting your storage system from the pull down menu at the stop.
 

@@ -63,7 +63,7 @@ Get the IP address of the archive machine. You'll need this later, so write it d
 Since sftp/rsync is accessing a computer through SSH, the only requirement for hosting an SFTP/rsync server is to have a box running Linux. An example can be another Raspberry Pi connected to your local network with a USB storage drive plugged in. The official Raspberry Pi site has a good example on [how to mount an external drive](https://www.raspberrypi.org/documentation/configuration/external-storage.md). You will need the username and host/IP of the storage server, as well as the path for the files to go in, and the storage server will need to allow SSH.
 
 ### Hosting via rclone (for Google Drive, S3, DropBox, etc)
-**EXPERIMENTAL** - This hasn't been thoroughly tested yet but you can follow these [instructions](/doc/SetupRClone.md) and give it a spin.
+**EXPERIMENTAL** - This hasn't been thoroughly tested yet but you can follow these [instructions](/doc/SetupRClone.md) to setup up and configure rclone to work with teslausb.
 
 ### ***TODO: Other hosting solutions***
 
@@ -107,7 +107,7 @@ Now that you have Wifi up and running, it's time to set up the USB storage and s
     export campercent=<number>
     ```
     For example, using `export campercent=100` would allocate 100% of the space to recording footage from your car, and would not create a separate music partition. `export campercent=50` would be only allocate half of the space for a dashcam footage drive, and allocates the other half to be a music storage drive.
-1. If you are trying to archive on an SFTP/rsync server, then follow these [instructions](doc/SetupRSync.md) and skip step 7. Otherwise, skip this step.
+1. **Only for SFTP/rsync or rclone archives**: If you are trying to archive on an SFTP/rsync server, then follow these [instructions](doc/SetupRSync.md) and skip step 7. If you set up rclone you can also skip step 7 and go to step 8.
 1. If you are trying to archive on a shared drive, run these commands, subsituting your values for your shared drive:
     ```
     export archiveserver=Nautilus
