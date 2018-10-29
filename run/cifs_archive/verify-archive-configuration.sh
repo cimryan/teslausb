@@ -24,10 +24,6 @@ function check_archive_mountable () {
     mkdir "$test_mount_location"
   fi
   
-  local tmp_credentials_file_path="/tmp/teslaCamArchiveCredentials"
-  
-  /root/bin/write-archive-credentials-to.sh "$tmp_credentials_file_path"
-  
   local mount_failed=false
   mount -t cifs "//$archive_server_ip_address/$sharename" "$test_mount_location" -o "vers=${cifs_version},credentials=${tmp_credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777" || mount_failed=true
 
