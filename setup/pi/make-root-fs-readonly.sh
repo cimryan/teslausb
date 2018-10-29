@@ -10,7 +10,7 @@ function append_cmdline_txt_param() {
 echo "Updating package index files..."
 apt-get update
 echo "Removing unwanted packages..."
-apt-get remove -y --force-yes --purge triggerhappy logrotate dphys-swapfile fake-hwclock
+apt-get remove -y --force-yes --purge triggerhappy logrotate dphys-swapfile
 apt-get -y --force-yes autoremove --purge
 # Replace log management with busybox (use logread if needed)
 echo "Installing ntp and busybox-syslogd..."
@@ -21,6 +21,37 @@ echo "Configuring system..."
 append_cmdline_txt_param fastboot
 append_cmdline_txt_param noswap
 append_cmdline_txt_param ro
+
+# Move fake-hwclock.data to /mutable directory so it can be updated
+if ! findmnt --mountpoint /mutable
+then
+    echo "Mounting the multable partition..."
+    mount /mutable
+    echo "Mounted."
+fi
+if [ ! -e "/mutable/etc" ]
+then
+    mkdir -p /mutable/etc
+fi
+if [ -e "/etc/fake-hwclock.data" ]
+then
+    echo "Moving fake-hwclock data"
+    cp /etc/fake-hwclock.data /mutable/etc/fake-hwclock.data
+    rm /etc/fake-hwclock.data
+    ln -s /mutable/etc/fake-hwclock.data /etc/fake-hwclock.data
+fi
+
+# Move rclone configs if it exists so we can write to it
+if [ ! -e "/mutable/configs" ]
+then
+    mkdir -p /mutable/configs
+fi
+if [ -e "/root/.config/rclone/rclone.conf" ]
+then
+    echo "Moving rclone configs"
+    mv /root/.config/rclone /mutable/configs
+    ln -s /mutable/configs/rclone /root/.config/rclone
+fi
 
 # Move /var/spool to /tmp
 rm -rf /var/spool
