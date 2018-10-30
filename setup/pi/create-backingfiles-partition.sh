@@ -32,8 +32,6 @@ setup_progress "Modifying partition table for backing files partition..."
 BACKINGFILES_PARTITION_END_SPEC="$(( $LAST_BACKINGFILES_PARTITION_DESIRED_BYTE / 1000000 ))M"
 parted -a optimal -m /dev/mmcblk0 unit B mkpart primary ext4 "$FIRST_BACKINGFILES_PARTITION_BYTE" "$BACKINGFILES_PARTITION_END_SPEC"
 
-LAST_BACKINGFILES_PARTITION_BYTE=$(parted -m /dev/mmcblk0 unit B print | grep -e "^3:" | cut -d ":" -f 3 | sed 's/B//g' )
-
 setup_progress "Modifying partition table for mutable (writable) partition for script usage..."
 MUTABLE_PARTITION_START_SPEC="$BACKINGFILES_PARTITION_END_SPEC"
 parted  -a optimal -m /dev/mmcblk0 unit B mkpart primary ext4 "$MUTABLE_PARTITION_START_SPEC" 100%
