@@ -25,7 +25,7 @@ append_cmdline_txt_param ro
 # Move fake-hwclock.data to /mutable directory so it can be updated
 if ! findmnt --mountpoint /mutable
 then
-    echo "Mounting the multable partition..."
+    echo "Mounting the mutable partition..."
     mount /mutable
     echo "Mounted."
 fi
