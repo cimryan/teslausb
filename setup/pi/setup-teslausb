@@ -1,13 +1,10 @@
 #!/bin/bash -eu
 
 USER_ENABLED_PUSHOVER=${USER_ENABLED_PUSHOVER:-false}
-SETUP_LOGFILE=/boot/teslausb-headless-setup.log
 REPO=${REPO:-cimryan}
 BRANCH=${BRANCH:-master}
 HEADLESS_SETUP=${HEADLESS_SETUP:-false}
 USE_LED_FOR_SETUP_PROGRESS=true
-
-
 
 if ! [ $(id -u) = 0 ]
 then
