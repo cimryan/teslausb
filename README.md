@@ -32,13 +32,13 @@ Required:
   * A USB A Add-on Board if you want to plug your Pi into your Tesla like a USB drive instead of using a cable. [Amazon](https://www.amazon.com/gp/product/B07BK2BR6C/)
 
 Optional:
-* A case. Don't want unprotected circuits hanging about! Official case at [Adafruit](https://www.adafruit.com/product/2885) or [Amazon](https://www.amazon.com/gp/product/B06Y593MHV). There are many others to choose from. Note that the official case won't work with the USB A Add on board.
+* A case. The "Official" case: [Adafruit](https://www.adafruit.com/product/2885) or [Amazon](https://www.amazon.com/gp/product/B06Y593MHV). There are many others to choose from. Note that the official case won't work with the USB A Add on board.
 * USB Splitter if you don't want to lose a front USB port. [The Onvian Splitter](https://www.amazon.com/gp/product/B01KX4TKH6) has been reported working by multiple people on reddit.
 
 ### Software
-Download [Raspbian Stretch Lite](https://www.raspberrypi.org/downloads/raspbian/)
-Download and install:
-* [Etcher](http://etcher.io)
+Download: [Raspbian Stretch Lite](https://www.raspberrypi.org/downloads/raspbian/)
+
+Download and install: [Etcher](http://etcher.io)
  
 ## Set up the Raspberry Pi
 There are four phases to setting up the Pi:
@@ -47,11 +47,19 @@ There are four phases to setting up the Pi:
 1. Set up the archive for dashcam clips.
 1. Set up the USB storage functionality.
 
+There is a streamlined process for setting up the Pi which can currently be used if you plan to use Windows file shares, MacOS Sharing, or Samba on Linux for your video archive. [Instructions](doc/OneStepSetup.md).
+
+If you'd like to host the archive using another technology or would like to set the Pi up, yourself, continue these instructions. 
+
 ### Get the OS onto the MicroSD card
 [These instructions](https://www.raspberrypi.org/documentation/installation/installing-images/README.md) tell you how to get Raspbian onto your MicroSD card. Basically:
 1. Connect your SD card to your computer.
 2. Use Etcher to write the zip file you downloaded to the SD card.
    > Note: you don't need to uncompress the zip file you downloaded.
+
+#### (Experimental) 
+
+There is an experimental image that requires only a configuration file. Needs testing and issues filed _on this specific image/process_ at [this repo](https://github.com/rtgoodwin/teslausb/tree/headless-patch/headless-scripts). Issues about general functionality should still be filed on the main (cimryan) repo. 
 
 ### Get a shell on the Pi
 Follow the instructions corresponding to the OS you used to flash the OS onto the MicroSD card:
