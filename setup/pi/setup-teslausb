@@ -16,6 +16,7 @@ then
 fi
 
 function setup_progress () {
+  SETUP_LOGFILE=/boot/teslausb-headless-setup.log
   if [ $HEADLESS_SETUP = "true" ]
   then
     echo "$( date ) : $1" >> "$SETUP_LOGFILE"
@@ -169,6 +170,7 @@ function create_usb_drive_backing_files () {
   
   if [ ! -e /dev/mmcblk0p3 ]
   then
+    setup_progress "Starting to create backing files partition..."
     /tmp/create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT" "$MUTABLE_MOUNTPOINT"
   fi
   
