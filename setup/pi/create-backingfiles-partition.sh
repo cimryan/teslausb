@@ -1,9 +1,10 @@
 #!/bin/bash -eu
 
-HEADLESS_SETUP=${HEADLESS_SETUP:-false}
+
 
 function setup_progress () {
   SETUP_LOGFILE=/boot/teslausb-headless-setup.log
+  HEADLESS_SETUP=${HEADLESS_SETUP:-false}
   if [ $HEADLESS_SETUP = "true" ]
   then
     echo "$( date ) : $1" >> "$SETUP_LOGFILE"
