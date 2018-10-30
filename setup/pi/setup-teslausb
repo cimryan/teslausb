@@ -320,10 +320,10 @@ then
   mkdir /root/bin
 fi
 
-install_archive_scripts
-
 get_script /root/bin get-archiveserver-ip-address.sh run
 
+install_archive_scripts
+/root/bin/configure-archive.sh
 /root/bin/verify-archive-configuration.sh
 
 check_available_space
@@ -331,7 +331,6 @@ check_available_space
 get_ancillary_setup_scripts
 
 pushd ~
-
 
 configure_archive_scripts
 
@@ -345,8 +344,6 @@ echo "" >> /etc/fstab
 headless_setup_progress_flash 3
 
 create_usb_drive_backing_files
-
-/root/bin/configure-archive.sh
 
 configure_rc_local
 
