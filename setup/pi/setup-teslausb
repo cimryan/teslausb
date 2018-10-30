@@ -113,6 +113,43 @@ function check_pushover_enabled () {
   fi
 }
 
+function check_archive_configs () {
+
+  RSYNC_ENABLE="${RSYNC_ENABLE:-false}"
+  RCLONE_ENABLE="${RCLONE_ENABLE:-false}"
+
+  if [ "$RSYNC_ENABLE" = true ] && [ "$RCLONE_ENABLE" = true ]
+  then
+    setup_progress "STOP: Cannot enable rsync and rclone at the same time"
+    exit 1
+  fi
+
+  if [ "$RSYNC_ENABLE" = true ]
+  then
+    check_variable "RSYNC_USER"
+    check_variable "RSYNC_SERVER"
+    export archiveserver="$RSYNC_SERVER"
+    check_variable "RSYNC_PATH"
+    export archive_module="run/rsync_archive"
+  elif [ "$RCLONE_ENABLE" = true ]
+  then
+    check_variable "RCLONE_DRIVE"
+    check_variable "RCLONE_PATH"
+    # since it's a cloud hosted drive we'll just set this to google dns
+    export archiveserver="8.8.8.8"
+    export archive_module="run/rclone_archive"
+  else # Else for now, TODO allow both for more redundancy?
+    check_variable "sharename"
+    check_variable "shareuser"
+    check_variable "sharepassword"
+
+    export cifs_version="${cifs_version:-3.0}"
+    export archive_module="run/cifs_archive"
+  fi
+
+  check_variable "archiveserver"
+}
+
 function check_available_space () {
   setup_progress "Verifying that there is sufficient space available on the MicroSD card..."
 
@@ -190,26 +227,21 @@ function configure_archive_scripts () {
   setup_progress "Configuring the archive scripts..."
 
   get_script /root/bin archiveloop run
-
-  if [ $RSYNC_ENABLE = true ]
-  then
-    get_script /root/bin archive-clips.sh run/rsync_archive
-    get_script /root/bin connect-archive.sh run/rsync_archive
-    get_script /root/bin disconnect-archive.sh run/rsync_archive
-  elif [ $RCLONE_ENABLE = true ]
-  then
-    get_script /root/bin archive-clips.sh run/rclone_archive
-    get_script /root/bin connect-archive.sh run/rclone_archive
-    get_script /root/bin disconnect-archive.sh run/rclone_archive
-  else
-    get_script /root/bin archive-clips.sh run/cifs_archive
-    get_script /root/bin connect-archive.sh run/cifs_archive
-    get_script /root/bin disconnect-archive.sh run/cifs_archive
-  fi
-
   get_script /root/bin remountfs_rw run
   
   setup_progress "Configured the archive scripts."
+}
+
+function install_archive_scripts () {
+  check_variable "archive_module"
+  setup_progress "Installing scripts for archive module: $archive_module"
+
+  local install_path="/root/bin"
+  get_script $install_path verify-archive-configuration.sh $archive_module
+  get_script $install_path configure-archive.sh $archive_module
+  get_script $install_path archive-clips.sh $archive_module
+  get_script $install_path connect-archive.sh $archive_module
+  get_script $install_path disconnect-archive.sh $archive_module
 }
 
 function configure_pushover_scripts() {
@@ -274,32 +306,8 @@ headless_setup_progress_flash 1
 
 setup_progress "Verifying environment variables..."
 
-RSYNC_ENABLE="${RSYNC_ENABLE:-false}"
-RCLONE_ENABLE="${RCLONE_ENABLE:-false}"
-
-if [ "$RSYNC_ENABLE" = true ]
-then
-  check_variable "RSYNC_USER"
-  check_variable "RSYNC_SERVER"
-  export archiveserver="$RSYNC_SERVER"
-  check_variable "RSYNC_PATH"
-elif [ "$RCLONE_ENABLE" = true ]
-then
-  check_variable "RCLONE_DRIVE"
-  check_variable "RCLONE_PATH"
-  # since it's a cloud hosted drive we'll just set this to google dns
-  export archiveserver="8.8.8.8"
-else # Else for now, TODO allow both for more redundancy?
-  check_variable "sharename"
-  check_variable "shareuser"
-  check_variable "sharepassword"
-  
-  export cifs_version="${cifs_version:-3.0}"
-fi
-
-check_variable "archiveserver"
 check_variable "campercent"
-
+check_archive_configs
 check_pushover_enabled
 
 # Flash for Stage 3 headless (grab scripts)
@@ -312,22 +320,10 @@ then
   mkdir /root/bin
 fi
 
-if [ "$RSYNC_ENABLE" = true ]
-then
-  get_script /root/bin verify-archive-configuration.sh run/rsync_archive
-  get_script /root/bin configure-archive.sh run/rsync_archive
-elif [ "$RCLONE_ENABLE" = true ]
-then
-  get_script /root/bin verify-archive-configuration.sh run/rclone_archive
-  get_script /root/bin configure-archive.sh run/rclone_archive
-else
-  get_script /root/bin verify-archive-configuration.sh run/cifs_archive
-  get_script /root/bin configure-archive.sh run/cifs_archive
-  get_script /root/bin write-archive-credentials-to.sh run/cifs_archive
-fi
-
 get_script /root/bin get-archiveserver-ip-address.sh run
 
+install_archive_scripts
+/root/bin/configure-archive.sh
 /root/bin/verify-archive-configuration.sh
 
 check_available_space
@@ -335,7 +331,6 @@ check_available_space
 get_ancillary_setup_scripts
 
 pushd ~
-
 
 configure_archive_scripts
 
@@ -349,8 +344,6 @@ echo "" >> /etc/fstab
 headless_setup_progress_flash 3
 
 create_usb_drive_backing_files
-
-/root/bin/configure-archive.sh
 
 configure_rc_local
 
