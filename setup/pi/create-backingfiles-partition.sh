@@ -25,15 +25,15 @@ LAST_BACKINGFILES_PARTITION_DESIRED_BYTE="$(( $DISK_SIZE - (100 * (2 ** 20)) - 1
 
 ORIGINAL_DISK_IDENTIFIER=$( fdisk -l /dev/mmcblk0 | grep -e "^Disk identifier" | sed "s/Disk identifier: 0x//" )
 
-setup_progress "Editing partition table for backing files..."
+setup_progress "Modifying partition table for backing files..."
 BACKINGFILES_PARTITION_END_SPEC="$(( $LAST_BACKINGFILES_PARTITION_DESIRED_BYTE / 1000000 ))M"
-parted -a optimal -m /dev/mmcblk0 unit B mkpart primary ext4 "$FIRST_BACKINGFILES_PARTITION_BYTE" "$BACKINGFILES_PARTITION_END_SPEC"
+parted -s -a optimal -m /dev/mmcblk0 unit B mkpart primary ext4 "$FIRST_BACKINGFILES_PARTITION_BYTE" "$BACKINGFILES_PARTITION_END_SPEC"
 
 LAST_BACKINGFILES_PARTITION_BYTE=$(parted -m /dev/mmcblk0 unit B print | grep -e "^3:" | cut -d ":" -f 3 | sed 's/B//g' )
 
-setup_progress "Creating mutable (writable) partition for script usage..."
+setup_progress "Modifying mutable (writable) partition for script usage..."
 MUTABLE_PARTITION_START_SPEC="$(( $LAST_BACKINGFILES_PARTITION_BYTE / 1000000 ))M"
-parted -a optimal -m /dev/mmcblk0 unit B mkpart primary ext4 "$MUTABLE_PARTITION_START_SPEC" 100%
+parted -s -a optimal -m /dev/mmcblk0 unit B mkpart primary ext4 "$MUTABLE_PARTITION_START_SPEC" 100%
 
 NEW_DISK_IDENTIFIER=$( fdisk -l /dev/mmcblk0 | grep -e "^Disk identifier" | sed "s/Disk identifier: 0x//" )
 
