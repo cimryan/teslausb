@@ -29,7 +29,7 @@ Required:
 * A Micro SD card, at least 8 GB in size, and an adapter (if necessary) to connect the card to your computer.
 * A mechanism to connect the Pi to the Tesla. Either:
   * A USB A/Micro B cable: [Adafruit](https://www.adafruit.com/product/898) or [Amazon](https://www.amazon.com/gp/product/B013G4EAEI/), or 
-  * A USB A Add-on Board if you want to plug your Pi into your Tesla like a USB drive instead of using a cable. [Amazon](https://www.amazon.com/gp/product/B07BK2BR6C/)
+  * A USB A Add-on Board if you want to plug your Pi into your Tesla like a USB drive instead of using a cable. [Amazon](https://www.amazon.com/gp/product/B07BK2BR6C/), or
   * A PCB kit if you want the lowest profile possible and you're able to solder. [Sparkfun](https://www.sparkfun.com/products/14526)
 
 Optional:
