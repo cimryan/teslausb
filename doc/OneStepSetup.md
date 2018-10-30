@@ -1,7 +1,6 @@
-# Flashable image to get started more quickly
+# One-step setup
 
-# This is a WORK IN PROGRESS, SHOULD CURRENTLY BE WORKING. 
-
+This is a streamlined process for setting up the Pi. You'll flash a preconfigured version of Raspbian Stretch Lite and then fill out a config file. 
 
 ## Notes 
 
@@ -97,8 +96,6 @@ At this point the next boot should start the Dashcam/music drives like normal. I
 
 For now the image creation work is at:
 * Modified pi-gen [rtgoodwin's fork of pi-gen](https://github.com/rtgoodwin/pi-gen) in (whatever current branch I'm working at the time). 
-* `headless-patch` branch of rtgoodwin fork [https://github.com/rtgoodwin/teslausb/tree/headless-patch/headless-scripts](https://github.com/rtgoodwin/teslausb/tree/headless-patch/headless-scripts)
-
 
 ### Image refinement TODOs
 1. ~~Patch the hostname to teslausb~~
