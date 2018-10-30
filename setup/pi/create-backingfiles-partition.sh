@@ -1,5 +1,7 @@
 #!/bin/bash -eu
 
+HEADLESS_SETUP=${HEADLESS_SETUP:-false}
+
 function setup_progress () {
   SETUP_LOGFILE=/boot/teslausb-headless-setup.log
   if [ $HEADLESS_SETUP = "true" ]
