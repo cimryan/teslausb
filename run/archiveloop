@@ -159,7 +159,7 @@ function wait_for_archive_to_be_unreachable () {
   log "Waiting for archive to be unreachable..."
   while [ true ]
     do
-      if ! archive_is_reachable
+      if ! retry archive_is_reachable
       then
         log "Archive is unreachable."
         break

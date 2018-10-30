@@ -1,22 +1,91 @@
 #!/bin/bash -eu
 
-USER_ENABLED_PUSHOVER=false
-
+USER_ENABLED_PUSHOVER=${USER_ENABLED_PUSHOVER:-false}
+SETUP_LOGFILE=/boot/teslausb-headless-setup.log
 REPO=${REPO:-cimryan}
-
 BRANCH=${BRANCH:-master}
+HEADLESS_SETUP=${HEADLESS_SETUP:-false}
+USE_LED_FOR_SETUP_PROGRESS=true
+
+
 
 if ! [ $(id -u) = 0 ]
 then
-  echo "STOP: Run sudo -i."
+  setup_progress "STOP: Run sudo -i."
   exit 1
 fi
+
+function setup_progress () {
+  if [ $HEADLESS_SETUP = "true" ]
+  then
+    echo "$( date ) : $1" >> "$SETUP_LOGFILE"
+  fi
+    echo $1
+}
+
+function headless_setup_populate_variables () {
+  # Pull in the conf file variables to make avail to this script and subscripts
+  if [ -e /boot/teslausb_setup_variables.conf ] && [ $HEADLESS_SETUP = "true" ]
+  then
+    source /boot/teslausb_setup_variables.conf
+  fi
+}
+
+
+function headless_setup_mark_setup_failed () {
+  if [ $HEADLESS_SETUP = "true" ]
+  then
+    setup_progress "ERROR: Setup Failed."
+    touch /boot/TESLAUSB_SETUP_FAILED
+  fi
+}
+
+function headless_setup_mark_setup_success () {
+  if [ $HEADLESS_SETUP = "true" ]
+  then
+
+    if [ -e /boot/TESLAUSB_SETUP_FAILED ]
+    then
+      rm /boot/TESLAUSB_SETUP_FAILED
+    fi
+
+    rm /boot/TESLAUSB_SETUP_STARTED
+    touch /boot/TESLAUSB_SETUP_FINISHED
+    # This sed shouldn't be needed, but double checking just to be sure. 
+    sed -i'.bak' -e "s/TEMPARCHIVESERVER/$archiveserver/g" /etc/rc.local
+    setup_progress "Main setup completed. Remounting file systems read only."
+  fi
+}
+
+function headless_setup_progress_flash () {
+  if [ $USE_LED_FOR_SETUP_PROGRESS = "true" ] && [ $HEADLESS_SETUP = "true" ]
+  then
+    /etc/stage_flash $1
+  fi
+}
+
+function setup_led_off () {
+
+  if [ $USE_LED_FOR_SETUP_PROGRESS = "true" ] && [ $HEADLESS_SETUP = "true" ]
+  then
+    echo "none" | sudo tee /sys/class/leds/led0/trigger > /dev/null
+    echo 1 | sudo tee /sys/class/leds/led0/brightness > /dev/null
+  fi
+}
+
+function setup_led_on () {
+
+  if [ $USE_LED_FOR_SETUP_PROGRESS = "true" ] && [ $HEADLESS_SETUP = "true" ]
+  then
+    echo 0 | sudo tee /sys/class/leds/led0/brightness > /dev/null
+  fi
+}
 
 function check_variable () {
   local var_name="$1"
   if [ -z "${!var_name+x}" ]
   then
-    echo "STOP: Define the variable $var_name like this: export $var_name=value"
+    setup_progress "STOP: Define the variable $var_name like this: export $var_name=value"
     exit 1
   fi
 }
@@ -26,14 +95,14 @@ function check_pushover_enabled () {
   then
     if [ ! -n "${pushover_user_key+x}" ] || [ ! -n "${pushover_app_key+x}"  ]
     then
-      echo "STOP: You're trying to setup Pushover but didn't provide your User and/or App key."
-      echo "Define the variables like this:"
-      echo "export pushover_user_key=put_your_userkey_here"
-      echo "export pushover_app_key=put_your_appkey_here"
+      setup_progress "STOP: You're trying to setup Pushover but didn't provide your User and/or App key."
+      setup_progress "Define the variables like this:"
+      setup_progress "export pushover_user_key=put_your_userkey_here"
+      setup_progress "export pushover_app_key=put_your_appkey_here"
       exit 1
     elif [ "${pushover_user_key}" = "put_your_userkey_here" ] || [  "${pushover_app_key}" = "put_your_appkey_here" ]
     then
-      echo "STOP: You're trying to setup Pushover, but didn't replace the default User and App key values."
+      setup_progress "STOP: You're trying to setup Pushover, but didn't replace the default User and App key values."
       exit 1
     else
       USER_ENABLED_PUSHOVER=true
@@ -45,17 +114,17 @@ function check_pushover_enabled () {
 }
 
 function check_available_space () {
-  echo "Verifying that there is sufficient space available on the MicroSD card..."
+  setup_progress "Verifying that there is sufficient space available on the MicroSD card..."
 
   local available_space="$( parted -m /dev/mmcblk0 u b print free | tail -1 | cut -d ":" -f 4 | sed 's/B//g' )"
 
   if [ "$available_space" -lt  4294967296 ]
   then
-    echo "STOP: The MicroSD card is too small."
+    setup_progress "STOP: The MicroSD card is too small."
     exit 1
   fi
 
-  echo "There is sufficient space available."
+  setup_progress "There is sufficient space available."
 }
 
 function get_script () {
@@ -63,8 +132,10 @@ function get_script () {
   local name="$2"
   local remote_path="${3:-}"
   
-  wget -O "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
+  curl -o "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
+  # wget -O "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
   chmod +x "$local_path/$name"
+  setup_progress "Downloaded $local_path/$name ..."
 }
 
 function get_ancillary_setup_scripts () {
@@ -75,14 +146,15 @@ function get_ancillary_setup_scripts () {
 
 function fix_cmdline_txt_modules_load ()
 {
-  echo "Fixing the modules-load parameter in /boot/cmdline.txt..."
+  setup_progress "Fixing the modules-load parameter in /boot/cmdline.txt..."
   cp /boot/cmdline.txt ~
   cat ~/cmdline.txt | sed 's/ modules-load=dwc2,g_ether/ modules-load=dwc2/' > /boot/cmdline.txt
   rm ~/cmdline.txt
-  echo "Fixed cmdline.txt."
+  setup_progress "Fixed cmdline.txt."
 }
 
 BACKINGFILES_MOUNTPOINT=/backingfiles
+MUTABLE_MOUNTPOINT=/mutable
 
 function create_usb_drive_backing_files () {
   if [ ! -e "$BACKINGFILES_MOUNTPOINT" ]
@@ -90,26 +162,32 @@ function create_usb_drive_backing_files () {
     mkdir "$BACKINGFILES_MOUNTPOINT"
   fi
 
+  if [ ! -e "$MUTABLE_MOUNTPOINT" ]
+  then
+    mkdir "$MUTABLE_MOUNTPOINT"
+  fi
+  
   if [ ! -e /dev/mmcblk0p3 ]
   then
-    /tmp/create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT"
+    /tmp/create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT" "$MUTABLE_MOUNTPOINT"
   fi
   
   if ! findmnt --mountpoint $BACKINGFILES_MOUNTPOINT
   then
-    echo "Mounting the partition for the backing files..."
+    setup_progress "Mounting the partition for the backing files..."
     mount $BACKINGFILES_MOUNTPOINT
-    echo "Mounted the partition for the backing files."
+    setup_progress "Mounted the partition for the backing files."
   fi
 
   if [ ! -e $BACKINGFILES_MOUNTPOINT/*.bin ]
   then
+    setup_progress "Creating backing disk files."
     /tmp/create-backingfiles.sh "$campercent" "$BACKINGFILES_MOUNTPOINT"
   fi
 }
 
 function configure_archive_scripts () {
-  echo "Configuring the archive scripts..."
+  setup_progress "Configuring the archive scripts..."
 
   get_script /root/bin archiveloop run
 
@@ -118,6 +196,11 @@ function configure_archive_scripts () {
     get_script /root/bin archive-clips.sh run/rsync_archive
     get_script /root/bin connect-archive.sh run/rsync_archive
     get_script /root/bin disconnect-archive.sh run/rsync_archive
+  elif [ $RCLONE_ENABLE = true ]
+  then
+    get_script /root/bin archive-clips.sh run/rclone_archive
+    get_script /root/bin connect-archive.sh run/rclone_archive
+    get_script /root/bin disconnect-archive.sh run/rclone_archive
   else
     get_script /root/bin archive-clips.sh run/cifs_archive
     get_script /root/bin connect-archive.sh run/cifs_archive
@@ -126,7 +209,7 @@ function configure_archive_scripts () {
 
   get_script /root/bin remountfs_rw run
   
-  echo "Configured the archive scripts."
+  setup_progress "Configured the archive scripts."
 }
 
 function configure_pushover_scripts() {
@@ -139,7 +222,7 @@ function configure_rc_local () {
     return
   fi
   
-  echo "Configuring /etc/rc.local to run the archive scripts at startup..."
+  setup_progress "Configuring /etc/rc.local to run the archive scripts at startup..."
   echo "#!/bin/bash -eu" > ~/rc.local
   echo "archiveserver=\"${archiveserver}\"" >> ~/rc.local
 cat << 'EOF' >> ~/rc.local
@@ -158,28 +241,41 @@ EOF
 
   cat ~/rc.local > /etc/rc.local
   rm ~/rc.local
-  echo "Configured rc.local."
+  setup_progress "Configured rc.local."
 }
 
 function configure_hostname () {
-  echo "Configuring the hostname..."
+  # Headless image already has hostname set
+  if [ ! $HEADLESS_SETUP = "true" ]
+  then
+    setup_progress "Configuring the hostname..."
 
-  local new_host_name="teslausb"
-  cp /etc/hosts ~
-  sed "s/raspberrypi/$new_host_name/g" ~/hosts > /etc/hosts
+    local new_host_name="teslausb"
+    cp /etc/hosts ~
+    sed "s/raspberrypi/$new_host_name/g" ~/hosts > /etc/hosts
 
-  cp /etc/hostname ~
-  sed "s/raspberrypi/$new_host_name/g" ~/hostname > /etc/hostname
-  echo "Configured the hostname."
+    cp /etc/hostname ~
+    sed "s/raspberrypi/$new_host_name/g" ~/hostname > /etc/hostname
+    setup_progress "Configured the hostname."
+  fi
 }
 
 function make_root_fs_readonly () {
   /tmp/make-root-fs-readonly.sh
 }
 
-echo "Verifying environment variables..."
+headless_setup_populate_variables
+
+# If USE_LED_FOR_SETUP_PROGRESS = true. 
+setup_led_off
+
+# Flash for stage 2 headless (verify variables)
+headless_setup_progress_flash 1
+
+setup_progress "Verifying environment variables..."
 
 RSYNC_ENABLE="${RSYNC_ENABLE:-false}"
+RCLONE_ENABLE="${RCLONE_ENABLE:-false}"
 
 if [ "$RSYNC_ENABLE" = true ]
 then
@@ -187,6 +283,12 @@ then
   check_variable "RSYNC_SERVER"
   export archiveserver="$RSYNC_SERVER"
   check_variable "RSYNC_PATH"
+elif [ "$RCLONE_ENABLE" = true ]
+then
+  check_variable "RCLONE_DRIVE"
+  check_variable "RCLONE_PATH"
+  # since it's a cloud hosted drive we'll just set this to google dns
+  export archiveserver="8.8.8.8"
 else # Else for now, TODO allow both for more redundancy?
   check_variable "sharename"
   check_variable "shareuser"
@@ -200,6 +302,11 @@ check_variable "campercent"
 
 check_pushover_enabled
 
+# Flash for Stage 3 headless (grab scripts)
+headless_setup_progress_flash 2
+
+setup_progress "Downloading additional setup scripts."
+
 if [ ! -e /root/bin ]
 then
   mkdir /root/bin
@@ -209,6 +316,10 @@ if [ "$RSYNC_ENABLE" = true ]
 then
   get_script /root/bin verify-archive-configuration.sh run/rsync_archive
   get_script /root/bin configure-archive.sh run/rsync_archive
+elif [ "$RCLONE_ENABLE" = true ]
+then
+  get_script /root/bin verify-archive-configuration.sh run/rclone_archive
+  get_script /root/bin configure-archive.sh run/rclone_archive
 else
   get_script /root/bin verify-archive-configuration.sh run/cifs_archive
   get_script /root/bin configure-archive.sh run/cifs_archive
@@ -225,6 +336,7 @@ get_ancillary_setup_scripts
 
 pushd ~
 
+
 configure_archive_scripts
 
 configure_pushover_scripts
@@ -232,6 +344,9 @@ configure_pushover_scripts
 fix_cmdline_txt_modules_load
 
 echo "" >> /etc/fstab
+
+# Flash for stage 4 headless (Create backing files)
+headless_setup_progress_flash 3
 
 create_usb_drive_backing_files
 
@@ -241,6 +356,14 @@ configure_rc_local
 
 configure_hostname
 
+# Flash for stage 5 headless (Mark success, FS readonly)
+headless_setup_progress_flash 4
+
+headless_setup_mark_setup_success
+
 make_root_fs_readonly
 
-echo "All done."
+# If USE_LED_FOR_SETUP_PROGRESS = true. 
+setup_led_on
+
+setup_progress "All done."

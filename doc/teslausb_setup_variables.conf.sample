@@ -1,0 +1,43 @@
+#####################################################################
+# SAMPLE CONFIGURATION FILE FOR TESLAUSB Pi Setup
+#
+# Example config file for teslausb_setup. Lines with "#" are comments/ignored.
+# Remove the "#" before "export" to activate a line. Be sure to rename this file
+# to "teslausb_setup_variables.conf" and place it in the "boot" folder of your
+# SD card. 
+#
+######################################################################
+
+# Default variables for CIFS (Windows/Mac file sharing) setup
+export archiveserver=your_archive_name_or_ip
+export sharename=your_archive_share_name
+export shareuser=username
+export sharepassword=password
+export campercent=100
+
+# Wifi setup information
+export SSID=your_ssid
+export WIFIPASS=your_pass
+
+# If doing a headless (i.e. automatic) setup
+export HEADLESS_SETUP=true
+
+# Uncomment if setting up Pushover push notifications 
+# export pushover_enabled=false
+# export pushover_user_key=user_key
+# export pushover_app_key=app_key
+
+# Uncomment and change if you want setup scripts to be pulled
+# from a different repo than the "main" github.com/cimryan/teslausb
+# export REPO=cimryan
+
+# Uncomment and change if you want a different branch than master
+# export BRANCH=master
+
+# Uncomment if you're using rsync/ssh for the archive. 
+# Note: RSYNC is not usable for headless setup since it currently requires a manual step. 
+# Note: RSYNC_ENABLE=true is going to disable the default archive server.
+# export RSYNC_ENABLE=true
+# export RSYNC_USER=<ftp username>
+# export RSYNC_SERVER=<ftp IP/host>
+# export RSYNC_PATH=<destination path to save in>
