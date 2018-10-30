@@ -12,6 +12,8 @@ function configure_archive () {
     mkdir "$archive_path"  
   fi
 
+  local cifs_version="${cifs_version:-3.0}"
+
   local credentials_file_path="/root/.teslaCamArchiveCredentials"
   echo "username=$shareuser" > "$credentials_file_path"
   echo "password=$sharepassword" >> "$credentials_file_path"
