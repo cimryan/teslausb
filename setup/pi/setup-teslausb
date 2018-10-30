@@ -234,7 +234,7 @@ function configure_archive_scripts () {
 
 function install_archive_scripts () {
   check_variable "archive_module"
-  echo $archive_module
+  echo "Installing scripts for archive module: $archive_module"
 
   local install_path="/root/bin"
   get_script $install_path verify-archive-configuration.sh $archive_module
