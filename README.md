@@ -57,10 +57,6 @@ If you'd like to host the archive using another technology or would like to set 
 2. Use Etcher to write the zip file you downloaded to the SD card.
    > Note: you don't need to uncompress the zip file you downloaded.
 
-#### (Experimental) 
-
-There is an experimental image that requires only a configuration file. Needs testing and issues filed _on this specific image/process_ at [this repo](https://github.com/rtgoodwin/teslausb/tree/headless-patch/headless-scripts). Issues about general functionality should still be filed on the main (cimryan) repo. 
-
 ### Get a shell on the Pi
 Follow the instructions corresponding to the OS you used to flash the OS onto the MicroSD card:
 * Windows: [Instructions](doc/GetShellWithoutMonitorOnWindows.md).
