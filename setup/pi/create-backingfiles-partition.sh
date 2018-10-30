@@ -13,7 +13,7 @@ BACKINGFILES_MOUNTPOINT="$1"
 MUTABLE_MOUNTPOINT="$2"
 
 setup_progress "Checking existing partitions..."
-PARTITION_TABLE=$(parted -m /dev/mmcblk0 unit B print)
+PARTITION_TABLE=$(parted -s -m /dev/mmcblk0 unit B print)
 DISK_LINE=$(echo "$PARTITION_TABLE" | grep -e "^/dev/mmcblk0:")
 DISK_SIZE=$(echo "$DISK_LINE" | cut -d ":" -f 2 | sed 's/B//' )
 
