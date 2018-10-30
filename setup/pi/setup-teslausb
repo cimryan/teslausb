@@ -16,6 +16,7 @@ then
 fi
 
 function setup_progress () {
+  SETUP_LOGFILE=/boot/teslausb-headless-setup.log
   if [ $HEADLESS_SETUP = "true" ]
   then
     echo "$( date ) : $1" >> "$SETUP_LOGFILE"

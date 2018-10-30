@@ -1,8 +1,18 @@
 #!/bin/bash -eu
 
+function setup_progress () {
+  SETUP_LOGFILE=/boot/teslausb-headless-setup.log
+  if [ $HEADLESS_SETUP = "true" ]
+  then
+    echo "$( date ) : $1" >> "$SETUP_LOGFILE"
+  fi
+    echo $1
+}
+
 BACKINGFILES_MOUNTPOINT="$1"
 MUTABLE_MOUNTPOINT="$2"
 
+setup_progress "Checking existing partitions..."
 PARTITION_TABLE=$(parted -m /dev/mmcblk0 unit B print)
 DISK_LINE=$(echo "$PARTITION_TABLE" | grep -e "^/dev/mmcblk0:")
 DISK_SIZE=$(echo "$DISK_LINE" | cut -d ":" -f 2 | sed 's/B//' )
@@ -15,19 +25,23 @@ LAST_BACKINGFILES_PARTITION_DESIRED_BYTE="$(( $DISK_SIZE - (100 * (2 ** 20)) - 1
 
 ORIGINAL_DISK_IDENTIFIER=$( fdisk -l /dev/mmcblk0 | grep -e "^Disk identifier" | sed "s/Disk identifier: 0x//" )
 
+setup_progress "Editing partition table for backing files..."
 BACKINGFILES_PARTITION_END_SPEC="$(( $LAST_BACKINGFILES_PARTITION_DESIRED_BYTE / 1000000 ))M"
 parted -a optimal -m /dev/mmcblk0 unit B mkpart primary ext4 "$FIRST_BACKINGFILES_PARTITION_BYTE" "$BACKINGFILES_PARTITION_END_SPEC"
 
 LAST_BACKINGFILES_PARTITION_BYTE=$(parted -m /dev/mmcblk0 unit B print | grep -e "^3:" | cut -d ":" -f 3 | sed 's/B//g' )
 
+setup_progress "Creating mutable (writable) partition for script usage..."
 MUTABLE_PARTITION_START_SPEC="$(( $LAST_BACKINGFILES_PARTITION_BYTE / 1000000 ))M"
 parted -a optimal -m /dev/mmcblk0 unit B mkpart primary ext4 "$MUTABLE_PARTITION_START_SPEC" 100%
 
 NEW_DISK_IDENTIFIER=$( fdisk -l /dev/mmcblk0 | grep -e "^Disk identifier" | sed "s/Disk identifier: 0x//" )
 
+setup_progress "Writing updated partitions to fstab and /boot/cmdline.txt"
 sed -i "s/${ORIGINAL_DISK_IDENTIFIER}/${NEW_DISK_IDENTIFIER}/g" /etc/fstab
 sed -i "s/${ORIGINAL_DISK_IDENTIFIER}/${NEW_DISK_IDENTIFIER}/" /boot/cmdline.txt
 
+setup_progress "Formatting new partitions..."
 mkfs.ext4 -F /dev/mmcblk0p3
 mkfs.ext4 -F /dev/mmcblk0p4
 
