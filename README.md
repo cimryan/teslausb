@@ -94,8 +94,8 @@ On the next boot, the Pi hostname will become `teslausb`, so future `ssh` sessio
 
 Your Pi is now ready to be plugged into your Tesla. If you want to add music to the Pi, follow the instructions in the next section.
 
-## (Optional) Add music to the Pi
-> Note: If you set `campercent` to 100% this drive will not show up
+## Optional: Add music to the Pi
+> Note: If you set `campercent` to `100` then skip this step.
 
 Connect the Pi to a computer. If you're using a cable be sure to use the port labeled "USB" on the circuitboard. 
 1. Wait for the Pi to show up on the computer as a USB drive.
@@ -104,7 +104,7 @@ Connect the Pi to a computer. If you're using a cable be sure to use the port la
 1. Unplug the Pi from the computer.
 1. Plug the Pi into your Tesla.
 
-## Making changes to the system after setup
+## Optional: Making changes to the system after setup
 The setup process configures the Pi with read-only file systems for the operating system but with read-write
 access through the USB interface. This means that you'll be able to record dashcam video and add and remove
 music files but you won't be able to make changes to files on / or on /boot. This is to protect against
