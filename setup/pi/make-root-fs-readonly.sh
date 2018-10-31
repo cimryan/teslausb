@@ -33,24 +33,18 @@ if [ ! -e "/mutable/etc" ]
 then
     mkdir -p /mutable/etc
 fi
-if [ -e "/etc/fake-hwclock.data" ]
+
+if [ ! -L "/etc/fake-hwclock.data" ] && [ -e "/etc/fake-hwclock.data" ]
 then
     echo "Moving fake-hwclock data"
-    cp /etc/fake-hwclock.data /mutable/etc/fake-hwclock.data
-    rm /etc/fake-hwclock.data
+    mv /etc/fake-hwclock.data /mutable/etc/fake-hwclock.data
     ln -s /mutable/etc/fake-hwclock.data /etc/fake-hwclock.data
 fi
 
-# Move rclone configs if it exists so we can write to it
+# Create a configs directory for others to use
 if [ ! -e "/mutable/configs" ]
 then
     mkdir -p /mutable/configs
-fi
-if [ -e "/root/.config/rclone/rclone.conf" ]
-then
-    echo "Moving rclone configs"
-    mv /root/.config/rclone /mutable/configs
-    ln -s /mutable/configs/rclone /root/.config/rclone
 fi
 
 # Move /var/spool to /tmp
@@ -61,8 +55,7 @@ ln -s /tmp /var/spool
 sed -i "s/spool\s*0755/spool 1777/g" /usr/lib/tmpfiles.d/var.conf >/dev/null
 
 # Move dhcpd.resolv.conf to tmpfs
-touch /tmp/dhcpcd.resolv.conf
-rm /etc/resolv.conf
+mv /etc/resolv.conf /tmp/dhcpcd.resolv.conf
 ln -s /tmp/dhcpcd.resolv.conf /etc/resolv.conf
 
 # Update /etc/fstab

@@ -12,6 +12,8 @@ function configure_archive () {
     mkdir "$archive_path"  
   fi
 
+  local cifs_version="${cifs_version:-3.0}"
+
   local credentials_file_path="/root/.teslaCamArchiveCredentials"
   echo "username=$shareuser" > "$credentials_file_path"
   echo "password=$sharepassword" >> "$credentials_file_path"
@@ -21,6 +23,6 @@ function configure_archive () {
   echo "Configured the archive."
 }
 
-ARCHIVE_SERVER_IP_ADDRESS="$( /root/bin/get-archiveserver-ip-address.sh )"
+ARCHIVE_SERVER_IP_ADDRESS="$( $INSTALL_DIR/lookup-ip-address.sh "$archiveserver" )"
 
 configure_archive "$ARCHIVE_SERVER_IP_ADDRESS"
