@@ -92,44 +92,6 @@ At this point the next boot should start the Dashcam/music drives like normal. I
 
 > NOTE: Don't delete the `TESLAUSB_SETUP_FINISHED` or `WIFI_ENABLED` files. This is how the system knows setup is complete. 
 
-### Image builder source and patches
+# Image modification sources
 
-For now the image creation work is at:
-* Modified pi-gen [rtgoodwin's fork of pi-gen](https://github.com/rtgoodwin/pi-gen) in (whatever current branch I'm working at the time). 
-
-### Image refinement TODOs
-1. ~~Patch the hostname to teslausb~~
-1. Make it so if someone deletes the `TESLAUSB_SETUP_FINISHED` file it's handled gracefully. (Right now it will try to re-run setup which should be fine.) 
-1. Cache the remount packages? Might mess with first boot like `rsyslog`
-1. Aspirational TODO: Remove more packages and set services to stopped to make the boot process faster? 
-1. At this point, it's designed to pull the setup scripts _dynamically_, since development is still ongoing. If/when we reach a good frozen state, we can generate an image that is essentially ready to run. I think it'll also be pretty tricky to do some of the remounting and creating the backing files etc. on the image creation side. Open to suggestions/contributions there though! 
-
-
-#### Modifications to pi-gen builder from master
-
-The image is built on a Raspberry Pi 3B running Stretch, for maximum Pi-ception. 
-
-This is the basic configuration, but it's helpful to just [look at the code itself](https://github.com/rtgoodwin/pi-gen/tree/teslausb-headless-image) and the Readme for Pi-gen which explains this all in much greater detail:
-
-1. Added SKIP and SKIP_IMAGES files to stage3, 4, and 5 (if present). We want to build the default image up to stage2, then add our own stage for tweaks we want. 
-1. Added a `stage6` (or 7, just something beyond stage5). (There are stages 0-4 in the main Raspbian pi-gen repo by default, but may be a stage5 in some cases. This will help keep a clean merge later.)
-1. Copy the prerun.sh from `stage2`. Be SURE to `chmod +x` it. 
-1. Remove or rename the EXPORT_NOOBS files in all stages. We don't need a NOOBS image built. 
-1. In `stage6`, create a `00-tweaks` folder, with a `00-patches` folder and patches inside. Currently patched:
-
-    | File  | Change  |
-    |---|---|
-    | `cmdline.txt`| Add the dwc2,g_ether modules  |
-    | `config.txt`| Add the dwc2 module  |
-    | `hosts` | Change hostname to `teslausb` |
-    | `hostname` | Change hostname to `teslausb` |
-    
-    * The build process uses `quilt` for patching
-    * The path for any patching you do at this stage is `stage6/rootfs/FILEPATH` where `rootfs` represents the Pi's `/`. So, `cmdline.txt` is `stage6/rootfs/boot/cmdline.txt`.
-
-1. Added a file called `series` in the patches directory with the name of each `.diff` file in the order you want them applied.
-1. Added a `files` folder in stage6 with modified `rc.local`, and whatever else you want copied into the image. The modified `rc.local` will handle pulling down the `setup-teslausb-headless` file the first time and doing Wifi setup.
-1. Added a script to flash the Pi LED  
-1. Files are moved into final locations using the  `00-run.sh` script using the `install` command. See the script for details. I also `touch /boot/ssh` here so SSH is ready out of the box.
-1. Run `sudo ./build.sh` from the `pi-gen` directory.
-1. If you get a failure, it's almost certainly after stage2, so you can add SKIP files in all successful stages and rerun `sudo CLEAN=1 ./build.sh`
+The sources for the image modifications, and details, are in the [pi-gen-sources folder](https://github.com/cimryan/teslausb/pi-gen-sources). 
