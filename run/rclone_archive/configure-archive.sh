@@ -8,7 +8,7 @@ function configure_archive () {
 
   if [ ! -L "/root/.config/rclone" ] && [ -e "/root/.config/rclone" ]
   then
-    echo "Moving rclone configs in /mutable"
+    echo "Moving rclone configs into /mutable"
     mv /root/.config/rclone /mutable/configs
     ln -s /mutable/configs/rclone /root/.config/rclone
   fi
