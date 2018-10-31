@@ -31,7 +31,6 @@ function check_archive_mountable () {
   echo "password=$sharepassword" >> "$tmp_credentials_file_path"
 
   local mount_failed=false
-  echo "//$archive_server_ip_address/$sharename" "$test_mount_location" -o "vers=${cifs_version},credentials=${tmp_credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777"
   mount -t cifs "//$archive_server_ip_address/$sharename" "$test_mount_location" -o "vers=${cifs_version},credentials=${tmp_credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777" || mount_failed=true
 
   if [ "$mount_failed" = true ]
