@@ -1,4 +1,9 @@
 #! /bin/bash -eu 
+# This is a standalone script to just manually trigger
+# the steps to enable wifi so you don't have to run rc.local
+#
+# This is probably a model to follow, similar to some of the 
+# reorganization work going on with the main scripts.
 
 HEADLESS_SETUP=false
 
