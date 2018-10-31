@@ -1,12 +1,9 @@
 #!/bin/bash -eu
 
-USER_ENABLED_PUSHOVER=${USER_ENABLED_PUSHOVER:-false}
-SETUP_LOGFILE=/boot/teslausb-headless-setup.log
 REPO=${REPO:-cimryan}
 BRANCH=${BRANCH:-master}
 HEADLESS_SETUP=${HEADLESS_SETUP:-false}
 USE_LED_FOR_SETUP_PROGRESS=true
-
 
 
 if ! [ $(id -u) = 0 ]
@@ -16,9 +13,10 @@ then
 fi
 
 function setup_progress () {
+  local setup_logfile=/boot/teslausb-headless-setup.log
   if [ $HEADLESS_SETUP = "true" ]
   then
-    echo "$( date ) : $1" >> "$SETUP_LOGFILE"
+    echo "$( date ) : $1" >> "$setup_logfile"
   fi
     echo $1
 }
@@ -90,66 +88,6 @@ function check_variable () {
   fi
 }
 
-function check_pushover_enabled () {
-  if [ ! -z "${pushover_enabled+x}" ]
-  then
-    if [ ! -n "${pushover_user_key+x}" ] || [ ! -n "${pushover_app_key+x}"  ]
-    then
-      setup_progress "STOP: You're trying to setup Pushover but didn't provide your User and/or App key."
-      setup_progress "Define the variables like this:"
-      setup_progress "export pushover_user_key=put_your_userkey_here"
-      setup_progress "export pushover_app_key=put_your_appkey_here"
-      exit 1
-    elif [ "${pushover_user_key}" = "put_your_userkey_here" ] || [  "${pushover_app_key}" = "put_your_appkey_here" ]
-    then
-      setup_progress "STOP: You're trying to setup Pushover, but didn't replace the default User and App key values."
-      exit 1
-    else
-      USER_ENABLED_PUSHOVER=true
-      echo "export pushover_enabled=true" > /root/.teslaCamPushoverCredentials
-      echo "export pushover_user_key=$pushover_user_key" >> /root/.teslaCamPushoverCredentials
-      echo "export pushover_app_key=$pushover_app_key" >> /root/.teslaCamPushoverCredentials
-    fi
-  fi
-}
-
-function check_archive_configs () {
-
-  RSYNC_ENABLE="${RSYNC_ENABLE:-false}"
-  RCLONE_ENABLE="${RCLONE_ENABLE:-false}"
-
-  if [ "$RSYNC_ENABLE" = true ] && [ "$RCLONE_ENABLE" = true ]
-  then
-    setup_progress "STOP: Cannot enable rsync and rclone at the same time"
-    exit 1
-  fi
-
-  if [ "$RSYNC_ENABLE" = true ]
-  then
-    check_variable "RSYNC_USER"
-    check_variable "RSYNC_SERVER"
-    export archiveserver="$RSYNC_SERVER"
-    check_variable "RSYNC_PATH"
-    export archive_module="run/rsync_archive"
-  elif [ "$RCLONE_ENABLE" = true ]
-  then
-    check_variable "RCLONE_DRIVE"
-    check_variable "RCLONE_PATH"
-    # since it's a cloud hosted drive we'll just set this to google dns
-    export archiveserver="8.8.8.8"
-    export archive_module="run/rclone_archive"
-  else # Else for now, TODO allow both for more redundancy?
-    check_variable "sharename"
-    check_variable "shareuser"
-    check_variable "sharepassword"
-
-    export cifs_version="${cifs_version:-3.0}"
-    export archive_module="run/cifs_archive"
-  fi
-
-  check_variable "archiveserver"
-}
-
 function check_available_space () {
   setup_progress "Verifying that there is sufficient space available on the MicroSD card..."
 
@@ -179,6 +117,7 @@ function get_ancillary_setup_scripts () {
   get_script /tmp create-backingfiles-partition.sh setup/pi
   get_script /tmp create-backingfiles.sh setup/pi
   get_script /tmp make-root-fs-readonly.sh setup/pi
+  get_script /root configure.sh setup/pi
 }
 
 function fix_cmdline_txt_modules_load ()
@@ -206,6 +145,7 @@ function create_usb_drive_backing_files () {
   
   if [ ! -e /dev/mmcblk0p3 ]
   then
+    setup_progress "Starting to create backing files partition..."
     /tmp/create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT" "$MUTABLE_MOUNTPOINT"
   fi
   
@@ -223,59 +163,6 @@ function create_usb_drive_backing_files () {
   fi
 }
 
-function configure_archive_scripts () {
-  setup_progress "Configuring the archive scripts..."
-
-  get_script /root/bin archiveloop run
-  get_script /root/bin remountfs_rw run
-  
-  setup_progress "Configured the archive scripts."
-}
-
-function install_archive_scripts () {
-  check_variable "archive_module"
-  setup_progress "Installing scripts for archive module: $archive_module"
-
-  local install_path="/root/bin"
-  get_script $install_path verify-archive-configuration.sh $archive_module
-  get_script $install_path configure-archive.sh $archive_module
-  get_script $install_path archive-clips.sh $archive_module
-  get_script $install_path connect-archive.sh $archive_module
-  get_script $install_path disconnect-archive.sh $archive_module
-}
-
-function configure_pushover_scripts() {
-  get_script /root/bin send-pushover run
-}
-
-function configure_rc_local () {
-  if grep -q archiveloop /etc/rc.local
-  then
-    return
-  fi
-  
-  setup_progress "Configuring /etc/rc.local to run the archive scripts at startup..."
-  echo "#!/bin/bash -eu" > ~/rc.local
-  echo "archiveserver=\"${archiveserver}\"" >> ~/rc.local
-cat << 'EOF' >> ~/rc.local
-LOGFILE=/tmp/rc.local.log
-
-function log () {
-  echo "$( date )" >> "$LOGFILE"
-  echo "$1" >> "$LOGFILE"
-}
-
-log "Launching archival script..."
-/root/bin/archiveloop "$archiveserver" &
-log "All done"
-exit 0
-EOF
-
-  cat ~/rc.local > /etc/rc.local
-  rm ~/rc.local
-  setup_progress "Configured rc.local."
-}
-
 function configure_hostname () {
   # Headless image already has hostname set
   if [ ! $HEADLESS_SETUP = "true" ]
@@ -285,10 +172,12 @@ function configure_hostname () {
     local new_host_name="teslausb"
     cp /etc/hosts ~
     sed "s/raspberrypi/$new_host_name/g" ~/hosts > /etc/hosts
+    rm ~/hosts
 
     cp /etc/hostname ~
     sed "s/raspberrypi/$new_host_name/g" ~/hostname > /etc/hostname
     setup_progress "Configured the hostname."
+    rm ~/hostname
   fi
 }
 
@@ -307,34 +196,17 @@ headless_setup_progress_flash 1
 setup_progress "Verifying environment variables..."
 
 check_variable "campercent"
-check_archive_configs
-check_pushover_enabled
 
 # Flash for Stage 3 headless (grab scripts)
 headless_setup_progress_flash 2
 
 setup_progress "Downloading additional setup scripts."
 
-if [ ! -e /root/bin ]
-then
-  mkdir /root/bin
-fi
-
-get_script /root/bin get-archiveserver-ip-address.sh run
-
-install_archive_scripts
-/root/bin/configure-archive.sh
-/root/bin/verify-archive-configuration.sh
-
 check_available_space
 
 get_ancillary_setup_scripts
 
 pushd ~
-
-configure_archive_scripts
-
-configure_pushover_scripts
 
 fix_cmdline_txt_modules_load
 
@@ -344,8 +216,6 @@ echo "" >> /etc/fstab
 headless_setup_progress_flash 3
 
 create_usb_drive_backing_files
-
-configure_rc_local
 
 configure_hostname
 
