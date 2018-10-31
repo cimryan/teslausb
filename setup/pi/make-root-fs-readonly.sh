@@ -55,8 +55,7 @@ ln -s /tmp /var/spool
 sed -i "s/spool\s*0755/spool 1777/g" /usr/lib/tmpfiles.d/var.conf >/dev/null
 
 # Move dhcpd.resolv.conf to tmpfs
-touch /tmp/dhcpcd.resolv.conf
-rm /etc/resolv.conf
+mv /etc/resolv.conf /tmp/dhcpcd.resolv.conf
 ln -s /tmp/dhcpcd.resolv.conf /etc/resolv.conf
 
 # Update /etc/fstab
