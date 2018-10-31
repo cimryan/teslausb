@@ -12,6 +12,8 @@ function configure_archive () {
     mv /root/.config/rclone /mutable/configs
     ln -s /mutable/configs/rclone /root/.config/rclone
   fi
+
+  echo "done"
 }
 
 configure_archive
