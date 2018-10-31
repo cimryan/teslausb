@@ -27,8 +27,8 @@ function check_archive_mountable () {
   local cifs_version="${cifs_version:-3.0}"
 
   local tmp_credentials_file_path="/tmp/.teslaCamArchiveCredentials"
-  echo "username=$shareuser" > "$credentials_file_path"
-  echo "password=$sharepassword" >> "$credentials_file_path"
+  echo "username=$shareuser" > "$tmp_credentials_file_path"
+  echo "password=$sharepassword" >> "$tmp_credentials_file_path"
 
   local mount_failed=false
   echo "//$archive_server_ip_address/$sharename" "$test_mount_location" -o "vers=${cifs_version},credentials=${tmp_credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777"
@@ -45,7 +45,6 @@ function check_archive_mountable () {
   umount "$test_mount_location"
 }
 
-echo "install dir: $INSTALL_DIR"
 ARCHIVE_SERVER_IP_ADDRESS="$( $INSTALL_DIR/lookup-ip-address.sh "$archiveserver" )"
 
 check_archive_server_reachable
