@@ -79,7 +79,7 @@ These instructions will speed you through the process with good defaults. If you
     ```
 1. Run this command again:
     ```
-    rclone lsd "RCLONE_DRIVE":
+    rclone lsd "$RCLONE_DRIVE":
     ```
 Confirm that the directory `TeslaCam` is present. If not, start over.
 
