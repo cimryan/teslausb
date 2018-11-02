@@ -3,8 +3,8 @@
 function configure_archive () {
   echo "Configuring rclone archive..."
   
-  echo "drive=$RCLONE_DRIVE" > /root/.teslaCamRcloneConfig
-  echo "path=$RCLONE_PATH" >> /root/.teslaCamRcloneConfig
+  local config_file_path="/root/.teslaCamRcloneConfig"
+  /root/bin/write-archive-configs-to.sh "$config_file_path"
 
   if [ ! -L "/root/.config/rclone" ] && [ -e "/root/.config/rclone" ]
   then

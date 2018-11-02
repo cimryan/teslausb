@@ -3,9 +3,8 @@
 function configure_archive () {
   echo "Configuring the rsync archive..."
 
-  echo "user=$RSYNC_USER" > /root/.teslaCamRsyncConfig
-  echo "server=$RSYNC_SERVER" >> /root/.teslaCamRsyncConfig
-  echo "path=$RSYNC_PATH" >> /root/.teslaCamRsyncConfig
+  local config_file_path="/root/.teslaCamRsyncConfig"
+  /root/bin/write-archive-configs-to.sh "$config_file_path"
 }
 
 configure_archive
