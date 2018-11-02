@@ -2,8 +2,8 @@
 
 REPO=${REPO:-cimryan}
 BRANCH=${BRANCH:-master}
-INSTALL_DIR=${INSTALL_DIR:-/root/bin}
 
+export INSTALL_DIR=${INSTALL_DIR:-/root/bin}
 
 function check_variable () {
     local var_name="$1"
