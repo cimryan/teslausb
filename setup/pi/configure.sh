@@ -4,13 +4,6 @@ REPO=${REPO:-cimryan}
 BRANCH=${BRANCH:-master}
 INSTALL_DIR=${INSTALL_DIR:-/root/bin}
 
-upgrade=false   #TODO: create an option to just refresh the scripts
-debug_on=false
-
-function debug() {
-    $debug_on && echo "$1"
-    return 0
-}
 
 function check_variable () {
     local var_name="$1"
@@ -30,27 +23,6 @@ function get_script () {
     curl -o "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
     chmod +x "$local_path/$name"
     echo "Done"
-}
-
-function parse_command_line() {
-    echo -n "Parsing command line: "
-
-    local OPTIND=1         # Reset in case getopts has been used previously in the shell.
-    while getopts "du" opt; do
-        case "$opt" in
-        d)  debug_on=true
-            ;;
-        u)  upgrade=true
-            #TODO: just upgrade all the scripts instead building new configs
-            echo "STOP: this option is not yet implemented"
-            exit 1
-            ;;
-        esac
-    done
-    shift $((OPTIND-1))
-    [ "${1:-}" = "--" ] && shift
-
-    echo "done"
 }
 
 function install_rc_local () {
@@ -193,10 +165,7 @@ then
     mkdir "$INSTALL_DIR"
 fi
 
-parse_command_line "$@"
-debug "Getting files from $REPO:$BRANCH"
-debug "- debug mode = $debug_on"
-debug "- upgrade only = $upgrade"
+echo "Getting files from $REPO:$BRANCH"
 
 check_and_configure_pushover
 install_pushover_scripts "$INSTALL_DIR"
@@ -204,7 +173,7 @@ install_pushover_scripts "$INSTALL_DIR"
 check_archive_configs
 
 archive_module="$( get_archive_module )"
-debug "Archive module: $archive_module"
+echo "Using archive module: $archive_module"
 
 install_archive_scripts $INSTALL_DIR $archive_module
 "$INSTALL_DIR"/verify-archive-configuration.sh
