@@ -15,8 +15,7 @@ function configure_archive () {
   local cifs_version="${cifs_version:-3.0}"
 
   local credentials_file_path="/root/.teslaCamArchiveCredentials"
-  echo "username=$shareuser" > "$credentials_file_path"
-  echo "password=$sharepassword" >> "$credentials_file_path"
+  /root/bin/write-archive-configs-to.sh "$credentials_file_path"
 
   echo "//$archive_server_ip_address/$sharename $archive_path cifs vers=${cifs_version},credentials=${credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777 0" >> /etc/fstab
 

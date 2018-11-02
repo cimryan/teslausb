@@ -115,13 +115,13 @@ function install_archive_scripts () {
     get_script $install_path remountfs_rw run
     get_script $install_path lookup-ip-address.sh run
 
-    echo "Installing archive module scripts ($archive_module)"
-
+    echo "Installing archive module scripts"
     get_script $install_path verify-archive-configuration.sh $archive_module
     get_script $install_path configure-archive.sh $archive_module
     get_script $install_path archive-clips.sh $archive_module
     get_script $install_path connect-archive.sh $archive_module
     get_script $install_path disconnect-archive.sh $archive_module
+    get_script $install_path write-archive-configs-to.sh $archive_module
 }
 
 function check_and_configure_pushover () {
