@@ -191,6 +191,9 @@ function make_root_fs_readonly () {
   /tmp/make-root-fs-readonly.sh
 }
 
+export -f setup_progress
+export HEADLESS_SETUP
+
 headless_setup_populate_variables
 
 # If USE_LED_FOR_SETUP_PROGRESS = true. 
