@@ -83,7 +83,6 @@ Follow the instructions corresponding to the technology you'd like to use to hos
     wget https://raw.githubusercontent.com/cimryan/teslausb/master/setup/pi/setup-teslausb
     chmod +x setup-teslausb
     ./setup-teslausb
-    /root/configure.sh
     ```
 1. Run this command:
     ```

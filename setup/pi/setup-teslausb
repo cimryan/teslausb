@@ -4,7 +4,7 @@ REPO=${REPO:-cimryan}
 BRANCH=${BRANCH:-master}
 HEADLESS_SETUP=${HEADLESS_SETUP:-false}
 USE_LED_FOR_SETUP_PROGRESS=true
-
+CONFIGURE_ARCHIVING=${CONFIGURE_ARCHIVING:-true}
 
 if ! [ $(id -u) = 0 ]
 then
@@ -227,6 +227,11 @@ configure_hostname
 headless_setup_progress_flash 4
 
 headless_setup_mark_setup_success
+
+if [ "$CONFIGURE_ARCHIVING" = true ]
+then
+  /root/configure.sh
+fi
 
 make_root_fs_readonly
 
