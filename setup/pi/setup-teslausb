@@ -102,6 +102,12 @@ function check_available_space () {
   setup_progress "There is sufficient space available."
 }
 
+function verify_configuration () {
+  get_script /tmp verify-configuration.sh setup/pi
+  
+  /tmp/verify-configuration.sh
+}
+
 function get_script () {
   local local_path="$1"
   local name="$2"
@@ -195,9 +201,7 @@ headless_setup_progress_flash 1
 
 setup_progress "Verifying that the requested configuration is valid..."
 
-check_variable "campercent"
-
-check_available_space
+verify_configuration
 
 # Flash for Stage 3 headless (grab scripts)
 headless_setup_progress_flash 2
