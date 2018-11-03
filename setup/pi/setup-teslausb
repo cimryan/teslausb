@@ -190,10 +190,10 @@ headless_setup_populate_variables
 # If USE_LED_FOR_SETUP_PROGRESS = true. 
 setup_led_off
 
-# Flash for stage 2 headless (verify variables)
+# Flash for stage 2 headless (verify requested configuration)
 headless_setup_progress_flash 1
 
-setup_progress "Verifying environment variables..."
+setup_progress "Verifying that the requested configuration is valid..."
 
 check_variable "campercent"
 
