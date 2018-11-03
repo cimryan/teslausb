@@ -29,10 +29,11 @@ Required:
 * A Micro SD card, at least 8 GB in size, and an adapter (if necessary) to connect the card to your computer.
 * A mechanism to connect the Pi to the Tesla. Either:
   * A USB A/Micro B cable: [Adafruit](https://www.adafruit.com/product/898) or [Amazon](https://www.amazon.com/gp/product/B013G4EAEI/), or 
-  * A USB A Add-on Board if you want to plug your Pi into your Tesla like a USB drive instead of using a cable. [Amazon](https://www.amazon.com/gp/product/B07BK2BR6C/)
+  * A USB A Add-on Board if you want to plug your Pi into your Tesla like a USB drive instead of using a cable. [Amazon](https://www.amazon.com/gp/product/B07BK2BR6C/), or
+  * A PCB kit if you want the lowest profile possible and you're able to solder. [Sparkfun](https://www.sparkfun.com/products/14526)
 
 Optional:
-* A case. The "Official" case: [Adafruit](https://www.adafruit.com/product/2885) or [Amazon](https://www.amazon.com/gp/product/B06Y593MHV). There are many others to choose from. Note that the official case won't work with the USB A Add on board.
+* A case. The "Official" case: [Adafruit](https://www.adafruit.com/product/3446) or [Amazon](https://www.amazon.com/gp/product/B06Y593MHV). There are many others to choose from. Note that the official case won't work with the USB A Add-on board or the PCB kit.
 * USB Splitter if you don't want to lose a front USB port. [The Onvian Splitter](https://www.amazon.com/gp/product/B01KX4TKH6) has been reported working by multiple people on reddit.
 
 ### Software
@@ -93,7 +94,9 @@ On the next boot, the Pi hostname will become `teslausb`, so future `ssh` sessio
 
 Your Pi is now ready to be plugged into your Tesla. If you want to add music to the Pi, follow the instructions in the next section.
 
-## (Optional) Add music to the Pi
+## Optional: Add music to the Pi
+> Note: If you set `campercent` to `100` then skip this step.
+
 Connect the Pi to a computer. If you're using a cable be sure to use the port labeled "USB" on the circuitboard. 
 1. Wait for the Pi to show up on the computer as a USB drive.
 1. Copy any music you'd like to the drive labeled MUSIC.
@@ -101,7 +104,7 @@ Connect the Pi to a computer. If you're using a cable be sure to use the port la
 1. Unplug the Pi from the computer.
 1. Plug the Pi into your Tesla.
 
-## Making changes to the system after setup
+## Optional: Making changes to the system after setup
 The setup process configures the Pi with read-only file systems for the operating system but with read-write
 access through the USB interface. This means that you'll be able to record dashcam video and add and remove
 music files but you won't be able to make changes to files on / or on /boot. This is to protect against

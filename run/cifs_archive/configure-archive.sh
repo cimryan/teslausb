@@ -12,15 +12,16 @@ function configure_archive () {
     mkdir "$archive_path"  
   fi
 
-  local credentials_file_path="/root/.teslaCamArchiveCredentials"
+  local cifs_version="${cifs_version:-3.0}"
 
-  /root/bin/write-archive-credentials-to.sh "$credentials_file_path"
+  local credentials_file_path="/root/.teslaCamArchiveCredentials"
+  /root/bin/write-archive-configs-to.sh "$credentials_file_path"
 
   echo "//$archive_server_ip_address/$sharename $archive_path cifs vers=${cifs_version},credentials=${credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777 0" >> /etc/fstab
 
   echo "Configured the archive."
 }
 
-ARCHIVE_SERVER_IP_ADDRESS="$( /root/bin/get-archiveserver-ip-address.sh )"
+ARCHIVE_SERVER_IP_ADDRESS="$( $INSTALL_DIR/lookup-ip-address.sh "$archiveserver" )"
 
 configure_archive "$ARCHIVE_SERVER_IP_ADDRESS"

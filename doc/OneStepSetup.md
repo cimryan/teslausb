@@ -42,7 +42,7 @@ A sample conf file is located in the `boot` folder on the SD card.
 
 | Stage (number of flashes)  |  Activity |
 |---|---|
-| 2 | Verify setup variables  |
+| 2 | Verify the requested configuration is creatable |
 | 3 | Grab scripts to start/continue setup |
 | 4 | Create partition and files to store camera clips/music) |
 | 5 | Setup completed; remounting filesystems as read-only and rebooting |

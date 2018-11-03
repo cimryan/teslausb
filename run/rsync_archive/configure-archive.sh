@@ -1,16 +1,10 @@
 #!/bin/bash -eu
 
 function configure_archive () {
-  local archive_server_ip_address="$1"
+  echo "Configuring the rsync archive..."
 
-  echo "Configuring the archive..."
-  
-  echo "Configuring for Rsync..."
-  echo "user=$RSYNC_USER" > /root/.teslaCamRsyncConfig
-  echo "server=$RSYNC_SERVER" >> /root/.teslaCamRsyncConfig
-  echo "path=$RSYNC_PATH" >> /root/.teslaCamRsyncConfig
+  local config_file_path="/root/.teslaCamRsyncConfig"
+  /root/bin/write-archive-configs-to.sh "$config_file_path"
 }
 
-ARCHIVE_SERVER_IP_ADDRESS="$( /root/bin/get-archiveserver-ip-address.sh )"
-
-configure_archive "$ARCHIVE_SERVER_IP_ADDRESS"
+configure_archive

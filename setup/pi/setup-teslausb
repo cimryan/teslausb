@@ -1,10 +1,10 @@
 #!/bin/bash -eu
 
-USER_ENABLED_PUSHOVER=${USER_ENABLED_PUSHOVER:-false}
 REPO=${REPO:-cimryan}
 BRANCH=${BRANCH:-master}
 HEADLESS_SETUP=${HEADLESS_SETUP:-false}
 USE_LED_FOR_SETUP_PROGRESS=true
+CONFIGURE_ARCHIVING=${CONFIGURE_ARCHIVING:-true}
 
 if ! [ $(id -u) = 0 ]
 then
@@ -88,29 +88,6 @@ function check_variable () {
   fi
 }
 
-function check_pushover_enabled () {
-  if [ ! -z "${pushover_enabled+x}" ]
-  then
-    if [ ! -n "${pushover_user_key+x}" ] || [ ! -n "${pushover_app_key+x}"  ]
-    then
-      setup_progress "STOP: You're trying to setup Pushover but didn't provide your User and/or App key."
-      setup_progress "Define the variables like this:"
-      setup_progress "export pushover_user_key=put_your_userkey_here"
-      setup_progress "export pushover_app_key=put_your_appkey_here"
-      exit 1
-    elif [ "${pushover_user_key}" = "put_your_userkey_here" ] || [  "${pushover_app_key}" = "put_your_appkey_here" ]
-    then
-      setup_progress "STOP: You're trying to setup Pushover, but didn't replace the default User and App key values."
-      exit 1
-    else
-      USER_ENABLED_PUSHOVER=true
-      echo "export pushover_enabled=true" > /root/.teslaCamPushoverCredentials
-      echo "export pushover_user_key=$pushover_user_key" >> /root/.teslaCamPushoverCredentials
-      echo "export pushover_app_key=$pushover_app_key" >> /root/.teslaCamPushoverCredentials
-    fi
-  fi
-}
-
 function check_available_space () {
   setup_progress "Verifying that there is sufficient space available on the MicroSD card..."
 
@@ -125,12 +102,18 @@ function check_available_space () {
   setup_progress "There is sufficient space available."
 }
 
+function verify_configuration () {
+  get_script /tmp verify-configuration.sh setup/pi
+  
+  /tmp/verify-configuration.sh
+}
+
 function get_script () {
   local local_path="$1"
   local name="$2"
   local remote_path="${3:-}"
   
-  curl -o "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
+  curl --fail -o "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
   # wget -O "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
   chmod +x "$local_path/$name"
   setup_progress "Downloaded $local_path/$name ..."
@@ -140,6 +123,7 @@ function get_ancillary_setup_scripts () {
   get_script /tmp create-backingfiles-partition.sh setup/pi
   get_script /tmp create-backingfiles.sh setup/pi
   get_script /tmp make-root-fs-readonly.sh setup/pi
+  get_script /root configure.sh setup/pi
 }
 
 function fix_cmdline_txt_modules_load ()
@@ -185,64 +169,6 @@ function create_usb_drive_backing_files () {
   fi
 }
 
-function configure_archive_scripts () {
-  setup_progress "Configuring the archive scripts..."
-
-  get_script /root/bin archiveloop run
-
-  if [ $RSYNC_ENABLE = true ]
-  then
-    get_script /root/bin archive-clips.sh run/rsync_archive
-    get_script /root/bin connect-archive.sh run/rsync_archive
-    get_script /root/bin disconnect-archive.sh run/rsync_archive
-  elif [ $RCLONE_ENABLE = true ]
-  then
-    get_script /root/bin archive-clips.sh run/rclone_archive
-    get_script /root/bin connect-archive.sh run/rclone_archive
-    get_script /root/bin disconnect-archive.sh run/rclone_archive
-  else
-    get_script /root/bin archive-clips.sh run/cifs_archive
-    get_script /root/bin connect-archive.sh run/cifs_archive
-    get_script /root/bin disconnect-archive.sh run/cifs_archive
-  fi
-
-  get_script /root/bin remountfs_rw run
-  
-  setup_progress "Configured the archive scripts."
-}
-
-function configure_pushover_scripts() {
-  get_script /root/bin send-pushover run
-}
-
-function configure_rc_local () {
-  if grep -q archiveloop /etc/rc.local
-  then
-    return
-  fi
-  
-  setup_progress "Configuring /etc/rc.local to run the archive scripts at startup..."
-  echo "#!/bin/bash -eu" > ~/rc.local
-  echo "archiveserver=\"${archiveserver}\"" >> ~/rc.local
-cat << 'EOF' >> ~/rc.local
-LOGFILE=/tmp/rc.local.log
-
-function log () {
-  echo "$( date )" >> "$LOGFILE"
-  echo "$1" >> "$LOGFILE"
-}
-
-log "Launching archival script..."
-/root/bin/archiveloop "$archiveserver" &
-log "All done"
-exit 0
-EOF
-
-  cat ~/rc.local > /etc/rc.local
-  rm ~/rc.local
-  setup_progress "Configured rc.local."
-}
-
 function configure_hostname () {
   # Headless image already has hostname set
   if [ ! $HEADLESS_SETUP = "true" ]
@@ -252,10 +178,12 @@ function configure_hostname () {
     local new_host_name="teslausb"
     cp /etc/hosts ~
     sed "s/raspberrypi/$new_host_name/g" ~/hosts > /etc/hosts
+    rm ~/hosts
 
     cp /etc/hostname ~
     sed "s/raspberrypi/$new_host_name/g" ~/hostname > /etc/hostname
     setup_progress "Configured the hostname."
+    rm ~/hostname
   fi
 }
 
@@ -263,82 +191,29 @@ function make_root_fs_readonly () {
   /tmp/make-root-fs-readonly.sh
 }
 
+export -f setup_progress
+export HEADLESS_SETUP
+
 headless_setup_populate_variables
 
 # If USE_LED_FOR_SETUP_PROGRESS = true. 
 setup_led_off
 
-# Flash for stage 2 headless (verify variables)
+# Flash for stage 2 headless (verify requested configuration)
 headless_setup_progress_flash 1
 
-setup_progress "Verifying environment variables..."
+setup_progress "Verifying that the requested configuration is valid..."
 
-RSYNC_ENABLE="${RSYNC_ENABLE:-false}"
-RCLONE_ENABLE="${RCLONE_ENABLE:-false}"
-
-if [ "$RSYNC_ENABLE" = true ]
-then
-  check_variable "RSYNC_USER"
-  check_variable "RSYNC_SERVER"
-  export archiveserver="$RSYNC_SERVER"
-  check_variable "RSYNC_PATH"
-elif [ "$RCLONE_ENABLE" = true ]
-then
-  check_variable "RCLONE_DRIVE"
-  check_variable "RCLONE_PATH"
-  # since it's a cloud hosted drive we'll just set this to google dns
-  export archiveserver="8.8.8.8"
-else # Else for now, TODO allow both for more redundancy?
-  check_variable "sharename"
-  check_variable "shareuser"
-  check_variable "sharepassword"
-  
-  export cifs_version="${cifs_version:-3.0}"
-fi
-
-check_variable "archiveserver"
-check_variable "campercent"
-
-check_pushover_enabled
+verify_configuration
 
 # Flash for Stage 3 headless (grab scripts)
 headless_setup_progress_flash 2
 
 setup_progress "Downloading additional setup scripts."
 
-if [ ! -e /root/bin ]
-then
-  mkdir /root/bin
-fi
-
-if [ "$RSYNC_ENABLE" = true ]
-then
-  get_script /root/bin verify-archive-configuration.sh run/rsync_archive
-  get_script /root/bin configure-archive.sh run/rsync_archive
-elif [ "$RCLONE_ENABLE" = true ]
-then
-  get_script /root/bin verify-archive-configuration.sh run/rclone_archive
-  get_script /root/bin configure-archive.sh run/rclone_archive
-else
-  get_script /root/bin verify-archive-configuration.sh run/cifs_archive
-  get_script /root/bin configure-archive.sh run/cifs_archive
-  get_script /root/bin write-archive-credentials-to.sh run/cifs_archive
-fi
-
-get_script /root/bin get-archiveserver-ip-address.sh run
-
-/root/bin/verify-archive-configuration.sh
-
-check_available_space
-
 get_ancillary_setup_scripts
 
 pushd ~
-
-
-configure_archive_scripts
-
-configure_pushover_scripts
 
 fix_cmdline_txt_modules_load
 
@@ -349,16 +224,17 @@ headless_setup_progress_flash 3
 
 create_usb_drive_backing_files
 
-/root/bin/configure-archive.sh
-
-configure_rc_local
-
 configure_hostname
 
 # Flash for stage 5 headless (Mark success, FS readonly)
 headless_setup_progress_flash 4
 
 headless_setup_mark_setup_success
+
+if [ "$CONFIGURE_ARCHIVING" = true ]
+then
+  /root/configure.sh
+fi
 
 make_root_fs_readonly
 
