@@ -197,12 +197,12 @@ setup_progress "Verifying environment variables..."
 
 check_variable "campercent"
 
+check_available_space
+
 # Flash for Stage 3 headless (grab scripts)
 headless_setup_progress_flash 2
 
 setup_progress "Downloading additional setup scripts."
-
-check_available_space
 
 get_ancillary_setup_scripts
 
