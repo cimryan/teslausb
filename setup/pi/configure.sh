@@ -124,7 +124,8 @@ function install_archive_scripts () {
     get_script $install_path write-archive-configs-to.sh $archive_module
 }
 
-function check_and_configure_pushover () {
+
+function check_pushover_configuration () {
     if [ ! -z "${pushover_enabled+x}" ]
     then
         if [ ! -n "${pushover_user_key+x}" ] || [ ! -n "${pushover_app_key+x}"  ]
@@ -138,15 +139,26 @@ function check_and_configure_pushover () {
         then
             echo "STOP: You're trying to setup Pushover, but didn't replace the default User and App key values."
             exit 1
-        else
-            echo "Enabling pushover"
-            echo "export pushover_enabled=true" > /root/.teslaCamPushoverCredentials
-            echo "export pushover_user_key=$pushover_user_key" >> /root/.teslaCamPushoverCredentials
-            echo "export pushover_app_key=$pushover_app_key" >> /root/.teslaCamPushoverCredentials
         fi
+    fi
+}
+
+function configure_pushover () {
+    if [ ! -z "${pushover_enabled+x}" ]
+    then
+		echo "Enabling pushover"
+		echo "export pushover_enabled=true" > /root/.teslaCamPushoverCredentials
+		echo "export pushover_user_key=$pushover_user_key" >> /root/.teslaCamPushoverCredentials
+		echo "export pushover_app_key=$pushover_app_key" >> /root/.teslaCamPushoverCredentials
     else
         echo "Pushover not configured."
     fi
+}
+
+function check_and_configure_pushover () {
+    check_pushover_configuration
+	
+	configure_pushover
 }
 
 function install_pushover_scripts() {
