@@ -145,7 +145,7 @@ function check_and_configure_pushover () {
             echo "export pushover_app_key=$pushover_app_key" >> /root/.teslaCamPushoverCredentials
         fi
     else
-            echo "Pushover not configured."
+        echo "Pushover not configured."
     fi
 }
 
