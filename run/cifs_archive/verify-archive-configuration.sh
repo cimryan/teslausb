@@ -3,7 +3,7 @@
 function check_archive_server_reachable () {
   echo "Verifying that the archive server $archiveserver is reachable..."
   local serverunreachable=false
-  ping -c 1 -w 1 "$archiveserver" 1>/dev/null 2>&1 || serverunreachable=true
+  hping3 -c 1 -S -p 445 "$archiveserver" 1>/dev/null 2>&1 || serverunreachable=true
 
   if [ "$serverunreachable" = true ]
   then
@@ -42,6 +42,13 @@ function check_archive_mountable () {
   
   umount "$test_mount_location"
 }
+
+function install_required_packages () {
+  apt-get -y --force-yes install hping3
+}
+
+install_required_packages
+
 
 ARCHIVE_SERVER_IP_ADDRESS="$( $INSTALL_DIR/lookup-ip-address.sh "$archiveserver" )"
 

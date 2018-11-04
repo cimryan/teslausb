@@ -15,6 +15,7 @@ apt-get -y --force-yes autoremove --purge
 # Replace log management with busybox (use logread if needed)
 echo "Installing ntp and busybox-syslogd..."
 apt-get -y --force-yes install ntp busybox-syslogd; dpkg --purge rsyslog
+
 echo "Configuring system..."
   
 # Add fastboot, noswap and/or ro to end of /boot/cmdline.txt
