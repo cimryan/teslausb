@@ -19,6 +19,8 @@ function check_archive_mountable () {
   
   local test_mount_location="/tmp/archivetestmount"
   
+  echo "Verifying that the archive share is mountable..."
+  
   if [ ! -e "$test_mount_location" ]
   then
     mkdir "$test_mount_location"
@@ -30,6 +32,8 @@ function check_archive_mountable () {
   /root/bin/write-archive-configs-to.sh "$tmp_credentials_file_path"
 
   local mount_failed=false
+  echo "Mount command-line: "
+  echo "mount -t cifs //$archive_server_ip_address/$sharename $test_mount_location -o vers=${cifs_version},credentials=${tmp_credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777"
   mount -t cifs "//$archive_server_ip_address/$sharename" "$test_mount_location" -o "vers=${cifs_version},credentials=${tmp_credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777" || mount_failed=true
 
   if [ "$mount_failed" = true ]
@@ -39,6 +43,8 @@ function check_archive_mountable () {
     echo "Other versions you can try are 2.0 and 1.0"
     exit 1
   fi
+  
+  echo "The archive share is mountable."
   
   umount "$test_mount_location"
 }
