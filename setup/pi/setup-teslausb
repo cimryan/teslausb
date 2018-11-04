@@ -191,10 +191,12 @@ function make_root_fs_readonly () {
   /tmp/make-root-fs-readonly.sh
 }
 
-function upgrade_packages () {
+function update_package_index () {
   setup_progress "Updating package index files..."
   apt-get update
-  
+}
+
+function upgrade_packages () {  
   setup_progress "Upgrading installed packages..."
   apt-get --assume-yes upgrade
 }
@@ -202,7 +204,7 @@ function upgrade_packages () {
 export -f setup_progress
 export HEADLESS_SETUP
 
-upgrade_packages
+update_package_index
 
 headless_setup_populate_variables
 
@@ -247,6 +249,8 @@ then
 fi
 
 make_root_fs_readonly
+
+upgrade_packages
 
 # If USE_LED_FOR_SETUP_PROGRESS = true. 
 setup_led_on
