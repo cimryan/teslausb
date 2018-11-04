@@ -6,12 +6,6 @@ HEADLESS_SETUP=${HEADLESS_SETUP:-false}
 USE_LED_FOR_SETUP_PROGRESS=true
 CONFIGURE_ARCHIVING=${CONFIGURE_ARCHIVING:-true}
 
-if ! [ $(id -u) = 0 ]
-then
-  setup_progress "STOP: Run sudo -i."
-  exit 1
-fi
-
 function setup_progress () {
   local setup_logfile=/boot/teslausb-headless-setup.log
   if [ $HEADLESS_SETUP = "true" ]
@@ -20,6 +14,12 @@ function setup_progress () {
   fi
     echo $1
 }
+
+if ! [ $(id -u) = 0 ]
+then
+  setup_progress "STOP: Run sudo -i."
+  exit 1
+fi
 
 function headless_setup_populate_variables () {
   # Pull in the conf file variables to make avail to this script and subscripts
