@@ -26,7 +26,9 @@ function fix_errors_in_mounted_files () {
 
 function archive_is_reachable () {
   local reachable=true
-  hping3 -c 1 -S -p 445 "$ARCHIVE_HOST_NAME" > /dev/null 2>&1 || reachable=false
+
+  /root/bin/archive-is-reachable.sh || reachable=false
+
   if [ "$reachable" = false ]
   then
     false
