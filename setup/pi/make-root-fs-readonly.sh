@@ -7,8 +7,6 @@ function append_cmdline_txt_param() {
   sed -i "s/\'/ ${toAppend}/g" /boot/cmdline.txt >/dev/null
 }
 
-echo "Updating package index files..."
-apt-get update
 echo "Removing unwanted packages..."
 apt-get remove -y --force-yes --purge triggerhappy logrotate dphys-swapfile
 apt-get -y --force-yes autoremove --purge
