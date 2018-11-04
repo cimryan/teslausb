@@ -5,6 +5,7 @@ BRANCH=${BRANCH:-master}
 HEADLESS_SETUP=${HEADLESS_SETUP:-false}
 USE_LED_FOR_SETUP_PROGRESS=true
 CONFIGURE_ARCHIVING=${CONFIGURE_ARCHIVING:-true}
+UPGRADE_PACKAGES=${UPGRADE_PACKAGES:-true}
 
 function setup_progress () {
   local setup_logfile=/boot/teslausb-headless-setup.log
@@ -191,8 +192,25 @@ function make_root_fs_readonly () {
   /tmp/make-root-fs-readonly.sh
 }
 
+function update_package_index () {
+  setup_progress "Updating package index files..."
+  apt-get update
+}
+
+function upgrade_packages () {
+  if [ "$UPGRADE_PACKAGES" = true ]
+  then
+    setup_progress "Upgrading installed packages..."
+    apt-get --assume-yes upgrade
+  else
+    setup_progress "Skipping package upgrade."
+  fi
+}
+
 export -f setup_progress
 export HEADLESS_SETUP
+
+update_package_index
 
 headless_setup_populate_variables
 
@@ -237,6 +255,8 @@ then
 fi
 
 make_root_fs_readonly
+
+upgrade_packages
 
 # If USE_LED_FOR_SETUP_PROGRESS = true. 
 setup_led_on
