@@ -27,7 +27,7 @@ function fix_errors_in_mounted_files () {
 function archive_is_reachable () {
   local reachable=true
 
-  /root/bin/archive-is-reachable.sh || reachable=false
+  /root/bin/archive-is-reachable.sh "$ARCHIVE_HOST_NAME" || reachable=false
 
   if [ "$reachable" = false ]
   then
