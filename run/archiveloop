@@ -234,7 +234,7 @@ function archive_clips () {
 
 function truncate_log () {
   local log_length=$( wc -l "$LOG_FILE" | cut -d' ' -f 1 )
-  if [ log_length -gt 10000 ]
+  if [ "$log_length" -gt 10000 ]
   then
     log "Truncating log..."
     local log_file2="${LOG_FILE}.2"
