@@ -3,7 +3,7 @@
 function check_archive_server_reachable () {
   echo "Verifying that the archive server $archiveserver is reachable..."
   local serverunreachable=false
-  ping -c 1 -w 1 "$archiveserver" 1>/dev/null 2>&1 || serverunreachable=true
+  hping3 -c 1 -S -p 445 "$archiveserver" 1>/dev/null 2>&1 || serverunreachable=true
 
   if [ "$serverunreachable" = true ]
   then
