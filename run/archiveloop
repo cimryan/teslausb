@@ -1,7 +1,7 @@
 #!/bin/bash -eu
 ARCHIVE_HOST_NAME="$1"
 
-export LOG_FILE=/tmp/archiveloop.log
+export LOG_FILE=/mutable/archiveloop.log
 
 export CAM_MOUNT=/mnt/cam
 export MUSIC_MOUNT=/mnt/music
@@ -232,6 +232,17 @@ function archive_clips () {
   fi
 }
 
+function truncate_log () {
+  local log_length=$( wc -l "$LOG_FILE" | cut -d' ' -f 1 )
+  if [ log_length -gt 10000 ]
+  then
+    log "Truncating log..."
+    local log_file2="${LOG_FILE}.2"
+    tail -n 10000 "$LOG_FILE" > "${LOG_FILE}.2"
+	mv "$log_file2" "$LOG_FILE"
+  fi
+}
+
 export -f mount_mountpoint
 export -f ensure_mountpoint_is_mounted
 export -f retry
@@ -260,5 +271,7 @@ do
 
   archive_clips
 
+  truncate_log
+  
   wait_for_archive_to_be_unreachable
 done
