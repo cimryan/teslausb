@@ -191,21 +191,8 @@ function make_root_fs_readonly () {
   /tmp/make-root-fs-readonly.sh
 }
 
-function install_required_packages () {
-  echo "Updating package index files..."
-  apt-get update
-  echo "Removing unwanted packages..."
-  apt-get remove -y --force-yes --purge triggerhappy logrotate dphys-swapfile
-  apt-get -y --force-yes autoremove --purge
-  # Replace log management with busybox (use logread if needed)
-  echo "Installing ntp, and busybox-syslogd..."
-  apt-get -y --force-yes install ntp busybox-syslogd hping3; dpkg --purge rsyslog
-}
-
 export -f setup_progress
 export HEADLESS_SETUP
-
-install_required_packages
 
 headless_setup_populate_variables
 

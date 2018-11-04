@@ -7,6 +7,15 @@ function append_cmdline_txt_param() {
   sed -i "s/\'/ ${toAppend}/g" /boot/cmdline.txt >/dev/null
 }
 
+echo "Updating package index files..."
+apt-get update
+echo "Removing unwanted packages..."
+apt-get remove -y --force-yes --purge triggerhappy logrotate dphys-swapfile
+apt-get -y --force-yes autoremove --purge
+# Replace log management with busybox (use logread if needed)
+echo "Installing ntp and busybox-syslogd..."
+apt-get -y --force-yes install ntp busybox-syslogd; dpkg --purge rsyslog
+
 echo "Configuring system..."
   
 # Add fastboot, noswap and/or ro to end of /boot/cmdline.txt
