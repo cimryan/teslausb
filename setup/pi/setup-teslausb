@@ -191,8 +191,18 @@ function make_root_fs_readonly () {
   /tmp/make-root-fs-readonly.sh
 }
 
+function upgrade_packages () {
+  setup_progress "Updating package index files..."
+  apt-get update
+  
+  setup_progress "Upgrading installed packages..."
+  apt-get --assume-yes upgrade
+}
+
 export -f setup_progress
 export HEADLESS_SETUP
+
+upgrade_packages
 
 headless_setup_populate_variables
 
