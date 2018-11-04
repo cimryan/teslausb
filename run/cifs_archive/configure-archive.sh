@@ -22,12 +22,6 @@ function configure_archive () {
   echo "Configured the archive."
 }
 
-function install_required_packages () {
-  apt-get -y --force-yes install hping3
-}
-
-install_required_packages
-
 ARCHIVE_SERVER_IP_ADDRESS="$( $INSTALL_DIR/lookup-ip-address.sh "$archiveserver" )"
 
 configure_archive "$ARCHIVE_SERVER_IP_ADDRESS"

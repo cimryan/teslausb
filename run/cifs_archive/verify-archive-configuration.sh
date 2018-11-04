@@ -43,6 +43,13 @@ function check_archive_mountable () {
   umount "$test_mount_location"
 }
 
+function install_required_packages () {
+  apt-get -y --force-yes install hping3
+}
+
+install_required_packages
+
+
 ARCHIVE_SERVER_IP_ADDRESS="$( $INSTALL_DIR/lookup-ip-address.sh "$archiveserver" )"
 
 check_archive_server_reachable
