@@ -1,10 +1,5 @@
 # teslausb
 
-## Meta
-This repo contains steps and scripts originally from [this thread on Reddit]( https://www.reddit.com/r/teslamotors/comments/9m9gyk/build_a_smart_usb_drive_for_your_tesla_dash_cam/)
-
-Many people in that thread suggested that the scripts be hosted on Github but the author didn't seem interested in making that happen. I've hosted the scripts here with his/her permission.
-
 ## Intro
 
 You can configure a Raspberry Pi Zero W so that your Tesla thinks it's a USB drive and will write dashcam footage to it. Since it's a computer:
@@ -13,6 +8,9 @@ You can configure a Raspberry Pi Zero W so that your Tesla thinks it's a USB dri
 * The Pi can automatically repair filesystem corruption produced by the Tesla's current failure to properly dismount the USB drives before cutting power to the USB ports.
 
 Archiving the clips can take from seconds to hours depending on how many clips you've saved and how strong the WiFi signal is in your Tesla. If you find that the clips aren't getting completely transferred before the car powers down after you park or before you leave you can use the Tesla app to turn on the Climate control. This will send power to the Raspberry Pi, allowing it to complete the archival operation.
+
+## Contributing
+You're welcome to contribute to this repo by submitting pull requests, creating issues, and joining this [Slack team](https://join.slack.com/t/smartusbdrivefortesla/shared_invite/enQtNDY4NDIzMTQ0NjA4LTdlYjFkOGE0Y2NkNjYyZTBiZTNmZTY4OGNhODMwZjg4NGNkZWU3MGY2ZDNhODIzZTAxODhhNzEzNDQ2OTFhMTI).
 
 ## Prerequisites
 
@@ -117,3 +115,8 @@ sudo -i
 /root/bin/remountfs_rw
 ```
 Then make whatever changes you need to. The next time the system boots the partitions will once again be read-only.
+
+## Meta
+This repo contains steps and scripts originally from [this thread on Reddit]( https://www.reddit.com/r/teslamotors/comments/9m9gyk/build_a_smart_usb_drive_for_your_tesla_dash_cam/)
+
+Many people in that thread suggested that the scripts be hosted on Github but the author didn't seem interested in making that happen. I've hosted the scripts here with his/her permission.
