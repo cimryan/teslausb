@@ -3,6 +3,8 @@
 REPO=${REPO:-cimryan}
 BRANCH=${BRANCH:-master}
 
+ARCHIVE_SYSTEM=${ARCHIVE_SYSTEM:-none}
+
 export INSTALL_DIR=${INSTALL_DIR:-/root/bin}
 
 function check_variable () {
@@ -60,50 +62,52 @@ EOF
 function check_archive_configs () {
     echo -n "Checking archive configs: "
 
-    RSYNC_ENABLE="${RSYNC_ENABLE:-false}"
-    RCLONE_ENABLE="${RCLONE_ENABLE:-false}"   
-    if [ "$RSYNC_ENABLE" = true ] && [ "$RCLONE_ENABLE" = true ]
-    then
-        echo "STOP: Can't enable rsync and rclone at the same time"
-        exit 1
-    fi
-
-    if [ "$RSYNC_ENABLE" = true ]
-    then
-        check_variable "RSYNC_USER"
-        check_variable "RSYNC_SERVER"
-        check_variable "RSYNC_PATH"
-        export archiveserver="$RSYNC_SERVER"
-        
-    elif [ "$RCLONE_ENABLE" = true ]
-    then
-        check_variable "RCLONE_DRIVE"
-        check_variable "RCLONE_PATH"
-        export archiveserver="8.8.8.8" # since it's a cloud hosted drive we'll just set this to google dns
-    else
-        # default to cifs
-        check_variable "sharename"
-        check_variable "shareuser"
-        check_variable "sharepassword"
-        check_variable "archiveserver"
-    fi
-
+    case "$ARCHIVE_SYSTEM" in
+        rsync)
+            check_variable "RSYNC_USER"
+            check_variable "RSYNC_SERVER"
+            check_variable "RSYNC_PATH"
+            export archiveserver="$RSYNC_SERVER"
+            ;;
+        rclone)
+            check_variable "RCLONE_DRIVE"
+            check_variable "RCLONE_PATH"
+            export archiveserver="8.8.8.8" # since it's a cloud hosted drive we'll just set this to google dns    
+            ;;
+        cifs)
+            check_variable "sharename"
+            check_variable "shareuser"
+            check_variable "sharepassword"
+            check_variable "archiveserver"
+            ;;
+        none)
+            ;;
+        *)
+            echo "STOP: Unrecognized archive system: $ARCHIVE_SYSTEM"
+            exit 1
+            ;;
+    esac
+    
     echo "done"
 }
 
 function get_archive_module () {
 
-    if [ "$RSYNC_ENABLE" = true ]
-    then
-        archive_module="run/rsync_archive"        
-    elif [ "$RCLONE_ENABLE" = true ]
-    then
-        archive_module="run/rclone_archive"
-    else
-        archive_module="run/cifs_archive"
-    fi
-
-    echo $archive_module
+    case "$ARCHIVE_SYSTEM" in
+        rsync)
+            echo "run/rsync_archive"
+            ;;
+        rclone)
+            echo "run/rclone_archive"
+            ;;
+        cifs)
+            echo "run/cifs_archive"
+            ;;
+        *)
+            echo "Internal error: Attempting to configure unrecognized archive system: $ARCHIVE_SYSTEM"
+            exit 1
+            ;;
+    esac
 }
 
 function install_archive_scripts () {
@@ -124,7 +128,6 @@ function install_archive_scripts () {
     get_script $install_path write-archive-configs-to.sh $archive_module
     get_script $install_path archive-is-reachable.sh $archive_module
 }
-
 
 function check_pushover_configuration () {
     if [ ! -z "${pushover_enabled+x}" ]
@@ -147,10 +150,10 @@ function check_pushover_configuration () {
 function configure_pushover () {
     if [ ! -z "${pushover_enabled+x}" ]
     then
-		echo "Enabling pushover"
-		echo "export pushover_enabled=true" > /root/.teslaCamPushoverCredentials
-		echo "export pushover_user_key=$pushover_user_key" >> /root/.teslaCamPushoverCredentials
-		echo "export pushover_app_key=$pushover_app_key" >> /root/.teslaCamPushoverCredentials
+        echo "Enabling pushover"
+        echo "export pushover_enabled=true" > /root/.teslaCamPushoverCredentials
+        echo "export pushover_user_key=$pushover_user_key" >> /root/.teslaCamPushoverCredentials
+        echo "export pushover_app_key=$pushover_app_key" >> /root/.teslaCamPushoverCredentials
     else
         echo "Pushover not configured."
     fi
@@ -158,14 +161,20 @@ function configure_pushover () {
 
 function check_and_configure_pushover () {
     check_pushover_configuration
-	
-	configure_pushover
+    
+    configure_pushover
 }
 
 function install_pushover_scripts() {
     local install_path="$1"
     get_script $install_path send-pushover run
 }
+
+if [ "$ARCHIVE_SYSTEM" = "none" ]
+then
+    echo "Skipping archive configuration."
+    exit 1
+fi
 
 if ! [ $(id -u) = 0 ]
 then

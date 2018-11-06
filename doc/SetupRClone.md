@@ -19,7 +19,7 @@ These instructions will speed you through the process with good defaults. If you
    ```
 1. Run these commands:
    ```
-   export RCLONE_ENABLE=true
+   export ARCHIVE_SYSTEM=rclone
    export RCLONE_DRIVE=gdrive
    export RCLONE_PATH=TeslaCam
     
@@ -86,8 +86,6 @@ Confirm that the directory `TeslaCam` is present. If not, start over.
 # Step 4: Exports
 Run this command to cause the setup processes which you'll resume in the main instructions to use rclone4pi:
 ```
-export RCLONE_ENABLE=true
+export ARCHIVE_SYSTEM=rclone
 ```
-**Note:** `RCLONE_ENABLE=true` is going to disable the default archive server. It also will **not** play nicely with `RSYNC_ENABLE=true` Perhaps future releases will allow both to be defined and function at the same time, for redundancy, but for now just pick one that you'll want the most.
-
 Now return to the section "Set up the USB storage functionality" in the [main instructions](../README.md).
