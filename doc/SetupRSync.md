@@ -30,20 +30,20 @@ Similar to sftp, rsync by default uses ssh to connect to a remote server and tra
 Run this command to cause the setup processes which you'll resume in the main instructions to use rsync:
 
 ```
-export RSYNC_ENABLE=true
+export ARCHIVE_SYSTEM=rsync
 export RSYNC_USER=<ftp username>
 export RSYNC_SERVER=<ftp IP/host>
 export RSYNC_PATH=<destination path to save in>
 ```
 Explanations for each:  
-* `RSYNC_ENABLE`: `true` for enabling rsync
+* `ARCHIVE_SYSTEM`: `rsync` for enabling rsync
 * `RSYNC_USER`: The user on the FTP server
 * `RSYNC_SERVER`: The IP address/hostname of the destination machine
 * `RSYNC_PATH`: The path on the destination machine where the files will be saved
 
 An example config is below:
 ```
-export RSYNC_ENABLE=true
+export ARCHIVE_SYSTEM=rsync
 export RSYNC_USER=pi
 export RSYNC_SERVER=192.168.1.254
 export RSYNC_PATH=/mnt/PIHDD/TeslaCam/

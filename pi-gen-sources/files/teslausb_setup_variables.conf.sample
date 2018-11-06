@@ -9,6 +9,7 @@
 ######################################################################
 
 # Default variables for CIFS (Windows/Mac file sharing) setup
+export ARCHIVE_SYSTEM=cifs
 export archiveserver=your_archive_name_or_ip
 export sharename=your_archive_share_name
 export shareuser=username
@@ -33,11 +34,3 @@ export HEADLESS_SETUP=true
 
 # Uncomment and change if you want a different branch than master
 # export BRANCH=master
-
-# Uncomment if you're using rsync/ssh for the archive. 
-# Note: RSYNC_ENABLE=true is going to disable the default archive server.
-#
-# export RSYNC_ENABLE=true
-# export RSYNC_USER=<ftp username>
-# export RSYNC_SERVER=<ftp IP/host>
-# export RSYNC_PATH=<destination path to save in>

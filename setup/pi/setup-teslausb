@@ -6,7 +6,7 @@ HEADLESS_SETUP=${HEADLESS_SETUP:-false}
 USE_LED_FOR_SETUP_PROGRESS=true
 CONFIGURE_ARCHIVING=${CONFIGURE_ARCHIVING:-true}
 UPGRADE_PACKAGES=${UPGRADE_PACKAGES:-true}
-campercent=${campercent:-90}
+export campercent=${campercent:-90}
 
 function setup_progress () {
   local setup_logfile=/boot/teslausb-headless-setup.log
