@@ -71,10 +71,12 @@ Follow the instructions corresponding to the technology you'd like to use to hos
 
 ### Optional: Allocate SD Card Storage
 Indicate how much, as a percentage, of the drive you want to allocate to recording dashcam footage by running this command:
-    ```
-    export campercent=<number>
-    ```
-    For example, using `export campercent=100` would allocate 100% of the space to recording footage from your car, and would not create a separate music partition. `export campercent=50` would allocate half of the space for a dashcam footage drive and allocates the other half to for a music storage drive. If you don't set this, the script will allocate 90% of the total space to the dashcam by default.
+
+```
+ export campercent=<number>
+```
+
+For example, using `export campercent=100` would allocate 100% of the space to recording footage from your car and would not create a separate music partition. `export campercent=50` would allocate half of the space for a dashcam footage drive and allocates the other half to for a music storage drive. If you don't set `campercent`, the script will allocate 90% of the total space to the dashcam by default.
 
 ### Optional: Configure push notification via Pushover
 If you'd like to receive a text message when your Pi finishes archiving clips follow these [Instructions](doc/ConfigureNotificationsForArchive.md).
