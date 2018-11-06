@@ -173,7 +173,7 @@ function install_pushover_scripts() {
 if [ "$ARCHIVE_SYSTEM" = "none" ]
 then
     echo "Skipping archive configuration."
-    exit 1
+    exit 0
 fi
 
 if ! [ $(id -u) = 0 ]
