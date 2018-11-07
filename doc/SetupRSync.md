@@ -14,7 +14,6 @@ Similar to sftp, rsync by default uses ssh to connect to a remote server and tra
 
 1. Run these commands to to generate an ssh key for the `root` user:
    ```
-   sudo -i
    ssh-keygen
    ```
 
