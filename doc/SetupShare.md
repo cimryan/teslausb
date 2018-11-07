@@ -22,7 +22,6 @@ Now, on the Pi:
 
 1. Run these commands, subsituting your values:
     ```
-    sudo -i
     export ARCHIVE_SYSTEM="cifs"
     export archiveserver="Nautilus"
     export sharename="SailfishCam"
