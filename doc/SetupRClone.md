@@ -13,7 +13,6 @@ These instructions will speed you through the process with good defaults. If you
 
 1. Run these commands. Specify the config name `gdrive` when prompted for the config name.
    ```
-   sudo -i
    curl -L https://raw.github.com/pageauc/rclone4pi/master/rclone-install.sh | bash
    rclone config
    ```
@@ -26,14 +25,10 @@ These instructions will speed you through the process with good defaults. If you
    rclone mkdir "$RCLONE_DRIVE:$RCLONE_PATH"
    rclone lsd "$RCLONE_DRIVE":
    ```
-1. If you didn't encounter any error messages and you see the `TeslaCam` directory listed return to the [Main Instructions](../README.md).
+1. If you didn't encounter any error messages and you see the `TeslaCam` directory listed, stay in your `sudo -i session` and return to the [Main Instructions](../README.md).
 
 # Detailed instructions
 ## Step 1: Install rclone4pi
-1. Run this command to enter a command shell for the root user.
-    ```
-    sudo -i
-    ```
 2. Run the following command to install rclone4pi:
     ```
     curl -L https://raw.github.com/pageauc/rclone4pi/master/rclone-install.sh | bash
@@ -88,4 +83,4 @@ Run this command to cause the setup processes which you'll resume in the main in
 ```
 export ARCHIVE_SYSTEM=rclone
 ```
-Now return to the section "Set up the USB storage functionality" in the [main instructions](../README.md).
+Now stay in your `sudo -i` session and return to the section "Set up the USB storage functionality" in the [main instructions](../README.md).
