@@ -33,6 +33,10 @@ These instructions will speed you through the process with good defaults. If you
 
 # Detailed instructions
 ## Step 1: Install rclone4pi
+1. Enter a root session on your Pi (if you haven't already):
+   ```
+   sudo -i
+   ```
 2. Run the following command to install rclone4pi:
     ```
     curl -L https://raw.github.com/pageauc/rclone4pi/master/rclone-install.sh | bash
