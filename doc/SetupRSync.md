@@ -12,6 +12,11 @@ This guide makes the following assumptions:
 # Step 1: Authentication
 Similar to sftp, rsync by default uses ssh to connect to a remote server and transfer files. This guide will use a generated ssh keypair, hence the first assumption above.
 
+1. Enter the root session (if you haven't already):
+   ```
+   sudo -i
+   ```
+
 1. Run these commands to to generate an ssh key for the `root` user:
    ```
    ssh-keygen
