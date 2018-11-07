@@ -11,7 +11,7 @@ You must perform these steps **after** getting a shell on the Pi and **before** 
 # Quick guide
 These instructions will speed you through the process with good defaults. If you encounter an error, or you want to use a different config name than `gdrive` or a different folder name than `TeslaCam`, follow the detailed instuctions, below.  
 
-1. Enter the root session if you haven't already
+1. Enter the root session if you haven't already:
    ```
    sudo -i
    ```
