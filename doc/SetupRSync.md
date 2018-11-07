@@ -47,4 +47,4 @@ export RSYNC_USER=pi
 export RSYNC_SERVER=192.168.1.254
 export RSYNC_PATH=/mnt/PIHDD/TeslaCam/
 ```
-Now return to the section "Set up the USB storage functionality" in the [main instructions](../README.md).
+Stay in the `sudo -i` session return to the section "Set up the USB storage functionality" in the [main instructions](../README.md).
