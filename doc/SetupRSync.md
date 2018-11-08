@@ -12,9 +12,13 @@ This guide makes the following assumptions:
 # Step 1: Authentication
 Similar to sftp, rsync by default uses ssh to connect to a remote server and transfer files. This guide will use a generated ssh keypair, hence the first assumption above.
 
-1. Run these commands to to generate an ssh key for the `root` user:
+1. Enter the root session (if you haven't already):
    ```
    sudo -i
+   ```
+
+1. Run these commands to to generate an ssh key for the `root` user:
+   ```
    ssh-keygen
    ```
 
@@ -48,4 +52,4 @@ export RSYNC_USER=pi
 export RSYNC_SERVER=192.168.1.254
 export RSYNC_PATH=/mnt/PIHDD/TeslaCam/
 ```
-Now return to the section "Set up the USB storage functionality" in the [main instructions](../README.md).
+Stay in the `sudo -i` session return to the section "Set up the USB storage functionality" in the [main instructions](../README.md).

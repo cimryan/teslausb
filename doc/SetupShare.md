@@ -4,6 +4,10 @@ Set up a share to host the archive on a computer on your home network. These ins
 It is recommended that you create a new user. Grant the user you'll be using read/write access to the share. These instructions will assume that the user you've created is named "sailfish" and that the password for this user is "pa$$w0rd".
 
 Now, on the Pi:
+1. Enter the root session (if you haven't already):
+   ```
+   sudo -i
+   ```
 1. Try to ping your archive server from the Pi. In this example the server is named `nautilus`.
     ```
     ping -c 3 nautilus
@@ -22,7 +26,6 @@ Now, on the Pi:
 
 1. Run these commands, subsituting your values:
     ```
-    sudo -i
     export ARCHIVE_SYSTEM="cifs"
     export archiveserver="Nautilus"
     export sharename="SailfishCam"
@@ -30,4 +33,4 @@ Now, on the Pi:
     export sharepassword="pa$$w0rd"
     ```
 
-Now return to the section "Set up the USB storage functionality" in the [main instructions](/README.md).
+Now stay in your `sudo -i` session and return to the section "Set up the USB storage functionality" in the [main instructions](/README.md).
