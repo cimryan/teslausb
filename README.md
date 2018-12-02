@@ -90,6 +90,17 @@ For example, using `export campercent=100` would allocate 100% of the space to r
 ### Optional: Configure push notification via Pushover
 If you'd like to receive a text message when your Pi finishes archiving clips follow these [Instructions](doc/ConfigureNotificationsForArchive.md).
 
+### Optional: Configure a hostname
+The default network hostname for the Pi will become `teslausb`.  If you want to have more than one TeslaUSB devices on your network (for example you have more than one Tesla in your houseold), then you can specify an alternate hostname for the Pi by running this command:
+
+```
+ export TESLAUSB_HOSTNAME=<new hostname>
+```
+
+For example, you could use `export TESLAUSB_HOSTNAME=teslausb-ModelX`
+
+Make sure that whatever you speicfy for the new hostname is compliant with the rules for DNS hostnames; for example underscore (_) is not allowed, but dash (-) is allowed.  Full rules are in RFC 1178 at https://tools.ietf.org/html/rfc1178
+
 ### Set up the USB storage functionality
 1. Run these commands:
     ```
@@ -103,7 +114,7 @@ If you'd like to receive a text message when your Pi finishes archiving clips fo
     ```
 1. Disconnect the Pi from the computer.
 
-On the next boot, the Pi hostname will become `teslausb`, so future `ssh` sessions will be `ssh pi@teslausb.local`. 
+On the next boot, the Pi hostname will become `teslausb`, so future `ssh` sessions will be `ssh pi@teslausb.local`.   If you specified your own hostname, be sure to use that name (for example `ssh pi@teslausb-ModelX.local`)
 
 Your Pi is now ready to be plugged into your Tesla. If you want to add music to the Pi, follow the instructions in the next section.
 

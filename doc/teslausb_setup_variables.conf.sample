@@ -23,6 +23,9 @@ export WIFIPASS=your_pass
 # If doing a headless (i.e. automatic) setup
 export HEADLESS_SETUP=true
 
+# Uncomment if you want to override the default hostname of "teslausb"
+# export TESLAUSB_HOSTNAME=teslausb-Model3
+
 # Uncomment if setting up Pushover push notifications 
 # export pushover_enabled=false
 # export pushover_user_key=user_key
