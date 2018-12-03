@@ -6,6 +6,7 @@ HEADLESS_SETUP=${HEADLESS_SETUP:-false}
 USE_LED_FOR_SETUP_PROGRESS=true
 CONFIGURE_ARCHIVING=${CONFIGURE_ARCHIVING:-true}
 UPGRADE_PACKAGES=${UPGRADE_PACKAGES:-true}
+TESLAUSB_HOSTNAME=${TESLAUSB_HOSTNAME:-teslausb}
 export campercent=${campercent:-90}
 
 function setup_progress () {
@@ -177,7 +178,7 @@ function configure_hostname () {
   then
     setup_progress "Configuring the hostname..."
 
-    local new_host_name="teslausb"
+    local new_host_name="$TESLAUSB_HOSTNAME"
     cp /etc/hosts ~
     sed "s/raspberrypi/$new_host_name/g" ~/hosts > /etc/hosts
     rm ~/hosts
