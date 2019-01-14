@@ -17,13 +17,25 @@ This is a streamlined process for setting up the Pi. You'll flash a preconfigure
 1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment varibles normally needed for manual setup (including archive info, Wifi, and push notifications (if desired). 
 A sample conf file is located in the `boot` folder on the SD card. 
 
+    The file should contain the entries below at a minimum, but **replace with your own values**. Be sure that your WiFi password is enclosed in single quotes, and that if it contains one or more single quote characters you replace each single quote character with a backslash followed by a single quote character.
 
-    The file should contain the entries below at a minimum, but **replace with your own values**:
+    For example, if your password were
+    ```
+    a'b
+    ```
+    you would have
+
+    ```
+    export sharepassword='a\'b'
+    ```
+
+    Example file:
+
     ```
     export archiveserver=Nautilus
     export sharename=SailfishCam
     export shareuser=sailfish
-    export sharepassword=pa$$w0rd
+    export sharepassword='pa$$w0rd'
     export campercent=100
     export SSID=your_ssid
     export WIFIPASS=your_wifi_password
@@ -38,7 +50,7 @@ A sample conf file is located in the `boot` folder on the SD card.
     # export pushover_app_key=app_key
     ```
 
-* Boot it in your Pi, give it a bit, watching for a series of flashes (2, 3, 4, 5) and then a reboot and/or the CAM/music drives to become available on your PC/Mac. The LED flash stages are:
+1. Boot it in your Pi, give it a bit, watching for a series of flashes (2, 3, 4, 5) and then a reboot and/or the CAM/music drives to become available on your PC/Mac. The LED flash stages are:
 
 | Stage (number of flashes)  |  Activity |
 |---|---|
@@ -47,11 +59,11 @@ A sample conf file is located in the `boot` folder on the SD card.
 | 4 | Create partition and files to store camera clips/music) |
 | 5 | Setup completed; remounting filesystems as read-only and rebooting |
 
+The Pi should be available for `ssh` at `pi@teslausb.local`, over Wifi (if automatic setup works) or USB networking (if it doesn't). It takes about 5 minutes, or more depending on network speed, etc. 
 
+If plugged into just a power source, or your car, give it a few minutes until the LED starts pulsing steadily which means the archive loop is running and you're good to go. 
 
-* The Pi should be available for `ssh` at `pi@teslausb.local`, over Wifi (if automatic setup works) or USB networking (if it doesn't). It takes about 5 minutes, or more depending on network speed, etc. 
-* If plugged into just a power source, or your car, give it a few minutes until the LED starts pulsing steadily which means the archive loop is running and you're good to go. 
-* You should see in `/boot` the `TESLAUSB_SETUP_FINISHED` and `WIFI_ENABLED` files as markers of headless setup success as well.
+You should see in `/boot` the `TESLAUSB_SETUP_FINISHED` and `WIFI_ENABLED` files as markers of headless setup success as well.
 
 ### For manual setup
 
